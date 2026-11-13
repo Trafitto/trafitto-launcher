@@ -1156,4 +1156,6 @@
     <string name="search_bar_glass_summary">Translucent background and thin border on the home screen (transparent style)</string>
     <string name="about_fork_title">Trafitto Launcher</string>
     <string name="about_fork_summary">Unofficial personal fork of Kvaesitso, not affiliated with the original project. Tap for the source code</string>
+    <string name="widget_pages">Widget pages</string>
+    <string name="widget_pages_summary">Pages of widgets to the right of the home screen (swipe left)</string>
 </resources>

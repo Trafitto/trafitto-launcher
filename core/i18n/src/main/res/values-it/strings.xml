@@ -979,4 +979,6 @@
     <string name="search_bar_glass_summary">Sfondo traslucido e bordo sottile sulla home (stile trasparente)</string>
     <string name="about_fork_title">Trafitto Launcher</string>
     <string name="about_fork_summary">Fork personale non ufficiale di Kvaesitso, non affiliata al progetto originale. Tocca per il codice sorgente</string>
+    <string name="widget_pages">Pagine widget</string>
+    <string name="widget_pages_summary">Pagine di widget a destra della home (swipe a sinistra)</string>
 </resources>

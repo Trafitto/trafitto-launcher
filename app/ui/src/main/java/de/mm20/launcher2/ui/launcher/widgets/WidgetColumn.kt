@@ -1,14 +1,18 @@
 package de.mm20.launcher2.ui.launcher.widgets
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
@@ -25,6 +29,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
@@ -41,8 +50,8 @@ import de.mm20.launcher2.ui.ktx.animateTo
 import de.mm20.launcher2.ui.launcher.sheets.WidgetPickerSheet
 import de.mm20.launcher2.ui.locals.LocalSnackbarHostState
 import de.mm20.launcher2.widgets.AppWidget
-import kotlinx.coroutines.launch
 import java.util.UUID
+import kotlinx.coroutines.launch
 
 @Composable
 fun WidgetColumn(
@@ -67,8 +76,8 @@ fun WidgetColumn(
         modifier = modifier.fillMaxWidth(),
     ) {
         val scope = rememberCoroutineScope()
+        val widgets by viewModel.widgets.collectAsState()
         Column {
-            val widgets by viewModel.widgets.collectAsState()
             val swapThresholds = remember(widgets) {
                 Array(widgets.size) { floatArrayOf(0f, 0f) }
             }
@@ -152,37 +161,27 @@ fun WidgetColumn(
         }
 
         val editButton by viewModel.editButton.collectAsState()
-        if (editMode || editButton == true) {
-            val title = stringResource(
-                if (editMode) R.string.widget_add_widget
-                else R.string.menu_edit_widgets,
+        // Empty screen or edit mode: a quiet dashed "add widget" slot; otherwise just a small pencil
+        if (editMode || editButton == true && widgets.isEmpty()) {
+            AddWidgetSlot(
+                onClick = {
+                    if (!editMode) onEditModeChange(true)
+                    addNewWidget = true
+                },
             )
-
-            Button(
+        } else if (editButton == true) {
+            IconButton(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(vertical = 8.dp),
-                contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                onClick = {
-                    if (!editMode) {
-                        onEditModeChange(true)
-                    } else {
-                        addNewWidget = true
-                    }
-                },
+                    .padding(top = 8.dp),
+                onClick = { onEditModeChange(true) },
             ) {
                 Icon(
-                    modifier = Modifier
-                        .padding(end = ButtonDefaults.IconSpacing)
-                        .size(ButtonDefaults.IconSize),
-                    painter = painterResource(
-                        if (editMode) R.drawable.add_20px else R.drawable.edit_20px,
-                    ),
-                    contentDescription = null,
+                    painter = painterResource(R.drawable.edit_20px),
+                    contentDescription = stringResource(R.string.menu_edit_widgets),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text(title)
             }
-
         }
     }
 
@@ -194,4 +193,42 @@ fun WidgetColumn(
             addNewWidget = false
         },
     )
+}
+
+@Composable
+private fun AddWidgetSlot(onClick: () -> Unit) {
+    val shape = RoundedCornerShape(24.dp)
+    val outline = MaterialTheme.colorScheme.outline
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .height(72.dp)
+            .clip(shape)
+            .drawBehind {
+                drawRoundRect(
+                    color = outline,
+                    cornerRadius = CornerRadius(24.dp.toPx()),
+                    style = Stroke(
+                        width = 1.5.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 6.dp.toPx())),
+                    ),
+                )
+            }
+            .clickable(onClick = onClick),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.add_20px),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = stringResource(R.string.widget_add_widget),
+            modifier = Modifier.padding(start = 8.dp),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
 }

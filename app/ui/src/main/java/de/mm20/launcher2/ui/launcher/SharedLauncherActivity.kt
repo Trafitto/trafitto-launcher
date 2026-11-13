@@ -67,8 +67,8 @@ import de.mm20.launcher2.ui.launcher.scaffold.components.RecentsComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.ScreenOffComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.SearchComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.SecretComponent
+import de.mm20.launcher2.ui.launcher.scaffold.components.WidgetPagesComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.WidgetsComponent
-import de.mm20.launcher2.ui.launcher.scaffold.components.WidgetsNewsComponent
 import de.mm20.launcher2.ui.launcher.sheets.LauncherBottomSheetManager
 import de.mm20.launcher2.ui.launcher.sheets.LauncherBottomSheets
 import de.mm20.launcher2.ui.launcher.sheets.LocalBottomSheetManager
@@ -370,13 +370,13 @@ abstract class SharedLauncherActivity(
                                             gestures.swipeDownApp,
                                             Gesture.SwipeDown,
                                         ),
-                                        // Widgets + Google News on the right, unless swipe left is set to something else
+                                        // Widget pages on the right, unless swipe left is set to something else
                                         swipeLeft = getScaffoldGesture(
                                             gestures.swipeLeftAction,
                                             gestures.swipeLeftApp,
                                             Gesture.SwipeLeft,
                                         ) ?: ScaffoldGesture(
-                                            component = WidgetsNewsComponent(this@SharedLauncherActivity),
+                                            component = WidgetPagesComponent,
                                             animation = ScaffoldAnimation.Push,
                                         ),
                                         // Calendar on the left, unless swipe right is set to something else

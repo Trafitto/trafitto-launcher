@@ -9,17 +9,13 @@
 > *Fork personale e non ufficiale di Kvaesitso, personalizzata per uso mio. Non è affiliata al
 > progetto originale: tutto il merito del launcher va a MM2-0 e ai contributori di Kvaesitso.*
 
-What this fork changes:
+## Changes from Kvaesitso
 
-- **Calendar on the left** (swipe right): a full screen week agenda. Swipe the day strip to change
-  week, scroll the days vertically
-- **Widgets on the right** (swipe left): an empty widget screen for app widgets, and Google News one
-  swipe further (the Google app, since the Google feed can't be embedded in a non-system launcher)
-- **Up to 6 pinned apps** with name and icon on the home screen, with their own settings: position,
-  text and icon size, icon shape, black and white icons, spacing...
-- **Search bar** at the bottom, opened by swiping up, with a rounded "glass" style and adjustable
-  height, width and corners
-- Renamed to *Trafitto Launcher* (the package name is unchanged)
+- Renamed to **Trafitto Launcher** (package name unchanged)
+- **Swipe right:** full screen week calendar
+- **Swipe left:** widget pages for app widgets (one by default, more from the settings)
+- **Home:** up to 6 pinned apps with name and icon, with their own look settings
+- **Search bar:** at the bottom, opened by swiping up, rounded and resizable
 
 Licensed under the GPL-3.0, like the original. Everything below is the original Kvaesitso readme.
 
