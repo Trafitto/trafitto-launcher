@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import de.mm20.launcher2.search.AppShortcut
 import de.mm20.launcher2.search.Application
 import de.mm20.launcher2.search.Article
@@ -68,6 +70,7 @@ import de.mm20.launcher2.ui.launcher.search.calendar.CalendarItemGridPopup
 import de.mm20.launcher2.ui.launcher.search.common.SearchableItemVM
 import de.mm20.launcher2.ui.launcher.search.contacts.ContactItemGridPopup
 import de.mm20.launcher2.ui.launcher.search.files.FileItemGridPopup
+import de.mm20.launcher2.ui.launcher.search.SearchVM
 import de.mm20.launcher2.ui.launcher.search.listItemViewModel
 import de.mm20.launcher2.ui.launcher.search.location.LocationItemGridPopup
 import de.mm20.launcher2.ui.launcher.search.shortcut.ShortcutItemGridPopup
@@ -77,6 +80,7 @@ import de.mm20.launcher2.ui.launcher.transitions.EnterHomeTransitionParams
 import de.mm20.launcher2.ui.launcher.transitions.HandleEnterHomeTransition
 import de.mm20.launcher2.ui.locals.LocalGridSettings
 import de.mm20.launcher2.ui.locals.LocalWindowSize
+import de.mm20.launcher2.ui.modifier.pressScale
 import de.mm20.launcher2.ui.overlays.Overlay
 import de.mm20.launcher2.ui.theme.transparency.transparency
 import kotlin.math.pow
@@ -104,6 +108,11 @@ fun GridItem(
 
     val launchOnPress = !item.preferDetailsOverLaunch
     val hapticFeedback = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
+    // Enter launches the highlighted item: remember where its icon is
+    val searchVM: SearchVM? = if (highlight) viewModel() else null
+    // Becoming highlighted doesn't move the icon, so onGloballyPositioned alone may not report it
+    if (searchVM != null) SideEffect { searchVM.bestMatchBounds = item.key to bounds }
 
     LaunchedEffect(showPopup) {
         if (showPopup) viewModel.requestUpdatedSearchable(context)
@@ -123,8 +132,9 @@ fun GridItem(
                     showPopup = true
                 },
                 indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) then if (!showLabels) Modifier.aspectRatio(1f) else Modifier,
+                interactionSource = interactionSource,
+            )
+            .pressScale(interactionSource) then if (!showLabels) Modifier.aspectRatio(1f) else Modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -175,6 +185,7 @@ fun GridItem(
                         bounds = it
                             .boundsInWindow()
                             .roundToIntRect()
+                        searchVM?.bestMatchBounds = item.key to bounds
                     } then
                         if (highlight) Modifier.background(
                             MaterialTheme.colorScheme.surface,

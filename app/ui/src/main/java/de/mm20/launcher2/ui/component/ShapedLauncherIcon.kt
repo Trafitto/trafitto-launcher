@@ -10,6 +10,7 @@ import android.graphics.RectF
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.icu.number.NumberFormatter
 import android.icu.text.NumberFormat
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -51,6 +52,7 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.graphics.toArgb
@@ -128,6 +130,14 @@ fun ShapedLauncherIcon(
         currentBitmap = currentIcon?.render(renderSettings)
     }
 
+    // Icons that weren't cached fade in instead of popping in; cached ones show at once.
+    // ponytail: the slot stays empty while loading (the placeholder is faded out with it)
+    val iconAlpha = remember { Animatable(if (currentBitmap != null) 1f else 0f) }
+    val fadeInSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    LaunchedEffect(currentBitmap != null) {
+        if (currentBitmap != null) iconAlpha.animateTo(1f, fadeInSpec)
+    }
+
     if (_icon is DynamicLauncherIcon) {
         val date = Instant.ofEpochMilli(LocalTime.current).atZone(ZoneId.systemDefault())
         LaunchedEffect(date.dayOfYear, _icon) {
@@ -141,7 +151,8 @@ fun ShapedLauncherIcon(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .graphicsLayer { alpha = iconAlpha.value },
             contentAlignment = Alignment.Center
         ) {
             val bmp = currentBitmap

@@ -1,11 +1,14 @@
 package de.mm20.launcher2.ui.launcher.search
 
+import android.app.Activity
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.unit.IntRect
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.mm20.launcher2.devicepose.DevicePoseProvider
@@ -140,10 +143,23 @@ class SearchVM : ViewModel(), KoinComponent {
         search("", forceRestart = true)
     }
 
+    /**
+     * Key and window bounds of the highlighted grid icon, so that launching with enter
+     * scales the app up from that icon like a tap does.
+     */
+    var bestMatchBounds: Pair<String, IntRect>? = null
+
     fun launchBestMatchOrAction(context: Context) {
         val bestMatch = bestMatch.value
         if (bestMatch is SavableSearchable) {
-            bestMatch.launch(context, null)
+            val bounds = bestMatchBounds?.takeIf { it.first == bestMatch.key }?.second
+            val view = (context as? Activity)?.window?.decorView
+            val options = if (bounds != null && view != null) {
+                ActivityOptionsCompat.makeScaleUpAnimation(
+                    view, bounds.left, bounds.top, bounds.width, bounds.height
+                ).toBundle()
+            } else null
+            bestMatch.launch(context, options)
             favoritesService.reportLaunch(bestMatch)
             return
         } else if (bestMatch is SearchAction) {
