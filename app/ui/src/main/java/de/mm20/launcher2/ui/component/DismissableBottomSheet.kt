@@ -7,6 +7,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -209,6 +210,9 @@ fun <T> DismissableBottomSheet(
                     modifier = Modifier
                         .statusBarsPadding()
                         .focusRequester(focusRequester)
+                        // The sheet takes the focus itself: otherwise it went to its first text
+                        // field and the keyboard opened right away (e.g. the widget picker search)
+                        .focusable()
                         .nestedScroll(
                             remember(draggableState) {
                                 BottomSheetNestedScrollConnection(

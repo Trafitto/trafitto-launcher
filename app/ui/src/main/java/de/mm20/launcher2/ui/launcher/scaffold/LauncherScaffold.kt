@@ -944,11 +944,7 @@ internal class LauncherScaffoldState(
                 if (config.searchBarPosition == SearchBarPosition.Bottom) maxSearchBarOffset else -maxSearchBarOffset,
                 tween(500)
             ) {
-                if (isSettledOnSecondaryPage) {
-                    secondaryPageSearchBarOffset = this.value
-                } else {
-                    homePageSearchBarOffset = this.value
-                }
+                setCurrentSearchBarOffset(this.value)
             }
         }
     }
@@ -967,11 +963,19 @@ internal class LauncherScaffoldState(
             0f,
             tween(500)
         ) {
-            if (isSettledOnSecondaryPage) {
-                secondaryPageSearchBarOffset = this.value
-            } else {
-                homePageSearchBarOffset = this.value
-            }
+            setCurrentSearchBarOffset(this.value)
+        }
+    }
+
+    /**
+     * Moves the offset the search bar is drawn with: a page without its own search bar (e.g. the
+     * widget pages) keeps the home one, see [currentSearchBarOffset].
+     */
+    private fun setCurrentSearchBarOffset(value: Float) {
+        if (isSettledOnSecondaryPage && currentComponent?.showSearchBar != false) {
+            secondaryPageSearchBarOffset = value
+        } else {
+            homePageSearchBarOffset = value
         }
     }
 }
@@ -1720,18 +1724,18 @@ private fun Modifier.searchBarAnimation(
     val anim = state.currentAnimation
 
     val modifier =
-        if (component?.showSearchBar == false && config.searchBarStyle == SearchBarStyle.Hidden) {
-            Modifier.alpha(0f)
-        } else if (config.searchBarStyle == SearchBarStyle.Hidden) {
+        if (config.searchBarStyle == SearchBarStyle.Hidden) {
             // Progress and insets (they include the keyboard) read at layout time, not in composition
             Modifier.offset {
                 val systemBarInset =
                     if (config.searchBarPosition == SearchBarPosition.Top) insets.calculateTopPadding()
                     else insets.calculateBottomPadding()
-                val progress = if (anim == ScaffoldAnimation.Rubberband) {
-                    (state.currentProgress * 2f).coerceAtMost(1f)
-                } else {
-                    state.currentProgress
+                val progress = when {
+                    // Stays off screen like on home: with alpha 0 it was invisible but still took
+                    // the taps meant for what's under it (e.g. "Add widget" on the widget pages)
+                    component?.showSearchBar == false -> 0f
+                    anim == ScaffoldAnimation.Rubberband -> (state.currentProgress * 2f).coerceAtMost(1f)
+                    else -> state.currentProgress
                 }
                 val offset = offsetFactor * (1 - progress).pow(2) * (128.dp + systemBarInset)
                 IntOffset(0, offset.roundToPx())
