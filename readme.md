@@ -13,11 +13,14 @@
 
 ## Changes from Kvaesitso
 
-- Renamed to **Trafitto Launcher** (package name unchanged)
+- Renamed to **Trafitto Launcher**, with its own logo and package name (`it.trafitto.launcher`), so it
+  installs next to the official Kvaesitso
 - **Swipe right:** full screen week calendar
 - **Swipe left:** widget pages for app widgets (one by default, more from the settings)
 - **Home:** up to 6 pinned apps with name and icon, with their own look settings
 - **Search bar:** at the bottom, opened by swiping up, rounded and resizable
+- **Smoother:** keyboard opens after the search page slides in, fewer recompositions during
+  transitions, charging animation off by default
 
 Licensed under the GPL-3.0, like the original. Everything below is the original Kvaesitso readme.
 

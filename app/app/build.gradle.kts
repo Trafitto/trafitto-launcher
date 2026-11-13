@@ -30,7 +30,8 @@ android {
         }
     }
     defaultConfig {
-        applicationId = "de.mm20.launcher2"
+        // Own id: installs next to the official Kvaesitso (de.mm20.launcher2.*)
+        applicationId = "it.trafitto.launcher"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = System.getenv("VERSION_CODE_OVERRIDE")?.toIntOrNull() ?: 2026091500
@@ -49,7 +50,6 @@ android {
 
     buildTypes {
         release {
-            applicationIdSuffix = ".release"
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

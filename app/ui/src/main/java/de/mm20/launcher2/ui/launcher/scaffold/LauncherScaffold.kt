@@ -69,6 +69,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -1080,18 +1081,29 @@ internal fun LauncherScaffold(
             else searchBarLook.height.dp + 56.dp
         )
 
-        val isFilterBarVisible =
-            (state.currentProgress == 1f && state.currentComponent is SearchComponent ||
-                    state.currentProgress == 0f && config.homeComponent is SearchComponent) &&
-                    filterBar && WindowInsets.isImeVisible
+        // Values that change on every animation frame are read through derived states and
+        // lambdas: reading them here recomposed the whole scaffold (home and search included)
+        // on every frame of every transition and keyboard animation.
+        val isSearchSettled by remember(state, config) {
+            derivedStateOf {
+                state.currentProgress == 1f && state.currentComponent is SearchComponent ||
+                        state.currentProgress == 0f && config.homeComponent is SearchComponent
+            }
+        }
+        val isFilterBarVisible = isSearchSettled && filterBar && WindowInsets.isImeVisible
 
-
-        val imeCurrent = WindowInsets.ime.getBottom(LocalDensity.current).toFloat()
-        val imeSource = WindowInsets.imeAnimationSource.getBottom(LocalDensity.current).toFloat()
-        val imeTarget = WindowInsets.imeAnimationTarget.getBottom(LocalDensity.current).toFloat()
-        val imeProgress = (imeCurrent /
-                (imeSource - imeTarget).absoluteValue.coerceAtLeast(imeCurrent))
-            .coerceIn(0f, 1f)
+        val imeInsets = WindowInsets.ime
+        val imeSourceInsets = WindowInsets.imeAnimationSource
+        val imeTargetInsets = WindowInsets.imeAnimationTarget
+        val imeProgress by remember(imeInsets, imeSourceInsets, imeTargetInsets, density) {
+            derivedStateOf {
+                val imeCurrent = imeInsets.getBottom(density).toFloat()
+                val imeSource = imeSourceInsets.getBottom(density).toFloat()
+                val imeTarget = imeTargetInsets.getBottom(density).toFloat()
+                (imeCurrent / (imeSource - imeTarget).absoluteValue.coerceAtLeast(imeCurrent))
+                    .coerceIn(0f, 1f)
+            }
+        }
 
         val filterBarHeight by animateDpAsState(if (isFilterBarVisible) imeProgress * 50.dp else 0.dp)
 
@@ -1598,12 +1610,15 @@ private fun Modifier.secondaryPageAnimation(
     val dir = state.currentGesture ?: return this
     val component = state.currentComponent ?: return this
 
-    val background =
-        if (component.drawBackground) backgroundColor.copy(alpha = backgroundColor.alpha * state.currentProgress) else Color.Transparent
+    // Drawn from the progress at draw time, not in composition (see LauncherScaffold)
+    val background = Modifier.drawBehind {
+        if (component.drawBackground) {
+            drawRect(backgroundColor.copy(alpha = backgroundColor.alpha * state.currentProgress))
+        }
+    }
 
     if (state.currentAnimation == ScaffoldAnimation.Rubberband) {
-        return this then Modifier
-            .background(background)
+        return this then background
             .graphicsLayer {
                 translationX =
                     if (dir.orientation == Orientation.Horizontal) state.currentOffset.x else 0f
@@ -1620,8 +1635,7 @@ private fun Modifier.secondaryPageAnimation(
 
     }
     if (state.currentAnimation == ScaffoldAnimation.ZoomIn) {
-        return this then Modifier
-            .background(background)
+        return this then background
             .graphicsLayer {
                 scaleX = 1f - ((1f - state.currentProgress) * 0.03f)
                 scaleY = 1f - ((1f - state.currentProgress) * 0.03f)
@@ -1646,33 +1660,33 @@ private fun Modifier.secondaryPageAnimation(
             )
         }
         .composed {
-            val shape = MaterialTheme.shapes.extraLarge.let {
-                if (state.currentProgress < 0.95f) {
-                    it
-                } else {
-                    val density = LocalDensity.current
-                    val p = 1f - ((state.currentProgress - 0.95f) * 20f).coerceIn(0f, 1f)
-                    if (it is CutCornerShape) {
-                        CutCornerShape(
-                            topStart = it.topStart.toPx(state.size, density) * p,
-                            topEnd = it.topEnd.toPx(state.size, density) * p,
-                            bottomEnd = it.bottomEnd.toPx(state.size, density) * p,
-                            bottomStart = it.bottomStart.toPx(state.size, density) * p,
-                        )
-                    } else {
-                        RoundedCornerShape(
-                            topStart = it.topStart.toPx(state.size, density) * p,
-                            topEnd = it.topEnd.toPx(state.size, density) * p,
-                            bottomEnd = it.bottomEnd.toPx(state.size, density) * p,
-                            bottomStart = it.bottomStart.toPx(state.size, density) * p,
-                        )
-                    }
-                }
-            }
-
+            val baseShape = MaterialTheme.shapes.extraLarge
+            val density = LocalDensity.current
             Modifier
-                .background(background, shape)
-                .clip(shape)
+                .graphicsLayer {
+                    shape = if (state.currentProgress < 0.95f) {
+                        baseShape
+                    } else {
+                        val p = 1f - ((state.currentProgress - 0.95f) * 20f).coerceIn(0f, 1f)
+                        if (baseShape is CutCornerShape) {
+                            CutCornerShape(
+                                topStart = baseShape.topStart.toPx(state.size, density) * p,
+                                topEnd = baseShape.topEnd.toPx(state.size, density) * p,
+                                bottomEnd = baseShape.bottomEnd.toPx(state.size, density) * p,
+                                bottomStart = baseShape.bottomStart.toPx(state.size, density) * p,
+                            )
+                        } else {
+                            RoundedCornerShape(
+                                topStart = baseShape.topStart.toPx(state.size, density) * p,
+                                topEnd = baseShape.topEnd.toPx(state.size, density) * p,
+                                bottomEnd = baseShape.bottomEnd.toPx(state.size, density) * p,
+                                bottomStart = baseShape.bottomStart.toPx(state.size, density) * p,
+                            )
+                        }
+                    }
+                    clip = true
+                }
+                .then(background)
         }
 }
 
@@ -1686,26 +1700,25 @@ private fun Modifier.searchBarAnimation(
     val component = state.currentComponent
     val anim = state.currentAnimation
 
-    val progress = if (anim == ScaffoldAnimation.Rubberband) {
-        (state.currentProgress * 2f).coerceAtMost(1f)
-    } else {
-        state.currentProgress
-    }
-
-    val systemBarInset =
-        if (config.searchBarPosition == SearchBarPosition.Top) insets.calculateTopPadding() else insets.calculateBottomPadding()
-
-    val offset = if (config.searchBarStyle == SearchBarStyle.Hidden) {
-        offsetFactor * (1 - progress).pow(2) * (128.dp + systemBarInset)
-    } else {
-        0.dp
-    }
-
     val modifier =
         if (component?.showSearchBar == false && config.searchBarStyle == SearchBarStyle.Hidden) {
             Modifier.alpha(0f)
+        } else if (config.searchBarStyle == SearchBarStyle.Hidden) {
+            // Progress and insets (they include the keyboard) read at layout time, not in composition
+            Modifier.offset {
+                val systemBarInset =
+                    if (config.searchBarPosition == SearchBarPosition.Top) insets.calculateTopPadding()
+                    else insets.calculateBottomPadding()
+                val progress = if (anim == ScaffoldAnimation.Rubberband) {
+                    (state.currentProgress * 2f).coerceAtMost(1f)
+                } else {
+                    state.currentProgress
+                }
+                val offset = offsetFactor * (1 - progress).pow(2) * (128.dp + systemBarInset)
+                IntOffset(0, offset.roundToPx())
+            }
         } else {
-            Modifier.offset(y = offset)
+            Modifier
         }
 
     return this then (component?.searchBarModifier(state, modifier)

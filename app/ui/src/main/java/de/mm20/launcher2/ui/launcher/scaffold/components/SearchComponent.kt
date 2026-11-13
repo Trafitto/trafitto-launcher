@@ -108,8 +108,10 @@ internal class SearchComponent(
         lazyListState.scrollToItem(0, 0)
     }
 
-    override fun onPreActivate(state: LauncherScaffoldState) {
-        super.onPreActivate(state)
+    override suspend fun onActivate(state: LauncherScaffoldState) {
+        super.onActivate(state)
+        // Keyboard once the page is in place: running both animations together made about a
+        // quarter of the frames late when opening search
         if (openKeyboard) {
             state.isSearchBarFocused = true
         }
