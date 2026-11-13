@@ -61,6 +61,13 @@ class HomescreenSettingsScreenVM(
         uiSettings.setWallpaperBlurRadius(blurWallpaperRadius)
     }
 
+    val widgetPages = uiSettings.widgetPages
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+
+    fun setWidgetPages(widgetPages: Int) {
+        uiSettings.setWidgetPages(widgetPages)
+    }
+
     val searchBarLook = uiSettings.searchBarLook
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), SearchBarLook())
 

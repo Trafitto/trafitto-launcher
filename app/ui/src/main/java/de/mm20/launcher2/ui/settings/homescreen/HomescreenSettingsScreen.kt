@@ -105,6 +105,28 @@ fun HomescreenSettingsScreen() {
             PreferenceCategory(
                 title = stringResource(id = R.string.preference_category_widgets)
             ) {
+                val widgetPages by viewModel.widgetPages.collectAsStateWithLifecycle()
+                Preference(
+                    title = { Text(stringResource(R.string.widget_pages)) },
+                    summary = { Text(stringResource(R.string.widget_pages_summary)) },
+                    controls = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = { viewModel.setWidgetPages(widgetPages - 1) },
+                                enabled = widgetPages > 1,
+                            ) {
+                                Icon(painterResource(R.drawable.remove_24px), null)
+                            }
+                            Text(
+                                widgetPages.toString(),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            IconButton(onClick = { viewModel.setWidgetPages(widgetPages + 1) }) {
+                                Icon(painterResource(R.drawable.add_24px), null)
+                            }
+                        }
+                    },
+                )
                 Preference(
                     title = stringResource(R.string.preference_screen_clockwidget),
                     summary = stringResource(R.string.preference_screen_clockwidget_summary),

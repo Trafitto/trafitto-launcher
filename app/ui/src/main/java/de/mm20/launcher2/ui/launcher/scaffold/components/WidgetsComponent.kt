@@ -47,9 +47,10 @@ import de.mm20.launcher2.ui.R
 import de.mm20.launcher2.ui.launcher.scaffold.LauncherScaffoldState
 import de.mm20.launcher2.ui.launcher.widgets.WidgetColumn
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 internal class WidgetsComponent(
-    private val target: WidgetScreenTarget
+    private val parentId: UUID
 ) : ScaffoldComponent() {
 
     companion object {
@@ -57,15 +58,20 @@ internal class WidgetsComponent(
          * Cache for widget component instances.
          * Components are created lazily only when needed.
          */
-        private val componentCache = mutableMapOf<WidgetScreenTarget, WidgetsComponent>()
+        private val componentCache = mutableMapOf<UUID, WidgetsComponent>()
 
         /**
          * Get or create a WidgetsComponent for the given target.
          * This ensures we reuse the same instance for each target.
          */
-        fun forTarget(target: WidgetScreenTarget): WidgetsComponent {
-            return componentCache.getOrPut(target) {
-                WidgetsComponent(target)
+        fun forTarget(target: WidgetScreenTarget): WidgetsComponent = forParent(target.id)
+
+        /**
+         * Same, for any widget screen, e.g. the extra widget pages to the right of the home screen.
+         */
+        fun forParent(parentId: UUID): WidgetsComponent {
+            return componentCache.getOrPut(parentId) {
+                WidgetsComponent(parentId)
             }
         }
     }
@@ -126,7 +132,7 @@ internal class WidgetsComponent(
                     scope.launch { state.lock(hideSearchBar = true) }
                     editMode = it
                 },
-                parentId = target.id.toString(),
+                parentId = parentId.toString(),
             )
         }
         if (editMode) {

@@ -64,6 +64,8 @@ data class LauncherSettingsData internal constructor(
     val homeScreenDock: Boolean = false,
     val homeScreenDockRows: Int = 1,
     val homeApps: HomeAppsSettings = HomeAppsSettings(),
+    /** Widget pages to the right of the home screen (swipe left) */
+    val widgetPages: Int = 1,
     val homeScreenWidgets: Boolean = false,
 
     val favoritesEnabled: Boolean = true,

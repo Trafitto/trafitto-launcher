@@ -246,6 +246,15 @@ class UiSettings internal constructor(
         }
     }
 
+    val widgetPages
+        get() = launcherDataStore.data.map { it.widgetPages }.distinctUntilChanged()
+
+    fun setWidgetPages(widgetPages: Int) {
+        launcherDataStore.update {
+            it.copy(widgetPages = widgetPages.coerceAtLeast(1))
+        }
+    }
+
     val homeApps
         get() = launcherDataStore.data.map { it.homeApps }.distinctUntilChanged()
 
