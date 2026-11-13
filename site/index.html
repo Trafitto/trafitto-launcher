@@ -110,13 +110,15 @@
   /* Screenshots from the emulator, in a phone bezel */
   .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 0 0 2.5rem; }
   .shots figure { margin: 0; }
-  .shots img {
+  .shots img, .demo video {
     display: block; width: 100%; height: auto;
     border: 5px solid #16171B; border-radius: 1.5rem;
     background: #16171B;
     box-shadow: 0 0 0 1px var(--rule);
   }
-  .shots figcaption { font-size: .9375rem; color: var(--muted); margin-top: .6rem; }
+  .demo { display: grid; grid-template-columns: 14rem 1fr; gap: 2rem; align-items: start; margin: 0 0 2.5rem; }
+  .demo figure { margin: 0; }
+  .shots figcaption, .demo figcaption { font-size: .9375rem; color: var(--muted); margin-top: .6rem; }
 
   ol { counter-reset: p; }
   ol li { counter-increment: p; display: grid; grid-template-columns: 2rem 1fr; }
@@ -140,6 +142,8 @@
     /* Screenshots side by side, swiped like the launcher pages */
     .shots { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 62%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: .5rem; }
     .shots figure { scroll-snap-align: start; }
+    .demo { grid-template-columns: 1fr; }
+    .demo figure { width: 62%; }
   }
   @media (prefers-reduced-motion: reduce) { .slash { animation: none; } }
 </style>
@@ -180,6 +184,20 @@
     <h2 id="added">Cosa cambia rispetto a Kvaesitso</h2>
     <p class="lead">La stessa base, ripensata per come uso il telefono io.</p>
 
+    <div class="demo">
+      <figure>
+        <video src="img/demo.mp4" poster="img/demo-poster.webp" width="360" height="800" autoplay muted loop playsinline aria-label="Demo dall'emulatore: dalla home si passa al calendario della settimana, si torna in home e si apre la ricerca"></video>
+        <figcaption>Registrato sull'emulatore</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Ricerca a portata di pollice.</strong> La barra sta in basso e si apre con uno swipe verso l'alto.</li>
+        <li><strong>La tua settimana a uno swipe.</strong> Calendario a schermo intero, subito a destra della home.</li>
+        <li><strong>Widget dove servono.</strong> Pagine di widget a sinistra, quante ne vuoi.</li>
+        <li><strong>Le app che usi davvero, in home.</strong> Sempre lì, con l'aspetto che decidi tu.</li>
+        <li><strong>Animazioni ottimizzate.</strong> Più fluido, più leggero sulla batteria.</li>
+      </ul>
+    </div>
+
     <div class="shots">
       <figure>
         <img src="img/home.webp" width="540" height="1200" loading="lazy" alt="Home con orologio, tre app fissate (Chrome, Gmail, Foto) e la barra di ricerca in basso">
@@ -199,13 +217,6 @@
       </figure>
     </div>
 
-    <ul>
-      <li><strong>Ricerca a portata di pollice.</strong> La barra sta in basso e si apre con uno swipe verso l'alto.</li>
-      <li><strong>La tua settimana a uno swipe.</strong> Calendario a schermo intero, subito a destra della home.</li>
-      <li><strong>Widget dove servono.</strong> Pagine di widget a sinistra, quante ne vuoi.</li>
-      <li><strong>Le app che usi davvero, in home.</strong> Sempre lì, con l'aspetto che decidi tu.</li>
-      <li><strong>Animazioni ottimizzate.</strong> Più fluido, più leggero sulla batteria.</li>
-    </ul>
   </section>
 
   <section aria-labelledby="roadmap">
@@ -242,6 +253,11 @@
   Kvaesitso è di <a href="https://github.com/MM2-0">MM2-0</a> e dei suoi contributori.
 </footer>
 <script>
+  // No autoplay for people who asked for less motion
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const v = document.querySelector('.demo video');
+    v.removeAttribute('autoplay'); v.pause(); v.controls = true;
+  }
   // Point the button straight at the newest .apk; without JS or API it stays on the release page
   fetch('https://api.github.com/repos/Trafitto/trafitto-launcher/releases/latest')
     .then(r => r.json())
