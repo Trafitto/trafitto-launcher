@@ -18,9 +18,11 @@ import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +63,7 @@ import de.mm20.launcher2.search.SavableSearchable
 import de.mm20.launcher2.searchable.PinnedLevel
 import de.mm20.launcher2.services.favorites.FavoritesService
 import de.mm20.launcher2.ui.R
+import de.mm20.launcher2.ui.base.LocalAnimationsPaused
 import de.mm20.launcher2.ui.common.SearchablePicker
 import de.mm20.launcher2.ui.common.SearchablePickerVM
 import de.mm20.launcher2.ui.component.DismissableBottomSheet
@@ -94,19 +97,25 @@ internal object ClockHomeComponent : ScaffoldComponent() {
         val onTop = settings.position in listOf(
             HomeAppsPosition.TopStart, HomeAppsPosition.TopCenter, HomeAppsPosition.TopEnd
         )
-        Column(
-            modifier = modifier
-                .padding(insets)
-                .pointerInput(Unit) {},
-        ) {
-            if (onTop) HomeFavorites(settings)
-            Box(Modifier.weight(1f)) {
-                ClockWidget(
-                    modifier = Modifier.fillMaxSize(),
-                    fillScreenHeight = true,
-                )
+        // Pause the clock's animations while another page covers the home page
+        val covered by remember(state) {
+            derivedStateOf { state.isSettledOnSecondaryPage && state.currentProgress == 1f }
+        }
+        CompositionLocalProvider(LocalAnimationsPaused provides covered) {
+            Column(
+                modifier = modifier
+                    .padding(insets)
+                    .pointerInput(Unit) {},
+            ) {
+                if (onTop) HomeFavorites(settings)
+                Box(Modifier.weight(1f)) {
+                    ClockWidget(
+                        modifier = Modifier.fillMaxSize(),
+                        fillScreenHeight = true,
+                    )
+                }
+                if (!onTop) HomeFavorites(settings)
             }
-            if (!onTop) HomeFavorites(settings)
         }
     }
 }

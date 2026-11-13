@@ -1,11 +1,6 @@
 package de.mm20.launcher2.ui.launcher.widgets.clock.clocks
 
 import android.text.format.DateFormat
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.BlendMode
@@ -33,6 +29,7 @@ import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
 import de.mm20.launcher2.ktx.TWO_PI
+import de.mm20.launcher2.ui.base.rememberAnimationTicker
 import de.mm20.launcher2.ui.locals.LocalDarkTheme
 import palettes.TonalPalette
 import java.time.Instant
@@ -57,7 +54,6 @@ fun OrbitClock(
 
     val parsed = Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault())
 
-    val second = parsed.second
     val minute = parsed.minute
     val hour = parsed.hour
     val formattedHour = (
@@ -67,45 +63,11 @@ fun OrbitClock(
                 ((hour + 11) % 12) + 1
             }).toString()
 
-    val secsAngleStart = second / 60f * Float.TWO_PI
-    val minsAngleStart = minute / 60f * Float.TWO_PI + secsAngleStart / 60f
-    val hourAngleStart = hour % 12 / 12f * Float.TWO_PI + minsAngleStart / 12f
-
-    val infiniteTransition = rememberInfiniteTransition(label = "timeInfiniteTransition")
-
-    val animatedSecs by infiniteTransition.animateFloat(
-        initialValue = secsAngleStart,
-        targetValue = secsAngleStart + Float.TWO_PI,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 60 * 1000,
-                easing = LinearEasing
-            )
-        ),
-        label = "secondsAnimation"
-    )
-    val animatedMins by infiniteTransition.animateFloat(
-        initialValue = minsAngleStart,
-        targetValue = minsAngleStart + Float.TWO_PI,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 60 * 60 * 1000,
-                easing = LinearEasing
-            )
-        ),
-        label = "minutesAnimation"
-    )
-    val animatedHrs by infiniteTransition.animateFloat(
-        initialValue = hourAngleStart,
-        targetValue = hourAngleStart + Float.TWO_PI,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 12 * 60 * 60 * 1000,
-                easing = LinearEasing
-            )
-        ),
-        label = "hoursAnimation"
-    )
+    // Only the seconds orbit needs smooth motion; minutes and hours move fine with [time]
+    // (ticks every second). The seconds tick ~30 times per second, and only while visible.
+    val animateSeconds = verticalLayout && showSeconds
+    var visible by remember { mutableStateOf(false) }
+    val ticker = rememberAnimationTicker(running = animateSeconds && visible)
 
     val fgTone = if (!darkColors) 10 else 90
     val bgTone = if (!darkColors) 90 else 30
@@ -138,6 +100,7 @@ fun OrbitClock(
 
     Canvas(
         modifier = Modifier
+            .onVisibilityChanged(minFractionVisible = 0.01f) { visible = it }
             .padding(bottom = if (verticalLayout) 8.dp else 0.dp,
                 top = if (verticalLayout) 8.dp else 0.dp)
             .size(if (verticalLayout) 192.dp else 56.dp)
@@ -187,6 +150,14 @@ fun OrbitClock(
                 ),
             )
         )
+
+        // Read at draw time: a tick only redraws the clock
+        val now = Instant.ofEpochMilli(if (animateSeconds) ticker.longValue else time)
+            .atZone(ZoneId.systemDefault())
+        val secondOfMinute = now.second + now.nano / 1e9f
+        val animatedSecs = secondOfMinute / 60f * Float.TWO_PI
+        val animatedMins = (now.minute + secondOfMinute / 60f) / 60f * Float.TWO_PI
+        val animatedHrs = (now.hour % 12 + (now.minute + secondOfMinute / 60f) / 60f) / 12f * Float.TWO_PI
 
         val sPos = Offset(x = sin(animatedSecs) * rs, y = -cos(animatedSecs) * rs)
         val mPos = Offset(x = sin(animatedMins) * rm, y = -cos(animatedMins) * rm)
