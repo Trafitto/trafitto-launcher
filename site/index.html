@@ -10,13 +10,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
 <style>
-  /* Colors from the logo (assets/trafitto/logo.svg) */
+  /* Colors and shapes from the logo (assets/trafitto/logo.svg) */
   :root {
     --paper: #F3F2EF;
     --ink: #16171B;
     --muted: #5E5F66;
     --rule: #D9D8D3;
     --red: #E10600;
+    --hex: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    --hex-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 22'%3E%3Cpath d='M10 1.6 18.6 6.5v9L10 20.4 1.4 15.5v-9Z' fill='none' stroke='black' stroke-width='2.4'/%3E%3C/svg%3E");
     color-scheme: light dark;
   }
   @media (prefers-color-scheme: dark) {
@@ -42,13 +44,14 @@
   a:hover { color: var(--red); }
   a:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 2px; }
 
-  /* Hero: the wordmark pierced by the slash, like the T in the logo */
-  .logo { width: 4.5rem; height: 4.5rem; display: block; margin-bottom: 2.5rem; }
+  /* Hero: the wordmark pierced by the slash, next to the mark */
+  .hero { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1.5rem; }
+  .mark { width: clamp(8rem, 24vw, 12.5rem); height: auto; color: var(--ink); }
   h1 { margin: 0; line-height: .9; }
   .word {
     position: relative;
     display: inline-block;
-    font-size: clamp(4rem, 19vw, 9.5rem);
+    font-size: clamp(4rem, 15vw, 7.75rem);
     font-weight: 850;
     font-stretch: 72%;
     letter-spacing: -.02em;
@@ -63,7 +66,7 @@
   @keyframes pierce { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
   .sub {
     display: block;
-    font-size: clamp(1.5rem, 6vw, 2.75rem);
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
     font-weight: 300;
     font-stretch: 125%;
     letter-spacing: .01em;
@@ -89,6 +92,13 @@
     font-size: 1.875rem; font-weight: 800; font-stretch: 80%;
     line-height: 1.1; margin: 0 0 .5rem;
   }
+  h2::before {
+    content: ""; display: inline-block;
+    width: .7em; height: .77em; margin-right: .35em; vertical-align: -.02em;
+    background: var(--red);
+    -webkit-mask: var(--hex-line) center / contain no-repeat;
+    mask: var(--hex-line) center / contain no-repeat;
+  }
   h3 { font-size: 1.125rem; font-weight: 700; margin: 2rem 0 .5rem; }
   .lead { color: var(--muted); margin: 0 0 1.5rem; }
   ul, ol { margin: 0; padding: 0; }
@@ -97,13 +107,25 @@
   li strong { font-weight: 700; }
   .num { font-variant-numeric: tabular-nums; font-weight: 650; white-space: nowrap; }
 
+  /* Screenshots from the emulator, in a phone bezel */
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 0 0 2.5rem; }
+  .shots figure { margin: 0; }
+  .shots img {
+    display: block; width: 100%; height: auto;
+    border: 5px solid #16171B; border-radius: 1.5rem;
+    background: #16171B;
+    box-shadow: 0 0 0 1px var(--rule);
+  }
+  .shots figcaption { font-size: .9375rem; color: var(--muted); margin-top: .6rem; }
+
   ol { counter-reset: p; }
   ol li { counter-increment: p; display: grid; grid-template-columns: 2rem 1fr; }
   ol li::before { content: counter(p); color: var(--red); font-weight: 800; }
 
-  .state { display: inline-block; width: .6rem; height: .6rem; border-radius: 50%; margin-right: .5rem; vertical-align: .05em; }
+  /* Roadmap status: hexagons like the one in the logo */
+  .state { display: inline-block; width: .7rem; height: .78rem; margin-right: .5rem; vertical-align: -.05em; clip-path: var(--hex); }
   .wip { background: var(--red); }
-  .next { border: 2px solid var(--ink); }
+  .next { clip-path: none; background: var(--ink); -webkit-mask: var(--hex-line) center / contain no-repeat; mask: var(--hex-line) center / contain no-repeat; }
   .no { background: var(--rule); }
   .skip li { color: var(--muted); }
 
@@ -112,22 +134,31 @@
     color: var(--muted); font-size: .9375rem;
   }
 
+  @media (max-width: 34rem) {
+    .hero { grid-template-columns: 1fr; gap: 1rem; }
+    .mark { order: -1; width: 6rem; }
+    /* Screenshots side by side, swiped like the launcher pages */
+    .shots { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 62%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: .5rem; }
+    .shots figure { scroll-snap-align: start; }
+  }
   @media (prefers-reduced-motion: reduce) { .slash { animation: none; } }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <svg class="logo" viewBox="0 0 108 108" role="img" aria-label="Logo di Trafitto Launcher">
-      <rect width="108" height="108" rx="24" fill="#F3F2EF"/>
-      <path fill="#16171B" d="M55.43,27.15 L78.01,40.19 L74.81,42.03 L55.43,30.84 Z M54.63,26.69 L55.43,27.15 L55.43,30.84 L54.63,30.38 Z M77.38,45.59 L77.38,67.50 L74.18,65.65 L74.18,47.19 Z M78.01,40.19 L78.01,41.92 L74.81,43.52 L74.81,42.03 Z M77.38,67.50 L54.80,80.54 L54.80,76.84 L74.18,65.65 Z M53.20,80.54 L31.98,68.29 L35.41,66.57 L53.20,76.84 Z M31.24,65.30 L31.24,40.19 L34.44,42.03 L34.44,63.70 Z M31.24,40.19 L53.83,27.15 L53.83,30.84 L34.44,42.03 Z M53.83,27.15 L54.63,26.69 L54.63,30.38 L53.83,30.84 Z M53.83,43.19 L37.25,43.19 L45.91,38.19 L53.83,38.19 Z M63.34,38.19 L72.00,43.19 L55.43,43.19 L55.43,38.19 Z M53.83,38.19 L53.83,38.19 L55.43,38.19 L55.43,38.19 Z M53.20,74.07 L48.60,71.42 L48.60,59.98 L53.20,57.68 Z M49.23,56.31 L49.23,42.69 L53.83,42.69 L53.83,54.01 Z M59.40,54.58 L59.40,71.42 L54.80,74.07 L54.80,56.88 Z M60.03,42.69 L60.03,50.91 L55.43,53.21 L55.43,42.69 Z"/>
-      <path fill="#E10600" d="M27.17,69.02 Q60.62,55.42 80.83,42.18 Q58.11,50.41 27.17,69.02 Z"/>
-    </svg>
-
-    <h1>
-      <span class="word">Trafitto<svg class="slash" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0,19 Q50,12 100,1 Q50,3 0,19 Z"/></svg></span>
-      <span class="sub">Launcher</span>
-    </h1>
+    <div class="hero">
+      <div>
+        <h1>
+          <span class="word">Trafitto<svg class="slash" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0,19 Q50,12 100,1 Q50,3 0,19 Z"/></svg></span>
+          <span class="sub">Launcher</span>
+        </h1>
+      </div>
+      <svg class="mark" viewBox="25 24 58 59" role="img" aria-label="Logo di Trafitto Launcher">
+        <path fill="currentColor" d="M55.43,27.15 L78.01,40.19 L74.81,42.03 L55.43,30.84 Z M54.63,26.69 L55.43,27.15 L55.43,30.84 L54.63,30.38 Z M77.38,45.59 L77.38,67.50 L74.18,65.65 L74.18,47.19 Z M78.01,40.19 L78.01,41.92 L74.81,43.52 L74.81,42.03 Z M77.38,67.50 L54.80,80.54 L54.80,76.84 L74.18,65.65 Z M53.20,80.54 L31.98,68.29 L35.41,66.57 L53.20,76.84 Z M31.24,65.30 L31.24,40.19 L34.44,42.03 L34.44,63.70 Z M31.24,40.19 L53.83,27.15 L53.83,30.84 L34.44,42.03 Z M53.83,27.15 L54.63,26.69 L54.63,30.38 L53.83,30.84 Z M53.83,43.19 L37.25,43.19 L45.91,38.19 L53.83,38.19 Z M63.34,38.19 L72.00,43.19 L55.43,43.19 L55.43,38.19 Z M53.83,38.19 L53.83,38.19 L55.43,38.19 L55.43,38.19 Z M53.20,74.07 L48.60,71.42 L48.60,59.98 L53.20,57.68 Z M49.23,56.31 L49.23,42.69 L53.83,42.69 L53.83,54.01 Z M59.40,54.58 L59.40,71.42 L54.80,74.07 L54.80,56.88 Z M60.03,42.69 L60.03,50.91 L55.43,53.21 L55.43,42.69 Z"/>
+        <path fill="var(--red)" d="M27.17,69.02 Q60.62,55.42 80.83,42.18 Q58.11,50.41 27.17,69.02 Z"/>
+      </svg>
+    </div>
 
     <p class="motto">Veloce, utile e moderno. In poche parole, tuo.</p>
     <p class="fork">Fork di: <a href="https://github.com/MM2-0/Kvaesitso">Kvaesitso</a> di MM2-0</p>
@@ -139,7 +170,7 @@
     </p>
 
     <div class="actions">
-      <a class="btn" href="https://github.com/Trafitto/trafitto-launcher/releases/latest">Scarica l'APK</a>
+      <a class="btn" id="apk" href="https://github.com/Trafitto/trafitto-launcher/releases/latest">Scarica l'ultima versione</a>
       <a href="https://github.com/Trafitto/trafitto-launcher">Codice su GitHub</a>
       <a href="https://kvaesitso.mm20.de">Documentazione di Kvaesitso</a>
     </div>
@@ -148,13 +179,29 @@
   <section aria-labelledby="added">
     <h2 id="added">Cosa cambia rispetto a Kvaesitso</h2>
     <p class="lead">La stessa base, ripensata per come uso il telefono io.</p>
+
+    <div class="shots">
+      <figure>
+        <img src="img/home.webp" width="540" height="1200" loading="lazy" alt="Home con orologio, tre app fissate (Chrome, Gmail, Foto) e la barra di ricerca in basso">
+        <figcaption>La home, con le app fissate e la ricerca in basso</figcaption>
+      </figure>
+      <figure>
+        <img src="img/calendario.webp" width="540" height="1200" loading="lazy" alt="Calendario della settimana a schermo intero con gli eventi divisi per giorno">
+        <figcaption>Swipe a destra: la settimana</figcaption>
+      </figure>
+      <figure>
+        <img src="img/widget.webp" width="540" height="1200" loading="lazy" alt="Pagina dei widget con il widget calendario di oggi">
+        <figcaption>Swipe a sinistra: i widget</figcaption>
+      </figure>
+    </div>
+
     <ul>
       <li><strong>Ricerca a portata di pollice.</strong> La barra sta in basso e si apre con uno swipe verso l'alto.</li>
       <li><strong>La tua settimana a uno swipe.</strong> Calendario a schermo intero, subito a destra della home.</li>
       <li><strong>Widget dove servono.</strong> Pagine di widget a sinistra, quante ne vuoi.</li>
       <li><strong>Le app che usi davvero, in home.</strong> Sempre lì, con l'aspetto che decidi tu.</li>
       <li><strong>Animazioni ottimizzate.</strong> Più fluido, più leggero sulla batteria.</li>
-      <li><strong>Convive con l'originale.</strong> Si installa accanto a Kvaesitso, senza sostituirlo.</li>
+      <li><strong>App indipendente.</strong> Non serve Kvaesitso: si installa da sola e, se ce l'hai già, non lo sostituisce.</li>
     </ul>
   </section>
 
@@ -191,5 +238,18 @@
   Rilasciato sotto licenza <a href="https://github.com/Trafitto/trafitto-launcher/blob/main/LICENSE.txt">GPL-3.0</a>, come l'originale.
   Kvaesitso è di <a href="https://github.com/MM2-0">MM2-0</a> e dei suoi contributori.
 </footer>
+<script>
+  // Point the button straight at the newest .apk; without JS or API it stays on the release page
+  fetch('https://api.github.com/repos/Trafitto/trafitto-launcher/releases/latest')
+    .then(r => r.json())
+    .then(r => {
+      const apk = r.assets.find(a => a.name.endsWith('.apk'));
+      if (!apk) return;
+      const btn = document.getElementById('apk');
+      btn.href = apk.browser_download_url;
+      btn.textContent = 'Scarica l\'APK ' + r.tag_name;
+    })
+    .catch(() => {});
+</script>
 </body>
 </html>
