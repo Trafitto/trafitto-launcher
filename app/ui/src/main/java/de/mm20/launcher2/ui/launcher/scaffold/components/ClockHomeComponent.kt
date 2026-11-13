@@ -150,7 +150,7 @@ internal object ClockHomeComponent : ScaffoldComponent() {
 private const val MaxHomeApps = 6
 
 /**
- * The first 6 pinned apps. "+ Add app" or a long press opens [EditHomeAppsSheet],
+ * The first 6 pinned apps and shortcuts. "+ Add app" or a long press opens [EditHomeAppsSheet],
  * the look is set in Settings > Home screen.
  */
 @Composable
@@ -159,7 +159,8 @@ private fun HomeFavorites(settings: HomeAppsSettings) {
     val customAttributesRepository: CustomAttributesRepository = koinInject()
     val apps by remember {
         favoritesService.getFavorites(
-            includeTypes = listOf("app"),
+            // Shortcuts too: "Add to home screen" from a browser pins them here
+            includeTypes = listOf("app", "shortcut", "legacyshortcut"),
             minPinnedLevel = PinnedLevel.AutomaticallySorted,
             limit = MaxHomeApps,
         ).withCustomLabels(customAttributesRepository)
