@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trafitto Launcher</title>
+<meta name="description" content="Trafitto Launcher: fork personale e non ufficiale di Kvaesitso, modificato a mio gusto e per le mie necessità.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' rx='24' fill='%23F3F2EF'/%3E%3Cpath fill='%23E10600' d='M27.17,69.02 Q60.62,55.42 80.83,42.18 Q58.11,50.41 27.17,69.02 Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<style>
+  /* Colors and shapes from the logo (assets/trafitto/logo.svg) */
+  :root {
+    --paper: #F3F2EF;
+    --ink: #16171B;
+    --muted: #5E5F66;
+    --rule: #D9D8D3;
+    --red: #E10600;
+    --hex: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    --hex-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 22'%3E%3Cpath d='M10 1.6 18.6 6.5v9L10 20.4 1.4 15.5v-9Z' fill='none' stroke='black' stroke-width='2.4'/%3E%3C/svg%3E");
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #16171B;
+      --ink: #F3F2EF;
+      --muted: #A3A4AA;
+      --rule: #2E2F35;
+      --red: #FF3B2F;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 "Archivo", system-ui, sans-serif;
+    font-stretch: 100%;
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 4rem 1.25rem 3rem; }
+  a { color: inherit; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: var(--red); }
+  a:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 2px; }
+
+  /* Hero: the wordmark pierced by the slash, next to the mark */
+  .hero { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1.5rem; }
+  .mark { width: clamp(8rem, 24vw, 12.5rem); height: auto; color: var(--ink); }
+  h1 { margin: 0; line-height: .9; }
+  .word {
+    position: relative;
+    display: inline-block;
+    font-size: clamp(4rem, 15vw, 7.75rem);
+    font-weight: 850;
+    font-stretch: 72%;
+    letter-spacing: -.02em;
+  }
+  .slash {
+    position: absolute;
+    left: -4%; top: 22%;
+    width: 108%; height: 52%;
+    fill: var(--red);
+    animation: pierce .7s cubic-bezier(.2, .8, .2, 1) .15s both;
+  }
+  @keyframes pierce { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .sub {
+    display: block;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    font-weight: 300;
+    font-stretch: 125%;
+    letter-spacing: .01em;
+    margin-top: .35rem;
+  }
+  .motto { font-size: 1.375rem; font-weight: 500; margin: 2rem 0 .25rem; }
+  .fork { font-size: 1.125rem; margin: 0 0 1.5rem; color: var(--muted); }
+  .fork a { color: var(--ink); font-weight: 650; }
+  .notice { margin: 0 0 2rem; max-width: 38rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; }
+  .btn {
+    display: inline-block;
+    background: var(--ink); color: var(--paper);
+    padding: .7rem 1.2rem; border-radius: 999px;
+    text-decoration: none; font-weight: 600;
+  }
+  .btn:hover { background: var(--red); color: #fff; }
+  .actions a:not(.btn) { align-self: center; }
+
+  /* Sections */
+  section { margin-top: 4.5rem; }
+  h2 {
+    font-size: 1.875rem; font-weight: 800; font-stretch: 80%;
+    line-height: 1.1; margin: 0 0 .5rem;
+  }
+  h2::before {
+    content: ""; display: inline-block;
+    width: .7em; height: .77em; margin-right: .35em; vertical-align: -.02em;
+    background: var(--red);
+    -webkit-mask: var(--hex-line) center / contain no-repeat;
+    mask: var(--hex-line) center / contain no-repeat;
+  }
+  h3 { font-size: 1.125rem; font-weight: 700; margin: 2rem 0 .5rem; }
+  .lead { color: var(--muted); margin: 0 0 1.5rem; }
+  ul, ol { margin: 0; padding: 0; }
+  li { list-style: none; padding: .9rem 0; border-top: 1px solid var(--rule); }
+  li:last-child { border-bottom: 1px solid var(--rule); }
+  li strong { font-weight: 700; }
+  .num { font-variant-numeric: tabular-nums; font-weight: 650; white-space: nowrap; }
+
+  /* Screenshots from the emulator, in a phone bezel */
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 0 0 2.5rem; }
+  .shots figure { margin: 0; }
+  .shots img {
+    display: block; width: 100%; height: auto;
+    border: 5px solid #16171B; border-radius: 1.5rem;
+    background: #16171B;
+    box-shadow: 0 0 0 1px var(--rule);
+  }
+  .shots figcaption { font-size: .9375rem; color: var(--muted); margin-top: .6rem; }
+
+  ol { counter-reset: p; }
+  ol li { counter-increment: p; display: grid; grid-template-columns: 2rem 1fr; }
+  ol li::before { content: counter(p); color: var(--red); font-weight: 800; }
+
+  /* Roadmap status: hexagons like the one in the logo */
+  .state { display: inline-block; width: .7rem; height: .78rem; margin-right: .5rem; vertical-align: -.05em; clip-path: var(--hex); }
+  .wip { background: var(--red); }
+  .next { clip-path: none; background: var(--ink); -webkit-mask: var(--hex-line) center / contain no-repeat; mask: var(--hex-line) center / contain no-repeat; }
+  .no { background: var(--rule); }
+  .skip li { color: var(--muted); }
+
+  footer {
+    max-width: 46rem; margin: 0 auto; padding: 2rem 1.25rem 3rem;
+    color: var(--muted); font-size: .9375rem;
+  }
+
+  @media (max-width: 34rem) {
+    .hero { grid-template-columns: 1fr; gap: 1rem; }
+    .mark { order: -1; width: 6rem; }
+    /* Screenshots side by side, swiped like the launcher pages */
+    .shots { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 62%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: .5rem; }
+    .shots figure { scroll-snap-align: start; }
+  }
+  @media (prefers-reduced-motion: reduce) { .slash { animation: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="hero">
+      <div>
+        <h1>
+          <span class="word">Trafitto<svg class="slash" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0,19 Q50,12 100,1 Q50,3 0,19 Z"/></svg></span>
+          <span class="sub">Launcher</span>
+        </h1>
+      </div>
+      <svg class="mark" viewBox="25 24 58 59" role="img" aria-label="Logo di Trafitto Launcher">
+        <path fill="currentColor" d="M55.43,27.15 L78.01,40.19 L74.81,42.03 L55.43,30.84 Z M54.63,26.69 L55.43,27.15 L55.43,30.84 L54.63,30.38 Z M77.38,45.59 L77.38,67.50 L74.18,65.65 L74.18,47.19 Z M78.01,40.19 L78.01,41.92 L74.81,43.52 L74.81,42.03 Z M77.38,67.50 L54.80,80.54 L54.80,76.84 L74.18,65.65 Z M53.20,80.54 L31.98,68.29 L35.41,66.57 L53.20,76.84 Z M31.24,65.30 L31.24,40.19 L34.44,42.03 L34.44,63.70 Z M31.24,40.19 L53.83,27.15 L53.83,30.84 L34.44,42.03 Z M53.83,27.15 L54.63,26.69 L54.63,30.38 L53.83,30.84 Z M53.83,43.19 L37.25,43.19 L45.91,38.19 L53.83,38.19 Z M63.34,38.19 L72.00,43.19 L55.43,43.19 L55.43,38.19 Z M53.83,38.19 L53.83,38.19 L55.43,38.19 L55.43,38.19 Z M53.20,74.07 L48.60,71.42 L48.60,59.98 L53.20,57.68 Z M49.23,56.31 L49.23,42.69 L53.83,42.69 L53.83,54.01 Z M59.40,54.58 L59.40,71.42 L54.80,74.07 L54.80,56.88 Z M60.03,42.69 L60.03,50.91 L55.43,53.21 L55.43,42.69 Z"/>
+        <path fill="var(--red)" d="M27.17,69.02 Q60.62,55.42 80.83,42.18 Q58.11,50.41 27.17,69.02 Z"/>
+      </svg>
+    </div>
+
+    <p class="motto">Veloce, utile e moderno. In poche parole, tuo.</p>
+    <p class="fork">Fork di: <a href="https://github.com/MM2-0/Kvaesitso">Kvaesitso</a> di MM2-0</p>
+
+    <p class="notice">
+      È una fork personale e non ufficiale: la modifico a mio gusto e per le mie necessità, un pezzo alla volta.
+      Non è affiliata al progetto originale né supportata da MM2-0. Tutto il merito del launcher va a lui e ai
+      contributori di Kvaesitso; per favore non segnalate a loro i problemi di questa fork.
+    </p>
+
+    <div class="actions">
+      <a class="btn" id="apk" href="https://github.com/Trafitto/trafitto-launcher/releases/latest">Scarica l'ultima versione</a>
+      <a href="https://github.com/Trafitto/trafitto-launcher">Codice su GitHub</a>
+      <a href="https://kvaesitso.mm20.de">Documentazione di Kvaesitso</a>
+    </div>
+  </header>
+
+  <section aria-labelledby="added">
+    <h2 id="added">Cosa cambia rispetto a Kvaesitso</h2>
+    <p class="lead">La stessa base, ripensata per come uso il telefono io.</p>
+
+    <div class="shots">
+      <figure>
+        <img src="img/home.webp" width="540" height="1200" loading="lazy" alt="Home con orologio, tre app fissate (Chrome, Gmail, Foto) e la barra di ricerca in basso">
+        <figcaption>La home, con le app fissate e la ricerca in basso</figcaption>
+      </figure>
+      <figure>
+        <img src="img/calendario.webp" width="540" height="1200" loading="lazy" alt="Calendario della settimana a schermo intero con gli eventi divisi per giorno">
+        <figcaption>Swipe a destra: la settimana</figcaption>
+      </figure>
+      <figure>
+        <img src="img/widget.webp" width="540" height="1200" loading="lazy" alt="Pagina dei widget con il widget calendario di oggi">
+        <figcaption>Swipe a sinistra: i widget</figcaption>
+      </figure>
+    </div>
+
+    <ul>
+      <li><strong>Ricerca a portata di pollice.</strong> La barra sta in basso e si apre con uno swipe verso l'alto.</li>
+      <li><strong>La tua settimana a uno swipe.</strong> Calendario a schermo intero, subito a destra della home.</li>
+      <li><strong>Widget dove servono.</strong> Pagine di widget a sinistra, quante ne vuoi.</li>
+      <li><strong>Le app che usi davvero, in home.</strong> Sempre lì, con l'aspetto che decidi tu.</li>
+      <li><strong>Animazioni ottimizzate.</strong> Più fluido, più leggero sulla batteria.</li>
+      <li><strong>App indipendente.</strong> Non serve Kvaesitso: si installa da sola e, se ce l'hai già, non lo sostituisce.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="roadmap">
+    <h2 id="roadmap">Roadmap</h2>
+    <p class="lead">Più o meno quello su cui sto lavorando. Cambia spesso.</p>
+
+    <h3><span class="state wip" aria-hidden="true"></span>In lavorazione</h3>
+    <ul>
+      <li><strong>Avvio delle app che parte dall'icona.</strong> Aprendo un'app con Invio dalla ricerca, l'animazione cresce dall'icona evidenziata.</li>
+      <li><strong>Icone che rispondono al tocco.</strong> Leggero effetto pressione sulle icone della griglia e sulle app in home, e comparsa in dissolvenza.</li>
+      <li><strong>App più piccola e più rapida ad aprirsi.</strong> Ottimizzazione R8 attiva: codice da <span class="num">21 a 10,8 MB</span>, avvio a freddo circa il 10% più veloce.</li>
+    </ul>
+
+    <h3><span class="state next" aria-hidden="true"></span>Prossimamente, in ordine di priorità</h3>
+    <ol>
+      <li><span><strong>Notifiche sotto le app fissate.</strong> Un'anteprima della notifica direttamente in home, sotto l'app che l'ha mandata.</span></li>
+      <li><span><strong>Risultati di ricerca animati.</strong> Ogni icona si sposta al suo posto quando la lista cambia, invece di ridisegnarsi da capo.</span></li>
+      <li><span><strong>Avvio ancora più veloce.</strong> Un Baseline Profile dedicato a questo launcher.</span></li>
+      <li><span><strong>Scorrimento alfabetico.</strong> Una barra con le lettere per saltare nell'elenco delle app.</span></li>
+      <li><span><strong>Gesti sulle app fissate.</strong> Azioni rapide con uno swipe sull'app in home.</span></li>
+    </ol>
+
+    <h3><span class="state no" aria-hidden="true"></span>Non in programma</h3>
+    <ul class="skip">
+      <li>Funzioni di intelligenza artificiale.</li>
+      <li>Vibrazione a ogni tocco.</li>
+      <li>Icona che si trasforma nella finestra dell'app: senza root non si può fare.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  Rilasciato sotto licenza <a href="https://github.com/Trafitto/trafitto-launcher/blob/main/LICENSE.txt">GPL-3.0</a>, come l'originale.
+  Kvaesitso è di <a href="https://github.com/MM2-0">MM2-0</a> e dei suoi contributori.
+</footer>
+<script>
+  // Point the button straight at the newest .apk; without JS or API it stays on the release page
+  fetch('https://api.github.com/repos/Trafitto/trafitto-launcher/releases/latest')
+    .then(r => r.json())
+    .then(r => {
+      const apk = r.assets.find(a => a.name.endsWith('.apk'));
+      if (!apk) return;
+      const btn = document.getElementById('apk');
+      btn.href = apk.browser_download_url;
+      btn.textContent = 'Scarica l\'APK ' + r.tag_name;
+    })
+    .catch(() => {});
+</script>
+</body>
+</html>
