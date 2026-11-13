@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -21,9 +22,14 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+/**
+ * Charging bubbles. Cheap on purpose: give it a small modifier (the bubbles rise ~360dp from the
+ * bottom center), it draws in its own layer at ~30 steps per second, and stops while [paused].
+ */
 @Composable
 fun NavBarEffects(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    paused: Boolean = false,
 ) {
     val context = LocalContext.current
 
@@ -79,14 +85,20 @@ fun NavBarEffects(
 
     val dp = LocalDensity.current.density
 
-    LaunchedEffect(intensity) {
+    LaunchedEffect(intensity, paused) {
         bubbles = Array(intensity) {
             FloatArray(6) { 0f }
         }
-        if (intensity == 0) return@LaunchedEffect
+        if (intensity == 0 || paused) return@LaunchedEffect
+        var last = withInfiniteAnimationFrameMillis { it }
         while (isActive) {
+            // ponytail: ~30 steps per second are plenty for bubbles; raise StepMillis' fps if they look choppy
+            delay(StepMillis)
+            val now = withInfiniteAnimationFrameMillis { it }
+            // Speeds and lifetimes are in 60 fps frames: same motion at any step rate / refresh rate
+            val dt = (now - last) / (1000f / 60f)
+            last = now
             val newBubbles = Array(intensity) { FloatArray(6) { 0f } }
-            withInfiniteAnimationFrameMillis {}
             for (i in 0 until intensity) {
                 val bubble = newBubbles[i]
                 val oldBubble = bubbles[i]
@@ -98,9 +110,9 @@ fun NavBarEffects(
                     bubble.radius = (Math.random() * 2 + 2).toFloat() * dp
                     bubble.lifetime = (Math.random() * 80 + 40).toInt().toFloat()
                 } else {
-                    bubble.posX = oldBubble.deltaX + oldBubble.posX
-                    bubble.posY = oldBubble.deltaY + oldBubble.posY
-                    bubble.lifetime = oldBubble.lifetime - 1
+                    bubble.posX = oldBubble.deltaX * dt + oldBubble.posX
+                    bubble.posY = oldBubble.deltaY * dt + oldBubble.posY
+                    bubble.lifetime = oldBubble.lifetime - dt
                     bubble.deltaX = oldBubble.deltaX
                     bubble.deltaY = oldBubble.deltaY
                     bubble.radius = oldBubble.radius
@@ -110,19 +122,22 @@ fun NavBarEffects(
         }
     }
 
-    Canvas(modifier = modifier) {
+    // Own layer: a step redraws only the bubbles, not the whole launcher
+    Canvas(modifier = modifier.graphicsLayer()) {
         for (bubble in bubbles) {
             val x = size.width / 2 + bubble.posX
             val y = size.height - bubble.posY
             drawCircle(
                 color = Color.White,
                 radius = bubble.radius,
-                alpha = bubble.lifetime / 255,
+                alpha = (bubble.lifetime / 255).coerceIn(0f, 1f),
                 center = Offset(x, y)
             )
         }
     }
 }
+
+private const val StepMillis = 33L
 
 typealias Bubble = FloatArray
 

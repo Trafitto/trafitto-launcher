@@ -20,7 +20,7 @@
 - **Home:** up to 6 pinned apps with name and icon, with their own look settings
 - **Search bar:** at the bottom, opened by swiping up, rounded and resizable
 - **Smoother:** keyboard opens after the search page slides in, fewer recompositions during
-  transitions, charging animation off by default
+  transitions, lighter charging animation (small layer, ~30 fps, paused during transitions)
 
 Licensed under the GPL-3.0, like the original. Everything below is the original Kvaesitso readme.
 

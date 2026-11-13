@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemGestures
@@ -101,6 +102,7 @@ import de.mm20.launcher2.preferences.SearchBarLook
 import de.mm20.launcher2.preferences.SearchBarStyle
 import de.mm20.launcher2.preferences.ui.UiSettings
 import de.mm20.launcher2.searchactions.actions.SearchAction
+import de.mm20.launcher2.ui.component.NavBarEffects
 import de.mm20.launcher2.ui.component.SearchBarLevel
 import de.mm20.launcher2.ui.ktx.toPixels
 import de.mm20.launcher2.ui.launcher.SharedLauncherActivity
@@ -196,6 +198,10 @@ internal data class ScaffoldConfiguration(
      */
     val finishOnBack: Boolean = false,
     val darkSearchBar: Boolean = false,
+    /**
+     * Charging bubbles at the bottom of the home page
+     */
+    val chargingAnimation: Boolean = false,
 ) {
     val searchBarTap = ScaffoldGesture(
         component = searchComponent,
@@ -1162,6 +1168,19 @@ internal fun LauncherScaffold(
                     insetsController.hide(WindowInsetsCompat.Type.navigationBars())
                 }
             }
+        }
+
+        if (config.chargingAnimation) {
+            // Only on the home page at rest: no extra frames to draw during transitions or on other pages
+            val onHome by remember(state) {
+                derivedStateOf { state.currentProgress == 0f && !state.isDragged }
+            }
+            NavBarEffects(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .size(width = 240.dp, height = 400.dp),
+                paused = !onHome,
+            )
         }
 
         if (config.wallpaperBlurRadius > 0.dp) {

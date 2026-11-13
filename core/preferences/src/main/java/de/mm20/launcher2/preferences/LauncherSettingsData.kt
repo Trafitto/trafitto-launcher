@@ -163,8 +163,7 @@ data class LauncherSettingsData internal constructor(
     val gesturesLongPress: GestureAction = GestureAction.NoAction,
     val gesturesHomeButton: GestureAction = GestureAction.NoAction,
 
-    // Off: it redraws the whole screen on every frame while charging
-    val animationsCharging: Boolean = false,
+    val animationsCharging: Boolean = true,
 
     val stateTagsMultiline: Boolean = false,
 
