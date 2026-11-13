@@ -1,7 +1,9 @@
 package de.mm20.launcher2.ui.launcher.scaffold.components
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,6 +79,7 @@ import de.mm20.launcher2.ui.launcher.search.common.grid.ItemPopup
 import de.mm20.launcher2.ui.launcher.search.listItemViewModel
 import de.mm20.launcher2.ui.launcher.widgets.clock.ClockWidget
 import de.mm20.launcher2.ui.locals.LocalPreferDarkContentOverWallpaper
+import de.mm20.launcher2.ui.modifier.pressScale
 import org.koin.compose.koinInject
 
 internal object ClockHomeComponent : ScaffoldComponent() {
@@ -269,13 +272,17 @@ private fun HomeFavorite(
         }
     }
 
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .onGloballyPositioned { bounds = it.boundsInWindow().roundToIntRect() }
             .combinedClickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
                 onClick = { if (!viewModel.launch(context, bounds)) showPopup = true },
                 onLongClick = onLongClick,
             )
+            .pressScale(interactionSource, pressedScale = 0.95f)
             .padding(vertical = (settings.spacing / 2).dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),

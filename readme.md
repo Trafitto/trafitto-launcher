@@ -21,6 +21,8 @@
 - **Search bar:** at the bottom, opened by swiping up, rounded and resizable
 - **Smoother:** keyboard opens after the search page slides in, fewer recompositions during
   transitions, lighter charging animation (small layer, ~30 fps, paused during transitions)
+- **Snappier:** icons shrink a little when pressed and fade in when loaded, apps launched with enter
+  from search open from their icon, smaller and faster release build (R8 optimization on)
 
 Licensed under the GPL-3.0, like the original. Everything below is the original Kvaesitso readme.
 
