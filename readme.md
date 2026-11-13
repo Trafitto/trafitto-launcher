@@ -2,6 +2,8 @@
 
 <img src="assets/trafitto/logo.svg" width="128" alt="Trafitto Launcher logo">
 
+[Sito del progetto](https://trafitto.github.io/trafitto-launcher/)
+
 > [!IMPORTANT]
 > **This is an unofficial, personal fork of [Kvaesitso](https://github.com/MM2-0/Kvaesitso), customized
 > for my own use.** It is not affiliated with, endorsed by or supported by MM2-0 or the Kvaesitso

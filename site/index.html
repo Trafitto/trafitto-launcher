@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trafitto Launcher</title>
+<meta name="description" content="Trafitto Launcher: fork personale e non ufficiale di Kvaesitso, modificato a mio gusto e per le mie necessità.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' rx='24' fill='%23F3F2EF'/%3E%3Cpath fill='%23E10600' d='M27.17,69.02 Q60.62,55.42 80.83,42.18 Q58.11,50.41 27.17,69.02 Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<style>
+  /* Colors from the logo (assets/trafitto/logo.svg) */
+  :root {
+    --paper: #F3F2EF;
+    --ink: #16171B;
+    --muted: #5E5F66;
+    --rule: #D9D8D3;
+    --red: #E10600;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #16171B;
+      --ink: #F3F2EF;
+      --muted: #A3A4AA;
+      --rule: #2E2F35;
+      --red: #FF3B2F;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 "Archivo", system-ui, sans-serif;
+    font-stretch: 100%;
+  }
+  main { max-width: 46rem; margin: 0 auto; padding: 4rem 1.25rem 3rem; }
+  a { color: inherit; text-decoration-color: var(--red); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: var(--red); }
+  a:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; border-radius: 2px; }
+
+  /* Hero: the wordmark pierced by the slash, like the T in the logo */
+  .logo { width: 4.5rem; height: 4.5rem; display: block; margin-bottom: 2.5rem; }
+  h1 { margin: 0; line-height: .9; }
+  .word {
+    position: relative;
+    display: inline-block;
+    font-size: clamp(4rem, 19vw, 9.5rem);
+    font-weight: 850;
+    font-stretch: 72%;
+    letter-spacing: -.02em;
+  }
+  .slash {
+    position: absolute;
+    left: -4%; top: 22%;
+    width: 108%; height: 52%;
+    fill: var(--red);
+    animation: pierce .7s cubic-bezier(.2, .8, .2, 1) .15s both;
+  }
+  @keyframes pierce { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .sub {
+    display: block;
+    font-size: clamp(1.5rem, 6vw, 2.75rem);
+    font-weight: 300;
+    font-stretch: 125%;
+    letter-spacing: .01em;
+    margin-top: .35rem;
+  }
+  .motto { font-size: 1.375rem; font-weight: 500; margin: 2rem 0 .25rem; }
+  .fork { font-size: 1.125rem; margin: 0 0 1.5rem; color: var(--muted); }
+  .fork a { color: var(--ink); font-weight: 650; }
+  .notice { margin: 0 0 2rem; max-width: 38rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; }
+  .btn {
+    display: inline-block;
+    background: var(--ink); color: var(--paper);
+    padding: .7rem 1.2rem; border-radius: 999px;
+    text-decoration: none; font-weight: 600;
+  }
+  .btn:hover { background: var(--red); color: #fff; }
+  .actions a:not(.btn) { align-self: center; }
+
+  /* Sections */
+  section { margin-top: 4.5rem; }
+  h2 {
+    font-size: 1.875rem; font-weight: 800; font-stretch: 80%;
+    line-height: 1.1; margin: 0 0 .5rem;
+  }
+  h3 { font-size: 1.125rem; font-weight: 700; margin: 2rem 0 .5rem; }
+  .lead { color: var(--muted); margin: 0 0 1.5rem; }
+  ul, ol { margin: 0; padding: 0; }
+  li { list-style: none; padding: .9rem 0; border-top: 1px solid var(--rule); }
+  li:last-child { border-bottom: 1px solid var(--rule); }
+  li strong { font-weight: 700; }
+  .num { font-variant-numeric: tabular-nums; font-weight: 650; white-space: nowrap; }
+
+  ol { counter-reset: p; }
+  ol li { counter-increment: p; display: grid; grid-template-columns: 2rem 1fr; }
+  ol li::before { content: counter(p); color: var(--red); font-weight: 800; }
+
+  .state { display: inline-block; width: .6rem; height: .6rem; border-radius: 50%; margin-right: .5rem; vertical-align: .05em; }
+  .wip { background: var(--red); }
+  .next { border: 2px solid var(--ink); }
+  .no { background: var(--rule); }
+  .skip li { color: var(--muted); }
+
+  footer {
+    max-width: 46rem; margin: 0 auto; padding: 2rem 1.25rem 3rem;
+    color: var(--muted); font-size: .9375rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) { .slash { animation: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg class="logo" viewBox="0 0 108 108" role="img" aria-label="Logo di Trafitto Launcher">
+      <rect width="108" height="108" rx="24" fill="#F3F2EF"/>
+      <path fill="#16171B" d="M55.43,27.15 L78.01,40.19 L74.81,42.03 L55.43,30.84 Z M54.63,26.69 L55.43,27.15 L55.43,30.84 L54.63,30.38 Z M77.38,45.59 L77.38,67.50 L74.18,65.65 L74.18,47.19 Z M78.01,40.19 L78.01,41.92 L74.81,43.52 L74.81,42.03 Z M77.38,67.50 L54.80,80.54 L54.80,76.84 L74.18,65.65 Z M53.20,80.54 L31.98,68.29 L35.41,66.57 L53.20,76.84 Z M31.24,65.30 L31.24,40.19 L34.44,42.03 L34.44,63.70 Z M31.24,40.19 L53.83,27.15 L53.83,30.84 L34.44,42.03 Z M53.83,27.15 L54.63,26.69 L54.63,30.38 L53.83,30.84 Z M53.83,43.19 L37.25,43.19 L45.91,38.19 L53.83,38.19 Z M63.34,38.19 L72.00,43.19 L55.43,43.19 L55.43,38.19 Z M53.83,38.19 L53.83,38.19 L55.43,38.19 L55.43,38.19 Z M53.20,74.07 L48.60,71.42 L48.60,59.98 L53.20,57.68 Z M49.23,56.31 L49.23,42.69 L53.83,42.69 L53.83,54.01 Z M59.40,54.58 L59.40,71.42 L54.80,74.07 L54.80,56.88 Z M60.03,42.69 L60.03,50.91 L55.43,53.21 L55.43,42.69 Z"/>
+      <path fill="#E10600" d="M27.17,69.02 Q60.62,55.42 80.83,42.18 Q58.11,50.41 27.17,69.02 Z"/>
+    </svg>
+
+    <h1>
+      <span class="word">Trafitto<svg class="slash" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0,19 Q50,12 100,1 Q50,3 0,19 Z"/></svg></span>
+      <span class="sub">Launcher</span>
+    </h1>
+
+    <p class="motto">Veloce, utile e moderno. In poche parole, tuo.</p>
+    <p class="fork">Fork di: <a href="https://github.com/MM2-0/Kvaesitso">Kvaesitso</a> di MM2-0</p>
+
+    <p class="notice">
+      È una fork personale e non ufficiale: la modifico a mio gusto e per le mie necessità, un pezzo alla volta.
+      Non è affiliata al progetto originale né supportata da MM2-0. Tutto il merito del launcher va a lui e ai
+      contributori di Kvaesitso; per favore non segnalate a loro i problemi di questa fork.
+    </p>
+
+    <div class="actions">
+      <a class="btn" href="https://github.com/Trafitto/trafitto-launcher/releases/latest">Scarica l'APK</a>
+      <a href="https://github.com/Trafitto/trafitto-launcher">Codice su GitHub</a>
+      <a href="https://kvaesitso.mm20.de">Documentazione di Kvaesitso</a>
+    </div>
+  </header>
+
+  <section aria-labelledby="added">
+    <h2 id="added">Cosa ho aggiunto</h2>
+    <p class="lead">Le funzioni che Kvaesitso non ha, o che ho rifatto come piacciono a me.</p>
+    <ul>
+      <li><strong>Nome, logo e pacchetto propri.</strong> Si chiama Trafitto Launcher, ha il suo id (<code>it.trafitto.launcher</code>) e si installa accanto al Kvaesitso ufficiale.</li>
+      <li><strong>Swipe a destra: calendario della settimana.</strong> A schermo intero, con la striscia dei giorni per cambiare settimana.</li>
+      <li><strong>Swipe a sinistra: pagine di widget.</strong> Una di base, altre dalle impostazioni. Uno spazio tratteggiato per aggiungere widget e una matita piccola per modificarli, al posto del bottone pieno.</li>
+      <li><strong>App fissate in home.</strong> Fino a 6, con nome e icona. Si regolano posizione, dimensione di testo e icone, forma, icone in bianco e nero e spaziatura.</li>
+      <li><strong>Ricerca in basso.</strong> La barra sta in fondo allo schermo e si apre con uno swipe verso l'alto, a pillola in stile vetro con altezza, larghezza e arrotondamento regolabili.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="fixed">
+    <h2 id="fixed">Fix e prestazioni</h2>
+    <p class="lead">Misurati su un OnePlus Nord e sull'emulatore, contando i frame disegnati in 5 secondi.</p>
+    <ul>
+      <li><strong>Animazione di ricarica più leggera.</strong> Prima ridisegnava tutto lo schermo a ogni frame anche a launcher fermo. Ora vive in un piccolo livello in basso, va a circa 30 fps e si ferma durante le transizioni: home in carica da <span class="num">454 a 114</span> frame.</li>
+      <li><strong>Orologio Orbit e icone meteo.</strong> Si aggiornano circa 30 volte al secondo e solo quando sono visibili: home da <span class="num">214 a 107</span> frame, ricerca con tastiera aperta da <span class="num">220 a 15</span>.</li>
+      <li><strong>Ricerca più fluida.</strong> La tastiera si apre dopo che la pagina è entrata: i frame in ritardo scendono da <span class="num">27% a 18%</span>.</li>
+      <li><strong>Transizioni meno pesanti.</strong> Il contenitore delle pagine legge l'avanzamento delle animazioni al momento del disegno, senza ricomporre tutto a ogni frame.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="roadmap">
+    <h2 id="roadmap">Roadmap</h2>
+    <p class="lead">Più o meno quello su cui sto lavorando. Cambia spesso.</p>
+
+    <h3><span class="state wip" aria-hidden="true"></span>In lavorazione</h3>
+    <ul>
+      <li><strong>Avvio delle app che parte dall'icona.</strong> Aprendo un'app con Invio dalla ricerca, l'animazione cresce dall'icona evidenziata.</li>
+      <li><strong>Icone che rispondono al tocco.</strong> Leggero effetto pressione sulle icone della griglia e sulle app in home, e comparsa in dissolvenza.</li>
+      <li><strong>App più piccola e più rapida ad aprirsi.</strong> Ottimizzazione R8 attiva: codice da <span class="num">21 a 10,8 MB</span>, avvio a freddo circa il 10% più veloce.</li>
+    </ul>
+
+    <h3><span class="state next" aria-hidden="true"></span>Prossimamente, in ordine di priorità</h3>
+    <ol>
+      <li><span><strong>Notifiche sotto le app fissate.</strong> Un'anteprima della notifica direttamente in home, sotto l'app che l'ha mandata.</span></li>
+      <li><span><strong>Risultati di ricerca animati.</strong> Ogni icona si sposta al suo posto quando la lista cambia, invece di ridisegnarsi da capo.</span></li>
+      <li><span><strong>Avvio ancora più veloce.</strong> Un Baseline Profile dedicato a questo launcher.</span></li>
+      <li><span><strong>Scorrimento alfabetico.</strong> Una barra con le lettere per saltare nell'elenco delle app.</span></li>
+      <li><span><strong>Gesti sulle app fissate.</strong> Azioni rapide con uno swipe sull'app in home.</span></li>
+    </ol>
+
+    <h3><span class="state no" aria-hidden="true"></span>Non in programma</h3>
+    <ul class="skip">
+      <li>Funzioni di intelligenza artificiale.</li>
+      <li>Vibrazione a ogni tocco.</li>
+      <li>Icona che si trasforma nella finestra dell'app: senza root non si può fare.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  Rilasciato sotto licenza <a href="https://github.com/Trafitto/trafitto-launcher/blob/main/LICENSE.txt">GPL-3.0</a>, come l'originale.
+  Kvaesitso è di <a href="https://github.com/MM2-0">MM2-0</a> e dei suoi contributori.
+</footer>
+</body>
+</html>
