@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
+import de.mm20.launcher2.preferences.HomeAppsPosition
+import de.mm20.launcher2.preferences.IconShape
 import de.mm20.launcher2.preferences.SearchBarColors
 import de.mm20.launcher2.preferences.SearchBarStyle
 import de.mm20.launcher2.preferences.SystemBarColors
@@ -55,6 +57,7 @@ import de.mm20.launcher2.ui.component.preferences.SwitchPreference
 import de.mm20.launcher2.ui.launcher.widgets.clock.ConfigureClockWidgetSheet
 import de.mm20.launcher2.ui.locals.LocalDarkTheme
 import de.mm20.launcher2.ui.locals.LocalPreferDarkContentOverWallpaper
+import de.mm20.launcher2.ui.settings.icons.getShapeName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -146,6 +149,84 @@ fun HomescreenSettingsScreen() {
 
         }
         item {
+            val homeApps by viewModel.homeApps.collectAsStateWithLifecycle()
+            PreferenceCategory(stringResource(R.string.home_apps_category)) {
+                Preference(
+                    title = stringResource(R.string.home_apps_hint),
+                    onClick = {},
+                )
+                ListPreference(
+                    title = stringResource(R.string.home_apps_position),
+                    items = listOf(
+                        stringResource(R.string.home_apps_position_top_start) to HomeAppsPosition.TopStart,
+                        stringResource(R.string.home_apps_position_top_center) to HomeAppsPosition.TopCenter,
+                        stringResource(R.string.home_apps_position_top_end) to HomeAppsPosition.TopEnd,
+                        stringResource(R.string.home_apps_position_bottom_start) to HomeAppsPosition.BottomStart,
+                        stringResource(R.string.home_apps_position_bottom_center) to HomeAppsPosition.BottomCenter,
+                        stringResource(R.string.home_apps_position_bottom_end) to HomeAppsPosition.BottomEnd,
+                    ),
+                    value = homeApps.position,
+                    onValueChanged = { p -> viewModel.updateHomeApps { it.copy(position = p) } },
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.home_apps_show_labels),
+                    value = homeApps.showLabels,
+                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showLabels = v) } },
+                )
+                AnimatedVisibility(homeApps.showLabels) {
+                    Column {
+                        SliderPreference(
+                            title = stringResource(R.string.home_apps_label_size),
+                            value = homeApps.labelSize,
+                            min = 12,
+                            max = 40,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(labelSize = v) } },
+                        )
+                        SwitchPreference(
+                            title = stringResource(R.string.home_apps_bold),
+                            value = homeApps.boldLabels,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(boldLabels = v) } },
+                        )
+                    }
+                }
+                SwitchPreference(
+                    title = stringResource(R.string.home_apps_show_icons),
+                    value = homeApps.showIcons,
+                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showIcons = v) } },
+                )
+                AnimatedVisibility(homeApps.showIcons) {
+                    Column {
+                        SliderPreference(
+                            title = stringResource(R.string.home_apps_icon_size),
+                            value = homeApps.iconSize,
+                            min = 20,
+                            max = 80,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(iconSize = v) } },
+                        )
+                        ListPreference(
+                            title = stringResource(R.string.home_apps_icon_shape),
+                            items = listOf(stringResource(R.string.home_apps_icon_shape_default) to null) +
+                                    IconShape.entries.mapNotNull { shape -> getShapeName(shape)?.let { it to shape } },
+                            value = homeApps.iconShape,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(iconShape = v) } },
+                        )
+                        SwitchPreference(
+                            title = stringResource(R.string.home_apps_monochrome),
+                            value = homeApps.monochromeIcons,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(monochromeIcons = v) } },
+                        )
+                    }
+                }
+                SliderPreference(
+                    title = stringResource(R.string.home_apps_spacing),
+                    value = homeApps.spacing,
+                    min = 0,
+                    max = 48,
+                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(spacing = v) } },
+                )
+            }
+        }
+        item {
             PreferenceCategory(stringResource(R.string.preference_category_searchbar)) {
                 SearchBarStylePreference(
                     title = stringResource(R.string.preference_search_bar_style),
@@ -178,6 +259,37 @@ fun HomescreenSettingsScreen() {
                     onValueChanged = {
                         viewModel.setFixedSearchBar(it)
                     },
+                )
+                val look by viewModel.searchBarLook.collectAsStateWithLifecycle()
+                SliderPreference(
+                    title = stringResource(R.string.search_bar_height),
+                    value = look.height,
+                    min = 40,
+                    max = 72,
+                    onValueChanged = { v -> viewModel.updateSearchBarLook { it.copy(height = v) } },
+                    label = { Text("$it dp") },
+                )
+                SliderPreference(
+                    title = stringResource(R.string.search_bar_width),
+                    value = look.width,
+                    min = 40,
+                    max = 100,
+                    step = 5,
+                    onValueChanged = { v -> viewModel.updateSearchBarLook { it.copy(width = v) } },
+                    label = { Text("$it%") },
+                )
+                SliderPreference(
+                    title = stringResource(R.string.search_bar_corners),
+                    value = look.cornerRadius,
+                    min = 0,
+                    max = 36,
+                    onValueChanged = { v -> viewModel.updateSearchBarLook { it.copy(cornerRadius = v) } },
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.search_bar_glass),
+                    summary = stringResource(R.string.search_bar_glass_summary),
+                    value = look.glass,
+                    onValueChanged = { v -> viewModel.updateSearchBarLook { it.copy(glass = v) } },
                 )
             }
         }

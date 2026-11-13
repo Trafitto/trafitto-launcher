@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
@@ -33,7 +35,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,6 +45,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.mm20.launcher2.preferences.SearchBarStyle
 import de.mm20.launcher2.ui.R
@@ -62,7 +67,10 @@ fun SearchBar(
     readOnly: Boolean = false,
     menu: @Composable RowScope.() -> Unit = {},
     actions: @Composable ColumnScope.() -> Unit = {},
-    onKeyboardActionGo: (KeyboardActionScope.() -> Unit)? = null
+    onKeyboardActionGo: (KeyboardActionScope.() -> Unit)? = null,
+    height: Dp = 56.dp,
+    shape: Shape = RoundedCornerShape(28.dp),
+    glass: Boolean = true,
 ) {
 
     val transition = updateTransition(level, label = "Searchbar")
@@ -133,11 +141,27 @@ fun SearchBar(
         else 1f
     }
 
+    // Frosted "glass" look while resting on the wallpaper (transparent style),
+    // turning into the solid surface once the search is open.
+    val glassy = glass && style == SearchBarStyle.Transparent
+    val glassColor = if (darkColors) Color.Black else Color.White
+    val restingFraction = 1f - backgroundOpacity.coerceIn(0f, 1f)
     LauncherCard(
         modifier = modifier
-            .alpha(opacity),
+            .alpha(opacity)
+            .then(
+                if (glassy) {
+                    Modifier.border(1.dp, glassColor.copy(alpha = 0.25f * restingFraction), shape)
+                } else Modifier
+            ),
         backgroundOpacity = backgroundOpacity,
-        elevation = elevation
+        elevation = elevation,
+        shape = shape,
+        color = if (glassy) {
+            lerp(glassColor.copy(alpha = 0.18f), MaterialTheme.colorScheme.surface, backgroundOpacity.coerceIn(0f, 1f))
+        } else {
+            MaterialTheme.colorScheme.surface.copy(alpha = backgroundOpacity.coerceIn(0f, 1f))
+        },
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor
@@ -146,11 +170,11 @@ fun SearchBar(
                 verticalArrangement = if (reverse) Arrangement.BottomReversed else Arrangement.Top
             ) {
                 Row(
-                    modifier = Modifier.height(48.dp),
+                    modifier = Modifier.height(height),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier.padding(start = 20.dp, end = 12.dp),
                         painter = painterResource(R.drawable.search_24px),
                         contentDescription = null,
                         tint = contentColor

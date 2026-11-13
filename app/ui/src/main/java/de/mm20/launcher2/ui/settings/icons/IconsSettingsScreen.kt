@@ -488,7 +488,7 @@ fun IconShapePreference(
 
 
 @Composable
-private fun getShapeName(shape: IconShape?): String? {
+internal fun getShapeName(shape: IconShape?): String? {
     return stringResource(
         when (shape) {
             IconShape.Triangle -> R.string.preference_icon_shape_triangle

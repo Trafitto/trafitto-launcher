@@ -14,6 +14,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import de.mm20.launcher2.ktx.isAtLeastApiLevel
 import de.mm20.launcher2.preferences.GestureAction
+import de.mm20.launcher2.preferences.HomeAppsSettings
+import de.mm20.launcher2.preferences.SearchBarLook
 import de.mm20.launcher2.preferences.ScreenOrientation
 import de.mm20.launcher2.preferences.SearchBarColors
 import de.mm20.launcher2.preferences.SearchBarStyle
@@ -57,6 +59,20 @@ class HomescreenSettingsScreenVM(
 
     fun setBlurWallpaperRadius(blurWallpaperRadius: Int) {
         uiSettings.setWallpaperBlurRadius(blurWallpaperRadius)
+    }
+
+    val searchBarLook = uiSettings.searchBarLook
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), SearchBarLook())
+
+    fun updateSearchBarLook(block: (SearchBarLook) -> SearchBarLook) {
+        uiSettings.setSearchBarLook(block(searchBarLook.value))
+    }
+
+    val homeApps = uiSettings.homeApps
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), HomeAppsSettings())
+
+    fun updateHomeApps(block: (HomeAppsSettings) -> HomeAppsSettings) {
+        uiSettings.setHomeApps(block(homeApps.value))
     }
 
     fun openWallpaperChooser(context: AppCompatActivity) {

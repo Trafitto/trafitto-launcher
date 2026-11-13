@@ -53,6 +53,7 @@ import de.mm20.launcher2.ui.launcher.scaffold.ScaffoldAnimation
 import de.mm20.launcher2.ui.launcher.scaffold.ScaffoldConfiguration
 import de.mm20.launcher2.ui.launcher.scaffold.ScaffoldGesture
 import de.mm20.launcher2.ui.launcher.scaffold.SearchBarPosition
+import de.mm20.launcher2.ui.launcher.scaffold.components.CalendarComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.ClockAndWidgetsHomeComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.ClockHomeComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.DismissComponent
@@ -67,6 +68,7 @@ import de.mm20.launcher2.ui.launcher.scaffold.components.ScreenOffComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.SearchComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.SecretComponent
 import de.mm20.launcher2.ui.launcher.scaffold.components.WidgetsComponent
+import de.mm20.launcher2.ui.launcher.scaffold.components.WidgetsNewsComponent
 import de.mm20.launcher2.ui.launcher.sheets.LauncherBottomSheetManager
 import de.mm20.launcher2.ui.launcher.sheets.LauncherBottomSheets
 import de.mm20.launcher2.ui.launcher.sheets.LocalBottomSheetManager
@@ -368,15 +370,23 @@ abstract class SharedLauncherActivity(
                                             gestures.swipeDownApp,
                                             Gesture.SwipeDown,
                                         ),
+                                        // Widgets + Google News on the right, unless swipe left is set to something else
                                         swipeLeft = getScaffoldGesture(
                                             gestures.swipeLeftAction,
                                             gestures.swipeLeftApp,
                                             Gesture.SwipeLeft,
+                                        ) ?: ScaffoldGesture(
+                                            component = WidgetsNewsComponent(this@SharedLauncherActivity),
+                                            animation = ScaffoldAnimation.Push,
                                         ),
+                                        // Calendar on the left, unless swipe right is set to something else
                                         swipeRight = getScaffoldGesture(
                                             gestures.swipeRightAction,
                                             gestures.swipeRightApp,
                                             Gesture.SwipeRight,
+                                        ) ?: ScaffoldGesture(
+                                            component = CalendarComponent,
+                                            animation = ScaffoldAnimation.Push,
                                         ),
                                         doubleTap = getScaffoldGesture(
                                             gestures.doubleTapAction,
