@@ -63,6 +63,7 @@ data class LauncherSettingsData internal constructor(
 
     val homeScreenDock: Boolean = false,
     val homeScreenDockRows: Int = 1,
+    val homeApps: HomeAppsSettings = HomeAppsSettings(),
     val homeScreenWidgets: Boolean = false,
 
     val favoritesEnabled: Boolean = true,
@@ -116,8 +117,9 @@ data class LauncherSettingsData internal constructor(
     val searchBarColors: SearchBarColors = SearchBarColors.Auto,
     val searchBarKeyboard: Boolean = true,
     val searchLaunchOnEnter: Boolean = true,
-    val searchBarBottom: Boolean = false,
+    val searchBarBottom: Boolean = true,
     val searchBarFixed: Boolean = false,
+    val searchBarLook: SearchBarLook = SearchBarLook(),
 
     val searchResultsReversed: Boolean = false,
     val separateWorkProfile: Boolean = true,
@@ -151,10 +153,10 @@ data class LauncherSettingsData internal constructor(
     val widgetsEditButton: Boolean = true,
     val widgetScreenCount: Int = 1,
 
-    val gesturesSwipeDown: GestureAction = GestureAction.Search,
+    val gesturesSwipeDown: GestureAction = GestureAction.Notifications,
     val gesturesSwipeLeft: GestureAction = GestureAction.NoAction,
     val gesturesSwipeRight: GestureAction = GestureAction.NoAction,
-    val gesturesSwipeUp: GestureAction = GestureAction.Widgets(),
+    val gesturesSwipeUp: GestureAction = GestureAction.Search,
     val gesturesDoubleTap: GestureAction = GestureAction.ScreenLock,
     val gesturesLongPress: GestureAction = GestureAction.NoAction,
     val gesturesHomeButton: GestureAction = GestureAction.NoAction,
@@ -347,6 +349,46 @@ enum class IconShape {
     Teardrop,
     Pebble,
     EasterEgg,
+}
+
+/**
+ * Size and shape of the search bar.
+ */
+@Serializable
+data class SearchBarLook(
+    val height: Int = 56,
+    /** percent of the available width */
+    val width: Int = 100,
+    val cornerRadius: Int = 28,
+    /** translucent background and thin border while resting on the wallpaper (transparent style) */
+    val glass: Boolean = true,
+)
+
+/**
+ * Look of the pinned apps list on the home screen.
+ */
+@Serializable
+data class HomeAppsSettings(
+    val position: HomeAppsPosition = HomeAppsPosition.BottomStart,
+    val labelSize: Int = 22,
+    val boldLabels: Boolean = false,
+    val showLabels: Boolean = true,
+    val showIcons: Boolean = true,
+    val iconSize: Int = 40,
+    /** null: same shape as all the other icons */
+    val iconShape: IconShape? = null,
+    val monochromeIcons: Boolean = false,
+    val spacing: Int = 16,
+)
+
+@Serializable
+enum class HomeAppsPosition {
+    TopStart,
+    TopCenter,
+    TopEnd,
+    BottomStart,
+    BottomCenter,
+    BottomEnd,
 }
 
 @Serializable

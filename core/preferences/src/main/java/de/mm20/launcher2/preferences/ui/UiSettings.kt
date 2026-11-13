@@ -2,16 +2,18 @@ package de.mm20.launcher2.preferences.ui
 
 import de.mm20.launcher2.preferences.ColorScheme
 import de.mm20.launcher2.preferences.GestureAction
+import de.mm20.launcher2.preferences.HomeAppsSettings
 import de.mm20.launcher2.preferences.IconShape
 import de.mm20.launcher2.preferences.LauncherDataStore
 import de.mm20.launcher2.preferences.ScreenOrientation
 import de.mm20.launcher2.preferences.SearchBarColors
+import de.mm20.launcher2.preferences.SearchBarLook
 import de.mm20.launcher2.preferences.SearchBarStyle
 import de.mm20.launcher2.preferences.SystemBarColors
 import de.mm20.launcher2.preferences.WidgetScreenTarget
+import java.util.UUID
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import java.util.UUID
 
 data class CardStyle(
     val opacity: Float = 1f,
@@ -232,6 +234,24 @@ class UiSettings internal constructor(
     fun setSearchBarColor(color: SearchBarColors) {
         launcherDataStore.update {
             it.copy(searchBarColors = color)
+        }
+    }
+
+    val searchBarLook
+        get() = launcherDataStore.data.map { it.searchBarLook }.distinctUntilChanged()
+
+    fun setSearchBarLook(searchBarLook: SearchBarLook) {
+        launcherDataStore.update {
+            it.copy(searchBarLook = searchBarLook)
+        }
+    }
+
+    val homeApps
+        get() = launcherDataStore.data.map { it.homeApps }.distinctUntilChanged()
+
+    fun setHomeApps(homeApps: HomeAppsSettings) {
+        launcherDataStore.update {
+            it.copy(homeApps = homeApps)
         }
     }
 

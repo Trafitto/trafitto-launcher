@@ -5,8 +5,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Icon
@@ -27,13 +29,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import de.mm20.launcher2.preferences.SearchBarLook
 import de.mm20.launcher2.preferences.SearchBarStyle
+import de.mm20.launcher2.preferences.ui.UiSettings
 import de.mm20.launcher2.searchactions.actions.SearchAction
 import de.mm20.launcher2.ui.R
 import de.mm20.launcher2.ui.component.SearchBar
 import de.mm20.launcher2.ui.component.SearchBarLevel
 import de.mm20.launcher2.ui.launcher.search.SearchVM
 import de.mm20.launcher2.ui.launcher.sheets.LocalBottomSheetManager
+import org.koin.compose.koinInject
 
 @Composable
 fun LauncherSearchBar(
@@ -59,6 +64,9 @@ fun LauncherSearchBar(
 
     val sheetManager = LocalBottomSheetManager.current
 
+    val uiSettings: UiSettings = koinInject()
+    val look by remember { uiSettings.searchBarLook }.collectAsState(SearchBarLook())
+
     LaunchedEffect(focused) {
         if (focused) focusRequester.requestFocus()
         else focusManager.clearFocus()
@@ -70,8 +78,12 @@ fun LauncherSearchBar(
         SearchBar(
             modifier = Modifier
                 .align(if (bottomSearchBar) Alignment.BottomCenter else Alignment.TopCenter)
-                .padding(8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxWidth(look.width / 100f)
                 .offset { IntOffset(0, searchBarOffset()) },
+            height = look.height.dp,
+            shape = RoundedCornerShape(look.cornerRadius.dp),
+            glass = look.glass,
             style = style, level = level(), value = value, onValueChange = {
                 searchVM.search(it)
             },

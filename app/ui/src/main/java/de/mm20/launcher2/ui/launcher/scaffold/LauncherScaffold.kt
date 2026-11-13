@@ -96,7 +96,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.mm20.launcher2.ktx.isAtLeastApiLevel
+import de.mm20.launcher2.preferences.SearchBarLook
 import de.mm20.launcher2.preferences.SearchBarStyle
+import de.mm20.launcher2.preferences.ui.UiSettings
 import de.mm20.launcher2.searchactions.actions.SearchAction
 import de.mm20.launcher2.ui.component.SearchBarLevel
 import de.mm20.launcher2.ui.ktx.toPixels
@@ -118,14 +120,15 @@ import dev.chrisbanes.haze.blur.HazeBlurStyle
 import dev.chrisbanes.haze.blur.hazeBlur
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
+import kotlin.math.absoluteValue
+import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.absoluteValue
-import kotlin.math.pow
-import kotlin.math.roundToInt
+import org.koin.compose.koinInject
 
 enum class ScaffoldAnimation {
     Rubberband,
@@ -994,6 +997,9 @@ internal fun LauncherScaffold(
 
     val hazeState = rememberHazeState()
 
+    val uiSettings: UiSettings = koinInject()
+    val searchBarLook by remember { uiSettings.searchBarLook }.collectAsState(SearchBarLook())
+
     BoxWithConstraints(
         modifier = modifier,
     ) {
@@ -1069,8 +1075,9 @@ internal fun LauncherScaffold(
 
         val searchBarHeight by animateDpAsState(
             if (state.isSearchBarHidden) 0.dp
-            else if (searchActions.isEmpty()) 56.dp
-            else 104.dp
+            // bar height + 8dp of its outer padding (+ 48dp row of search actions)
+            else if (searchActions.isEmpty()) searchBarLook.height.dp + 8.dp
+            else searchBarLook.height.dp + 56.dp
         )
 
         val isFilterBarVisible =

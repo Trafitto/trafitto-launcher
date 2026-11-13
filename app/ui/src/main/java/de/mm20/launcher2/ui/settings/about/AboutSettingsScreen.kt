@@ -68,6 +68,21 @@ fun AboutSettingsScreen() {
             }
         }
         item {
+            // This build is a personal fork: say so before crediting the original project below
+            PreferenceCategory {
+                Preference(
+                    icon = R.drawable.github,
+                    title = stringResource(R.string.about_fork_title),
+                    summary = stringResource(R.string.about_fork_summary),
+                    onClick = {
+                        context.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                            data = "https://github.com/Trafitto/trafitto-launcher".toUri()
+                        })
+                    }
+                )
+            }
+        }
+        item {
             PreferenceCategory(title = stringResource(id = R.string.preference_category_license)) {
                 Preference(
                     icon = R.drawable.info_24px,
