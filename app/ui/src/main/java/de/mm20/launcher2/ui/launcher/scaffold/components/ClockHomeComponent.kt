@@ -4,6 +4,9 @@ import android.app.PendingIntent
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,10 +47,14 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -87,6 +95,7 @@ import de.mm20.launcher2.ui.modifier.pressScale
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import org.koin.compose.koinInject
+import kotlin.math.abs
 
 internal object ClockHomeComponent : ScaffoldComponent() {
 
@@ -324,9 +333,35 @@ private fun HomeFavorite(
     }
 
     val interactionSource = remember { MutableInteractionSource() }
+    // Side swipe: the row follows the finger a little, past the threshold it ticks and on
+    // release opens the shortcuts. Offset read at draw time.
+    val swipe = remember { mutableFloatStateOf(0f) }
+    val haptic = LocalHapticFeedback.current
+    val swipeThreshold = with(LocalDensity.current) { 64.dp.toPx() }
     Row(
         modifier = Modifier
             .onGloballyPositioned { bounds = it.boundsInWindow().roundToIntRect() }
+            .then(
+                if (!settings.swipeForShortcuts) Modifier
+                else Modifier
+                    .draggable(
+                        orientation = Orientation.Horizontal,
+                        state = rememberDraggableState { delta ->
+                            val before = swipe.floatValue
+                            swipe.floatValue = before + delta
+                            if (abs(before) < swipeThreshold && abs(swipe.floatValue) >= swipeThreshold) {
+                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                            }
+                        },
+                        onDragStopped = {
+                            if (abs(swipe.floatValue) >= swipeThreshold) showPopup = true
+                            swipe.floatValue = 0f
+                        },
+                    )
+                    .graphicsLayer {
+                        translationX = (swipe.floatValue * 0.4f).coerceIn(-32.dp.toPx(), 32.dp.toPx())
+                    }
+            )
             .combinedClickable(
                 interactionSource = interactionSource,
                 indication = LocalIndication.current,

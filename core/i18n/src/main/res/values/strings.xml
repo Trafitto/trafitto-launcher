@@ -1177,4 +1177,6 @@
     <string name="home_apps_mode_pinned">Pinned apps</string>
     <string name="home_apps_mode_none">No apps</string>
     <string name="home_apps_mode_letters">Letters on the edge</string>
+    <string name="home_apps_swipe_shortcuts">Swipe an app for its shortcuts</string>
+    <string name="home_apps_swipe_shortcuts_summary">Swipe an app sideways to see its shortcuts and notifications. Starting on an app, a side swipe no longer opens widgets or calendar</string>
 </resources>
