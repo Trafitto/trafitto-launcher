@@ -37,6 +37,11 @@ interface CustomAttributesRepository: Backupable {
 
     fun getAllTags(startsWith: String? = null): Flow<List<String>>
     fun getItemsForTag(tag: String): Flow<List<SavableSearchable>>
+
+    /**
+     * Tags of every tagged item, by item key.
+     */
+    fun getTagsByItemKey(): Flow<Map<String, List<String>>>
     fun setItemsForTag(tag: String, items: List<SavableSearchable>): Job
     fun addTag(item: SavableSearchable, tag: String)
 
@@ -141,6 +146,12 @@ internal class CustomAttributesRepositoryImpl(
         val dao = appDatabase.customAttrsDao()
         return dao.getItemsWithTag(tag).flatMapLatest {
             searchableRepository.getByKeys(it)
+        }
+    }
+
+    override fun getTagsByItemKey(): Flow<Map<String, List<String>>> {
+        return appDatabase.customAttrsDao().getAllTagAssignments().map { attrs ->
+            attrs.groupBy({ it.key }, { it.value })
         }
     }
 

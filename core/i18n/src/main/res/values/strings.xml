@@ -1158,4 +1158,16 @@
     <string name="about_fork_summary">Unofficial personal fork of Kvaesitso, not affiliated with the original project. Tap for the source code</string>
     <string name="widget_pages">Widget pages</string>
     <string name="widget_pages_summary">Pages of widgets to the right of the home screen (swipe left)</string>
+    <string name="preference_search_apps_by_tag">Group by category</string>
+    <string name="preference_search_apps_by_tag_summary">Split all apps in sections by tag. Tap a section title to rename it or to add and remove apps</string>
+    <string name="apps_untagged">Other apps</string>
+    <string name="app_category_communication">Communication</string>
+    <string name="app_category_photos_videos">Photos &amp; videos</string>
+    <string name="app_category_music">Music &amp; audio</string>
+    <string name="app_category_games">Games</string>
+    <string name="app_category_news">News</string>
+    <string name="app_category_maps">Maps</string>
+    <string name="app_category_productivity">Productivity</string>
+    <string name="app_category_internet">Internet</string>
+    <string name="app_category_tools">Tools</string>
 </resources>

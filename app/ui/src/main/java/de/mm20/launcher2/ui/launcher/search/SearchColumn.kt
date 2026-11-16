@@ -18,6 +18,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -36,6 +37,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import de.mm20.launcher2.profiles.Profile
 import de.mm20.launcher2.search.AppShortcut
 import de.mm20.launcher2.search.Application
+import de.mm20.launcher2.search.TagGroup
+import de.mm20.launcher2.search.groupByTag
 import de.mm20.launcher2.search.Article
 import de.mm20.launcher2.search.CalendarEvent
 import de.mm20.launcher2.search.Contact
@@ -109,6 +112,13 @@ fun SearchColumn(
 
     val query by viewModel.searchQuery
     val isSearchEmpty by viewModel.isSearchEmpty
+
+    val allAppsByTag by viewModel.allAppsByTag.collectAsState()
+    val tagsByItemKey = viewModel.tagsByItemKey.collectAsState()
+    val groupApps = allAppsByTag && isSearchEmpty
+    val appGroups = rememberTagGroups(apps, tagsByItemKey, groupApps)
+    val workAppGroups = rememberTagGroups(workApps, tagsByItemKey, groupApps)
+    val privateAppGroups = rememberTagGroups(privateApps, tagsByItemKey, groupApps)
 
     val missingCalendarPermission by viewModel.missingCalendarPermission.collectAsState(false)
     val missingShortcutsPermission by viewModel.missingAppShortcutPermission.collectAsState(false)
@@ -224,6 +234,11 @@ fun SearchColumn(
                             Profile.Type.Work -> workApps
                             else -> apps
                         },
+                        groups = when (selectedProfile?.type) {
+                            Profile.Type.Private -> privateAppGroups
+                            Profile.Type.Work -> workAppGroups
+                            else -> appGroups
+                        },
                         highlightedItem = bestMatch as? Application,
                         profiles = visibleProfiles,
                         profileStates = profileStates,
@@ -245,6 +260,7 @@ fun SearchColumn(
                 } else if (!isSearchEmpty || allAppsEnabled) {
                     AppResults(
                         apps = apps,
+                        groups = appGroups,
                         highlightedItem = bestMatch as? Application,
                         columns = columns,
                         reverse = reverse,
@@ -414,3 +430,17 @@ fun LazyListScope.SingleResult(
     }
 }
 
+/**
+ * [apps] split in sections by tag, or null when [enabled] is false.
+ */
+@Composable
+private fun rememberTagGroups(
+    apps: List<Application>,
+    tagsByItemKey: State<Map<String, List<String>>>,
+    enabled: Boolean,
+): List<TagGroup<Application>>? {
+    val groups by remember(apps, enabled) {
+        derivedStateOf { if (enabled) groupByTag(apps, tagsByItemKey.value) { it.key } else null }
+    }
+    return groups
+}

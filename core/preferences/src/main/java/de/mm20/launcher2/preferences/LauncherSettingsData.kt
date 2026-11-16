@@ -75,6 +75,9 @@ data class LauncherSettingsData internal constructor(
     val favoritesCompactTags: Boolean = false,
 
     val searchAllApps: Boolean = true,
+    // Trafitto: all apps split in sections by tag; the default tags are created once
+    val searchAllAppsByTag: Boolean = true,
+    val searchDefaultAppTagsCreated: Boolean = false,
     val appsShowDetails: Boolean = true,
 
     val fileSearchProviders: Set<String> = setOf("local"),

@@ -39,6 +39,9 @@ interface CustomAttrsDao {
     @Query("SELECT DISTINCT value FROM CustomAttributes WHERE type = 'tag' ORDER BY value")
     fun getAllTags(): Flow<List<String>>
 
+    @Query("SELECT * FROM CustomAttributes WHERE type = 'tag'")
+    fun getAllTagAssignments(): Flow<List<CustomAttributeEntity>>
+
     @Query("SELECT `key` FROM CustomAttributes WHERE type = 'tag' AND value = :tag")
     fun getItemsWithTag(tag: String): Flow<List<String>>
 

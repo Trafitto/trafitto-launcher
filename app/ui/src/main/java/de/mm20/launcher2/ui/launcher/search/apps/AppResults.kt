@@ -2,6 +2,7 @@ package de.mm20.launcher2.ui.launcher.search.apps
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,11 +29,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.mm20.launcher2.profiles.Profile
 import de.mm20.launcher2.search.Application
+import de.mm20.launcher2.search.TagGroup
 import de.mm20.launcher2.ui.R
 import de.mm20.launcher2.ui.launcher.search.common.grid.GridItem
 import de.mm20.launcher2.ui.launcher.search.common.grid.GridResults
 import de.mm20.launcher2.ui.launcher.search.common.list.ListItem
 import de.mm20.launcher2.ui.launcher.search.common.list.ListResults
+import de.mm20.launcher2.ui.launcher.sheets.LocalBottomSheetManager
 import de.mm20.launcher2.ui.layout.BottomReversed
 import de.mm20.launcher2.ui.locals.LocalGridSettings
 
@@ -50,6 +53,7 @@ fun LazyListScope.AppResults(
     columns: Int,
     reverse: Boolean,
     showList: Boolean,
+    groups: List<TagGroup<Application>>? = null,
 ) {
 
     val profileIndex by derivedStateOf {
@@ -209,19 +213,73 @@ fun LazyListScope.AppResults(
             }
         }
     } else null
+    // Without sections (locked profile, no apps) the profile tabs still need a place
+    val shownGroups = groups?.takeIf { !isProfileLocked && it.isNotEmpty() }
+    if (shownGroups == null) {
+        AppSection(
+            key = "apps",
+            apps = if (isProfileLocked) emptyList() else apps,
+            before = before,
+            after = null,
+            indexOffset = 0,
+            selectedIndex = selectedIndex,
+            onSelect = onSelect,
+            highlightedItem = highlightedItem,
+            columns = columns,
+            reverse = reverse,
+            showList = showList,
+        )
+        return
+    }
+    var indexOffset = 0
+    for ((i, group) in shownGroups.withIndex()) {
+        val header = @Composable { AppGroupHeader(group.tag) }
+        val tabs = before.takeIf { i == 0 }
+        AppSection(
+            key = if (group.tag == null) "apps-other" else "apps-tag-${group.tag}",
+            apps = group.items,
+            // The title stays on top of its section, also when the results are reversed
+            before = if (reverse) tabs else { { Column { tabs?.invoke(); header() } } },
+            after = if (reverse) header else null,
+            indexOffset = indexOffset,
+            selectedIndex = selectedIndex,
+            onSelect = onSelect,
+            highlightedItem = highlightedItem,
+            columns = columns,
+            reverse = reverse,
+            showList = showList,
+        )
+        indexOffset += group.items.size
+    }
+}
+
+private fun LazyListScope.AppSection(
+    key: String,
+    apps: List<Application>,
+    before: (@Composable () -> Unit)?,
+    after: (@Composable () -> Unit)?,
+    indexOffset: Int,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+    highlightedItem: Application?,
+    columns: Int,
+    reverse: Boolean,
+    showList: Boolean,
+) {
     if (showList) {
         ListResults(
-            key = "apps",
-            items = if (isProfileLocked) emptyList() else apps,
+            key = key,
+            items = apps,
             before = before?.let { { it() } },
-            selectedIndex = selectedIndex,
+            after = after?.let { { it() } },
+            selectedIndex = selectedIndex - indexOffset,
             itemContent = { app, showDetails, index ->
                 ListItem(
                     modifier = Modifier
                         .fillMaxWidth(),
                     item = app,
                     showDetails = showDetails,
-                    onShowDetails = { onSelect(if(it) index else -1) },
+                    onShowDetails = { onSelect(if (it) index + indexOffset else -1) },
                     highlight = highlightedItem?.key == app.key
                 )
             },
@@ -229,9 +287,10 @@ fun LazyListScope.AppResults(
         )
     } else {
         GridResults(
-            key = "apps",
-            items = if (isProfileLocked) emptyList() else apps,
+            key = key,
+            items = apps,
             before = before,
+            after = after,
             itemContent = {
                 GridItem(
                     item = it,
@@ -243,5 +302,21 @@ fun LazyListScope.AppResults(
             columns = columns,
         )
     }
+}
 
+/**
+ * Title of a section of apps with the same tag: tap it to rename the tag or to add and remove apps.
+ */
+@Composable
+private fun AppGroupHeader(tag: String?) {
+    val sheetManager = LocalBottomSheetManager.current
+    Text(
+        text = tag ?: stringResource(R.string.apps_untagged),
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (tag != null) Modifier.clickable { sheetManager.showEditTagSheet(tag) } else Modifier)
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+    )
 }

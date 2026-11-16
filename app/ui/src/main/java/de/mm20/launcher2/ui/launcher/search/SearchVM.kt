@@ -6,11 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.unit.IntRect
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.mm20.launcher2.data.customattrs.CustomAttributesRepository
 import de.mm20.launcher2.devicepose.DevicePoseProvider
 import de.mm20.launcher2.ktx.isAtLeastApiLevel
 import de.mm20.launcher2.permissions.PermissionGroup
@@ -45,7 +47,10 @@ import de.mm20.launcher2.searchable.SavableSearchableRepository
 import de.mm20.launcher2.searchable.VisibilityLevel
 import de.mm20.launcher2.searchactions.actions.SearchAction
 import de.mm20.launcher2.services.favorites.FavoritesService
+import de.mm20.launcher2.services.tags.TagsService
+import de.mm20.launcher2.ui.launcher.search.apps.createDefaultAppTags
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -73,6 +78,9 @@ class SearchVM : ViewModel(), KoinComponent {
     private val locationSearchSettings: LocationSearchSettings by inject()
     private val devicePoseProvider: DevicePoseProvider by inject()
     private val searchFilterSettings: SearchFilterSettings by inject()
+    private val customAttributesRepository: CustomAttributesRepository by inject()
+    private val tagsService: TagsService by inject()
+    private val context: Context by inject()
 
     val launchOnEnter = searchUiSettings.launchOnEnter
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
@@ -124,6 +132,15 @@ class SearchVM : ViewModel(), KoinComponent {
 
     val allAppsEnabled = searchUiSettings.allApps
 
+    val allAppsByTag = searchUiSettings.allAppsByTag
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /**
+     * Tags of every tagged item by item key, to split all apps in sections.
+     */
+    val tagsByItemKey = customAttributesRepository.getTagsByItemKey()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
     val showFilters = mutableStateOf(false)
 
     private val defaultFilters = searchFilterSettings.defaultFilter.stateIn(
@@ -141,6 +158,17 @@ class SearchVM : ViewModel(), KoinComponent {
 
     init {
         search("", forceRestart = true)
+        viewModelScope.launch(Dispatchers.Default) { createDefaultAppTagsOnce() }
+    }
+
+    /**
+     * The first time apps are split by tag, the apps without tags get a default category.
+     */
+    private suspend fun createDefaultAppTagsOnce() {
+        if (!searchUiSettings.allAppsByTag.first() || searchUiSettings.defaultAppTagsCreated.first()) return
+        val apps = snapshotFlow { appResults.toList() + workAppResults.toList() }.first { it.isNotEmpty() }
+        createDefaultAppTags(context, apps, customAttributesRepository.getTagsByItemKey().first(), tagsService)
+        searchUiSettings.setDefaultAppTagsCreated()
     }
 
     /**

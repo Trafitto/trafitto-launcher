@@ -43,6 +43,24 @@ class SearchUiSettings internal constructor(
         }
     }
 
+    val allAppsByTag
+        get() = launcherDataStore.data.map { it.searchAllAppsByTag }.distinctUntilChanged()
+
+    fun setAllAppsByTag(allAppsByTag: Boolean) {
+        launcherDataStore.update {
+            it.copy(searchAllAppsByTag = allAppsByTag)
+        }
+    }
+
+    val defaultAppTagsCreated
+        get() = launcherDataStore.data.map { it.searchDefaultAppTagsCreated }.distinctUntilChanged()
+
+    fun setDefaultAppTagsCreated() {
+        launcherDataStore.update {
+            it.copy(searchDefaultAppTagsCreated = true)
+        }
+    }
+
     val openKeyboard
         get() = launcherDataStore.data.map { it.searchBarKeyboard }.distinctUntilChanged()
 
