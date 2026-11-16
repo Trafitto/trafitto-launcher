@@ -19,17 +19,53 @@
   installs next to the official Kvaesitso
 - **Swipe right:** full screen week calendar
 - **Swipe left:** widget pages for app widgets (one by default, more from the settings)
-- **Home:** up to 6 pinned apps with name and icon, with their own look settings
+- **Home, your way:** up to 6 pinned apps, nothing but the clock, or letters on the screen edge:
+  slide on them to see the apps of each letter and open one
 - **Search bar:** at the bottom, opened by swiping up, rounded and resizable
-- **Smoother:** keyboard opens after the search page slides in, fewer recompositions during
-  transitions
+- **Apps by category:** the app list is split in sections (Communication, Games, Tools…), created
+  from the type of each app. Newly installed apps land in their category by themselves, if it still
+  exists. Every section can be renamed, filled or emptied
+- **Optional, off by default:** the latest notification under each home app, and a side swipe on a
+  home app for its shortcuts
 - **Snappier:** icons shrink a little when pressed and fade in when loaded, apps launched with enter
   from search open from their icon, smaller and faster release build (R8 optimization on)
-- **Apps by category:** the app list is split in sections (Communication, Games, Tools…), created
-  once from the type of each app; they are ordinary tags, tap a section title to edit it
-- **Lighter on battery:** no charging animation, the clock updates once a minute (unless it shows
-  seconds), no full screen offscreen layers while the keyboard animates, exchange rates updated
-  once a day and background updates only with network
+- **Lighter on battery:** the home draws nothing while idle, no charging animation, the clock
+  updates once a minute (unless it shows seconds), no full screen offscreen layers while the
+  keyboard animates, exchange rates updated once a day and background updates only with network
+
+### Make it yours
+
+Everything added by this fork can be changed from the settings:
+
+| Where | What you can change |
+|---|---|
+| Settings › Home screen › Apps on home screen | What the home shows: pinned apps (up to 6), no apps, or letters on the edge |
+| | Pinned apps: position (top or bottom; left, center or right), names and icons on or off, text size, bold, icon size and shape, black and white icons, spacing. Add apps with "+ Add app" or by long pressing an app on the home |
+| | Notifications under apps (off by default) |
+| | Swipe an app for its shortcuts (off by default: starting on an app, a side swipe no longer opens widgets or calendar) |
+| Settings › Home screen › Search bar | Height, width, corner roundness, glass effect |
+| Settings › Home screen › Widgets | Number of widget pages |
+| Settings › Search › Apps › Group by category | App list split in sections, on by default |
+| App list | Tap the pencil on a section title to rename it or to add and remove apps; "+ New category" at the end of the list |
+
+On top of that, everything Kvaesitso already lets you change: colors and themes, icon packs, clock
+styles, gestures, wallpaper dim and blur ([user guide](https://kvaesitso.mm20.de/docs/user-guide)).
+
+### Measured on a OnePlus Nord
+
+Performance and battery matter as much as features: the launcher runs all day, on a phone from 2020.
+Features that cost something at rest or change a gesture are off by default.
+
+| Situation | CPU | Frames drawn |
+|---|---|---|
+| Home idle, on battery or charging | 1–5 ms/s | 0 fps |
+| In the background | ~1 ms/s | |
+| Search: open, scroll, close | ~160 ms/s | |
+| Memory (PSS) | 136–141 MB | |
+
+OnePlus Nord, Android 12: CPU of all the launcher's processes and frames rendered, 60 seconds per
+situation. 1 ms of CPU per second is 0.1% of one core. Opening and closing search is still the
+heaviest part (translucent cards over the wallpaper at 90 Hz) and the next thing to lighten.
 
 Licensed under the GPL-3.0, like the original. Everything below is the original Kvaesitso readme.
 

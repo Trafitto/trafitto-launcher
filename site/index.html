@@ -120,6 +120,27 @@
   .demo figure { margin: 0; }
   .shots figcaption, .demo figcaption { font-size: .9375rem; color: var(--muted); margin-top: .6rem; }
 
+  /* Customization: where each option lives in the settings */
+  .path { display: block; font-size: .9375rem; color: var(--muted); margin-top: .2rem; }
+  .off {
+    font-size: .8125rem; font-weight: 600; color: var(--muted); white-space: nowrap;
+    border: 1px solid var(--rule); border-radius: 999px; padding: .05rem .55rem; margin-left: .25rem;
+  }
+  .also { margin: 1.5rem 0 0; }
+
+  /* Measurements */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); column-gap: 2rem; margin: 0 0 2rem; }
+  .stat { padding: 1.25rem 0; border-top: 1px solid var(--rule); }
+  .stat b {
+    display: block; line-height: 1;
+    font-size: 3.25rem; font-weight: 850; font-stretch: 72%;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat b small { font-size: 1.125rem; font-weight: 600; font-stretch: 100%; color: var(--red); margin-left: .3rem; }
+  .stat span { display: block; font-weight: 700; margin-top: .6rem; }
+  .stat p { margin: .2rem 0 0; color: var(--muted); font-size: .9375rem; }
+  .method { color: var(--muted); font-size: .9375rem; margin: 1.5rem 0 0; }
+
   ol { counter-reset: p; }
   ol li { counter-increment: p; display: grid; grid-template-columns: 2rem 1fr; }
   ol li::before { content: counter(p); color: var(--red); font-weight: 800; }
@@ -192,9 +213,10 @@
       <ul>
         <li><strong>Ricerca a portata di pollice.</strong> La barra sta in basso e si apre con uno swipe verso l'alto.</li>
         <li><strong>La tua settimana a uno swipe.</strong> Calendario a schermo intero, subito a destra della home.</li>
-        <li><strong>Widget dove servono.</strong> Pagine di widget a sinistra, quante ne vuoi.</li>
-        <li><strong>Le app che usi davvero, in home.</strong> Sempre lì, con l'aspetto che decidi tu.</li>
-        <li><strong>Animazioni ottimizzate.</strong> Più fluido, più leggero sulla batteria.</li>
+        <li><strong>Widget dove servono.</strong> Pagine di widget con uno swipe a sinistra, quante ne vuoi.</li>
+        <li><strong>La home come la vuoi tu.</strong> Le app che usi davvero, solo l'orologio, oppure le lettere sul bordo per arrivare a ogni app con un dito.</li>
+        <li><strong>App divise per categoria.</strong> Comunicazione, Giochi, Strumenti… create da sole, anche per le app che installi dopo, e tutte modificabili.</li>
+        <li><strong>Leggero sulla batteria.</strong> Da ferma la home non disegna nulla, e senza rete non lavora in background.</li>
       </ul>
     </div>
 
@@ -219,30 +241,115 @@
 
   </section>
 
+  <section aria-labelledby="custom">
+    <h2 id="custom">Personalizzazione</h2>
+    <p class="lead">Tutto quello che questa fork aggiunge si cambia dalle impostazioni. Ecco cosa e dove.</p>
+
+    <h3>La home</h3>
+    <ul>
+      <li>
+        <strong>Cosa mostrare.</strong> Le app fissate (fino a 6), nessuna app, cioè solo l'orologio, oppure le lettere sul bordo: scorri il dito sulle lettere, vedi le app di quella lettera e tocchi quella che ti serve.
+        <span class="path">Impostazioni › Schermata home › App in home › Sulla home</span>
+      </li>
+      <li>
+        <strong>Le app fissate.</strong> Le aggiungi con “+ Aggiungi app” o tenendo premuta un'app in home. Scegli la posizione (in alto o in basso; a sinistra, al centro o a destra), se mostrare nomi e icone, dimensione del testo, grassetto, dimensione e forma delle icone, icone in bianco e nero, spaziatura.
+        <span class="path">Impostazioni › Schermata home › App in home</span>
+      </li>
+      <li>
+        <strong>Notifiche sotto le app.</strong><span class="off">spento di default</span> L'ultima notifica di ogni app, sotto il suo nome. Toccala per aprirla.
+        <span class="path">Impostazioni › Schermata home › App in home</span>
+      </li>
+      <li>
+        <strong>Scorri un'app per le scorciatoie.</strong><span class="off">spento di default</span> Uno swipe di lato su un'app in home apre scorciatoie e notifiche. Partendo da un'app, lo swipe laterale non apre più widget e calendario.
+        <span class="path">Impostazioni › Schermata home › App in home</span>
+      </li>
+    </ul>
+
+    <h3>Ricerca e widget</h3>
+    <ul>
+      <li>
+        <strong>La barra di ricerca su misura.</strong> Altezza, larghezza, angoli più o meno arrotondati, effetto vetro con sfondo traslucido e bordo sottile.
+        <span class="path">Impostazioni › Schermata home › Barra di ricerca</span>
+      </li>
+      <li>
+        <strong>Le pagine dei widget.</strong> Quante pagine avere con lo swipe a sinistra.
+        <span class="path">Impostazioni › Schermata home › Widget › Pagine widget</span>
+      </li>
+    </ul>
+
+    <h3>L'elenco delle app</h3>
+    <ul>
+      <li>
+        <strong>Divise per categoria.</strong> Comunicazione, Foto e video, Musica e audio, Giochi, Notizie, Mappe, Produttività, Internet, Strumenti, create dal tipo di ogni app. Le app che installi dopo finiscono da sole nella loro categoria, se esiste ancora.
+        <span class="path">Impostazioni › Ricerca › App › Raggruppa per categoria</span>
+      </li>
+      <li>
+        <strong>Categorie tue.</strong> Tocca la matita sul titolo di una sezione per rinominarla, aggiungere o togliere app; con “+ Nuova categoria”, in fondo all'elenco, ne crei una da zero.
+        <span class="path">Nell'elenco delle app, aprendo la ricerca</span>
+      </li>
+    </ul>
+
+    <p class="also">E in più tutto quello che Kvaesitso permette già: colori e temi, pacchetti di icone, stili dell'orologio, gesti, sfondo scurito o sfocato. È tutto nella <a href="https://kvaesitso.mm20.de/docs/user-guide">guida di Kvaesitso</a>.</p>
+  </section>
+
+  <section aria-labelledby="misure">
+    <h2 id="misure">Misurato su un OnePlus Nord</h2>
+    <p class="lead">Un launcher resta acceso tutto il giorno, quindi deve costare poco. Ogni modifica la provo su un telefono del 2020, guardando CPU, fotogrammi e memoria.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <b>0<small>fps</small></b>
+        <span>Home ferma</span>
+        <p>Se non la tocchi non disegna nulla. L'orologio si aggiorna una volta al minuto, a meno che tu non voglia i secondi.</p>
+      </div>
+      <div class="stat">
+        <b>1–5<small>ms/s</small></b>
+        <span>CPU a riposo, anche in carica</span>
+        <p>Meno dello 0,5% di un core. Niente animazione di ricarica: col cavo attaccato non cambia nulla.</p>
+      </div>
+      <div class="stat">
+        <b>~1<small>ms/s</small></b>
+        <span>In background</span>
+        <p>Meteo e cambi valuta si aggiornano solo con la rete, i cambi una volta al giorno.</p>
+      </div>
+      <div class="stat">
+        <b>~140<small>MB</small></b>
+        <span>Memoria</span>
+        <p>Tutti i processi del launcher insieme.</p>
+      </div>
+    </div>
+
+    <ul>
+      <li><strong>La ricerca è la parte più pesante.</strong> Circa <span class="num">160 ms/s</span> di CPU mentre la apri, la scorri e la chiudi, per le schede traslucide sopra lo sfondo disegnate a 90 Hz. È la prossima da alleggerire. Mentre si apre la tastiera si muove solo la barra, non tutto lo schermo.</li>
+      <li><strong>Le novità che costano qualcosa sono spente di default.</strong> Quelle che cambiano un gesto o aggiungono lavoro le accendi solo se ti servono.</li>
+    </ul>
+
+    <p class="method">Come ho misurato: OnePlus Nord con Android 12, CPU di tutti i processi del launcher e fotogrammi disegnati, 60 secondi per ogni situazione. 1 ms di CPU al secondo è lo 0,1% di un core.</p>
+  </section>
+
   <section aria-labelledby="roadmap">
     <h2 id="roadmap">Roadmap</h2>
     <p class="lead">Più o meno quello su cui sto lavorando. Cambia spesso.</p>
 
     <h3><span class="state wip" aria-hidden="true"></span>In lavorazione</h3>
     <ul>
-      <li><strong>Avvio delle app che parte dall'icona.</strong> Aprendo un'app con Invio dalla ricerca, l'animazione cresce dall'icona evidenziata.</li>
-      <li><strong>Icone che rispondono al tocco.</strong> Leggero effetto pressione sulle icone della griglia e sulle app in home, e comparsa in dissolvenza.</li>
-      <li><strong>App più piccola e più rapida ad aprirsi.</strong> Ottimizzazione R8 attiva: codice da <span class="num">21 a 10,8 MB</span>, avvio a freddo circa il 10% più veloce.</li>
+      <li><strong>Collegamenti dei siti in home.</strong> Le pagine aggiunte dal browser con “Aggiungi a schermata Home” compaiono tra le app fissate.</li>
+      <li><strong>Categorie, ovunque.</strong> Lo stesso nome anche nella scheda per modificarle, che oggi dice ancora “tag”.</li>
     </ul>
 
     <h3><span class="state next" aria-hidden="true"></span>Prossimamente, in ordine di priorità</h3>
     <ol>
-      <li><span><strong>Notifiche sotto le app fissate.</strong> Un'anteprima della notifica direttamente in home, sotto l'app che l'ha mandata.</span></li>
+      <li><span><strong>Ricerca più leggera.</strong> Meno lavoro per aprirla e chiuderla.</span></li>
+      <li><span><strong>Risparmio a 60 Hz, se lo vuoi.</strong> Un'opzione per disegnare meno fotogrammi quando la batteria conta più della fluidità.</span></li>
       <li><span><strong>Risultati di ricerca animati.</strong> Ogni icona si sposta al suo posto quando la lista cambia, invece di ridisegnarsi da capo.</span></li>
       <li><span><strong>Avvio ancora più veloce.</strong> Un Baseline Profile dedicato a questo launcher.</span></li>
-      <li><span><strong>Scorrimento alfabetico.</strong> Una barra con le lettere per saltare nell'elenco delle app.</span></li>
-      <li><span><strong>Gesti sulle app fissate.</strong> Azioni rapide con uno swipe sull'app in home.</span></li>
     </ol>
 
     <h3><span class="state no" aria-hidden="true"></span>Non in programma</h3>
     <ul class="skip">
       <li>Funzioni di intelligenza artificiale.</li>
       <li>Vibrazione a ogni tocco.</li>
+      <li>Icone che si animano mentre scrivi: fotogrammi in più a ogni tasto, per poco.</li>
       <li>Icona che si trasforma nella finestra dell'app: senza root non si può fare.</li>
     </ul>
   </section>
