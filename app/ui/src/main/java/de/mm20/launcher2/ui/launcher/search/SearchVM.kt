@@ -6,11 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.mm20.launcher2.applications.AppRepository
 import de.mm20.launcher2.data.customattrs.CustomAttributesRepository
 import de.mm20.launcher2.devicepose.DevicePoseProvider
 import de.mm20.launcher2.ktx.isAtLeastApiLevel
@@ -51,10 +51,12 @@ import de.mm20.launcher2.ui.launcher.search.common.ItemBounds
 import de.mm20.launcher2.ui.launcher.search.apps.createDefaultAppTags
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -79,6 +81,7 @@ class SearchVM : ViewModel(), KoinComponent {
     private val devicePoseProvider: DevicePoseProvider by inject()
     private val searchFilterSettings: SearchFilterSettings by inject()
     private val customAttributesRepository: CustomAttributesRepository by inject()
+    private val appRepository: AppRepository by inject()
     private val tagsService: TagsService by inject()
     private val context: Context by inject()
 
@@ -158,17 +161,40 @@ class SearchVM : ViewModel(), KoinComponent {
 
     init {
         search("", forceRestart = true)
-        viewModelScope.launch(Dispatchers.Default) { createDefaultAppTagsOnce() }
+        viewModelScope.launch(Dispatchers.Default) { categorizeApps() }
     }
 
     /**
-     * The first time apps are split by tag, the apps without tags get a default category.
+     * Default categories: the first time for every app without a tag, afterwards only for apps
+     * installed later, and only into categories that still exist. Apps the user moved stay put.
+     * Runs when the installed apps change.
      */
-    private suspend fun createDefaultAppTagsOnce() {
-        if (!searchUiSettings.allAppsByTag.first() || searchUiSettings.defaultAppTagsCreated.first()) return
-        val apps = snapshotFlow { appResults.toList() + workAppResults.toList() }.first { it.isNotEmpty() }
-        createDefaultAppTags(context, apps, customAttributesRepository.getTagsByItemKey().first(), tagsService)
-        searchUiSettings.setDefaultAppTagsCreated()
+    @OptIn(FlowPreview::class)
+    private suspend fun categorizeApps() {
+        appRepository.findMany().debounce(1000).collect { apps ->
+            if (apps.isEmpty() || !searchUiSettings.allAppsByTag.first()) return@collect
+            val known = searchUiSettings.categorizedApps.first()
+            val tagsByKey = customAttributesRepository.getTagsByItemKey().first()
+            when {
+                !searchUiSettings.defaultAppTagsCreated.first() -> {
+                    createDefaultAppTags(context, apps, tagsByKey, tagsService)
+                    searchUiSettings.setDefaultAppTagsCreated()
+                }
+                // First run after the update that added this: the apps already installed were
+                // categorized (and maybe moved by the user) before, only remember them
+                known.isEmpty() -> {}
+                else -> {
+                    val new = apps.filter { it.key !in known }
+                    if (new.isNotEmpty()) {
+                        createDefaultAppTags(context, new, tagsByKey, tagsService, onlyExistingTags = true)
+                    }
+                }
+            }
+            // ponytail: keys are never removed, so a locked private space or an uninstall doesn't
+            // make an app "new" again; the set only grows by the apps ever installed
+            val updated = known + apps.map { it.key }
+            if (updated.size != known.size) searchUiSettings.setCategorizedApps(updated)
+        }
     }
 
     /**
