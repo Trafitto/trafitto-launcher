@@ -10,7 +10,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import de.mm20.launcher2.ktx.isAtLeastApiLevel
 import de.mm20.launcher2.preferences.IconShape
 import de.mm20.launcher2.preferences.MeasurementSystem
@@ -55,6 +58,8 @@ fun ProvideSettings(
             settings.favoritesEnabled,
         ) { a, b -> a || b }.distinctUntilChanged()
     }.collectAsState(true)
+
+    val haptics by remember { settings.haptics }.collectAsState(true)
 
     val gridSettings by remember {
         settings.gridSettings.distinctUntilChanged()
@@ -129,10 +134,16 @@ fun ProvideSettings(
         LocalMeasurementSystem provides measurementSystem!!,
         LocalCalendarSystems provides calendars,
         LocalCalendarSystemIds provides calendarIds,
+        // Vibration off: every haptic of the launcher goes through this local
+        LocalHapticFeedback provides if (haptics) LocalHapticFeedback.current else NoHapticFeedback,
     ) {
         ProvideIconShape(iconShape) {
             content()
         }
     }
 
+}
+
+private object NoHapticFeedback : HapticFeedback {
+    override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {}
 }
