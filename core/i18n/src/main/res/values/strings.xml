@@ -263,9 +263,9 @@
     <!-- Edit favorites, title for items that are pinned and have been sorted by the user -->
     <string name="edit_favorites_dialog_pinned_sorted">Pinned – manually sorted</string>
     <string name="edit_favorites_dialog_empty_section">Drag items here</string>
-    <string name="edit_favorites_dialog_tags">Tags</string>
-    <string name="edit_favorites_dialog_tag_section_empty">Pinned tags will appear here</string>
-    <string name="edit_favorites_dialog_new_tag">Create tag</string>
+    <string name="edit_favorites_dialog_tags">Categories</string>
+    <string name="edit_favorites_dialog_tag_section_empty">Pinned categories will appear here</string>
+    <string name="edit_favorites_dialog_new_tag">Create category</string>
     <!-- Nextcloud login flow, URL-->
     <string name="nextcloud_server_url">Nextcloud server URL</string>
     <!-- Nextcloud/Owncloud login flow, empty URL-->
@@ -625,7 +625,7 @@
     <string name="preference_logs">Logs</string>
     <string name="preference_logs_summary">View and export application logs</string>
     <string name="preference_screen_search">Search</string>
-    <string name="preference_screen_search_summary">Search, tags, excluded results</string>
+    <string name="preference_screen_search_summary">Search, categories, excluded results</string>
     <string name="preference_search_favorites">Favorites</string>
     <string name="preference_search_favorites_summary">Show pinned and frequently used items above app grid</string>
     <string name="preference_search_apps">Apps</string>
@@ -681,16 +681,16 @@
     <string name="preference_hidden_items_summary">Manage excluded apps and search results</string>
     <string name="preference_hidden_items_reveal_button">Show reveal button</string>
     <string name="preference_hidden_items_reveal_button_summary">Show a button to reveal excluded search results</string>
-    <string name="preference_screen_tags">Tags</string>
-    <string name="preference_screen_tags_summary">Manage tags and tagged items</string>
+    <string name="preference_screen_tags">Categories</string>
+    <string name="preference_screen_tags_summary">Manage categories and their apps</string>
     <string name="preference_wikipedia_customurl">Wikipedia URL</string>
     <string name="preference_edit_favorites_summary">Change the order of pinned items</string>
     <string name="preference_category_favorites_frequently_used">Frequently used</string>
     <string name="preference_favorites_frequently_used_summary">Show frequently used items in favorites</string>
     <string name="preference_edit_button">Edit button</string>
     <string name="preference_favorites_edit_button_summary">Show a button to rearrange the favorites</string>
-    <string name="preference_compact_tags">Compact tags</string>
-    <string name="preference_compact_tags_summary">Hide tag labels or icons to reduce the space occupied by tags</string>
+    <string name="preference_compact_tags">Compact categories</string>
+    <string name="preference_compact_tags_summary">Hide category labels or icons to take less space</string>
     <string name="preference_widgets_edit_button_summary">Show a button to add, remove and rearrange widgets</string>
     <string name="preference_widgets_on_home_screen">Widgets on home screen</string>
     <string name="preference_widgets_on_home_screen_summary">Show widgets on the home screen instead of a separate page</string>
@@ -749,7 +749,7 @@
     <string name="apps_profile_private">Private</string>
     <string name="favorites">Favorites</string>
     <string name="favorites_empty">Pinned and frequently used items will appear here</string>
-    <string name="favorites_empty_tag">There are no items with this tag</string>
+    <string name="favorites_empty_tag">There are no items in this category</string>
     <string name="frequently_used_show_in_favorites">Show in favorites</string>
     <string name="frequently_used_rows">Number of rows</string>
     <string name="favorites_skip_rows">Skip rows</string>
@@ -783,12 +783,12 @@
     <string name="search_action_websearch_url_hint">The URL template that is used to construct the web search URL. Use ‘${1}’ as a placeholder for the actual search term</string>
     <string name="more_information">More information</string>
     <string name="experimental_feature">Experimental</string>
-    <string name="tag_exists_error">A tag with this name already exists</string>
+    <string name="tag_exists_error">A category with this name already exists</string>
     <string name="tag_name_empty_error">Name cannot be empty</string>
-    <string name="tag_exists_message">A tag with this name already exists. If you continue, the two tags will be merged</string>
-    <string name="tag_no_items_message">No items are assigned to this tag. If you continue, the tag will be deleted</string>
+    <string name="tag_exists_message">A category with this name already exists. If you continue, the two categories will be merged</string>
+    <string name="tag_no_items_message">No items are in this category. If you continue, the category will be deleted</string>
     <string name="tag_select_items">Select items</string>
-    <string name="tag_name">Tag name</string>
+    <string name="tag_name">Category name</string>
     <string name="tag_icon_customicon">Icon</string>
     <string name="tag_icon_emoji">Emoji</string>
     <plurals name="tag_selected_items">
@@ -1029,7 +1029,7 @@
     <string name="poi_category_climbing_gym">Climbing gym</string>
     <string name="poi_category_hackerspace">Hackerspace</string>
     <string name="customize_item_label">Label</string>
-    <string name="customize_item_tags">Tags</string>
+    <string name="customize_item_tags">Categories</string>
     <string name="customize_item_visibility">Show in</string>
     <string name="item_visibility_app_default">App grid &amp; search results</string>
     <string name="item_visibility_calendar_default">Calendar widget &amp; search results</string>
@@ -1118,9 +1118,9 @@
     <string name="preference_calendar_system_secondary">Secondary calendar</string>
     <string name="preference_currencies">Currency</string>
     <string name="preference_add_currency">Add currency</string>
-    <string name="select_tag">Select tag</string>
-    <string name="create_tag_title">New tag</string>
-    <string name="edit_tag_title">Edit tag</string>
+    <string name="select_tag">Select category</string>
+    <string name="create_tag_title">New category</string>
+    <string name="edit_tag_title">Edit category</string>
     <string name="dialog_discard_unsaved">Quit without saving?</string>
     <string name="typo_preview_extra_short">Aa</string>
     <string name="typo_preview_short1">Ava</string>
@@ -1159,7 +1159,7 @@
     <string name="widget_pages">Widget pages</string>
     <string name="widget_pages_summary">Pages of widgets to the right of the home screen (swipe left)</string>
     <string name="preference_search_apps_by_tag">Group by category</string>
-    <string name="preference_search_apps_by_tag_summary">Split all apps in sections by tag. Tap a section title to rename it or to add and remove apps</string>
+    <string name="preference_search_apps_by_tag_summary">Split all apps in sections by category. Tap a section title to rename it or to add and remove apps</string>
     <string name="apps_untagged">Other apps</string>
     <string name="app_category_communication">Communication</string>
     <string name="app_category_photos_videos">Photos &amp; videos</string>
