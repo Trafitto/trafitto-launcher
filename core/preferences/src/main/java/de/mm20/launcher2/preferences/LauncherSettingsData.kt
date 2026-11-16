@@ -28,6 +28,8 @@ data class LauncherSettingsData internal constructor(
     val uiOpaqueSurfaces: Boolean = false,
     /** Trafitto: vibration on long presses and gestures in the launcher */
     val uiHaptics: Boolean = true,
+    /** Trafitto: stiffer page springs, pages open and close in less time */
+    val uiFastAnimations: Boolean = false,
 
     val uiCompatModeColors: Boolean = false,
     @Deprecated("No longer in use, only used for migration")

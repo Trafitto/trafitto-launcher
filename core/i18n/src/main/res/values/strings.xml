@@ -1191,6 +1191,8 @@
     <string name="preference_category_graphics">Graphics</string>
     <string name="preference_haptics">Vibration</string>
     <string name="preference_haptics_summary">A light vibration on long presses, gestures and the letters on the edge</string>
+    <string name="preference_fast_animations">Fast animations</string>
+    <string name="preference_fast_animations_summary">Pages open and close in less time: fewer frames to draw</string>
     <string name="preference_opaque_surfaces">Opaque backgrounds</string>
     <string name="preference_opaque_surfaces_summary">Cards and backgrounds without transparency: the GPU doesn\'t blend them with the wallpaper on every frame. The wallpaper stays visible on the home screen</string>
     <string name="preference_refresh_rate_impact_title">More hertz, more frames</string>
