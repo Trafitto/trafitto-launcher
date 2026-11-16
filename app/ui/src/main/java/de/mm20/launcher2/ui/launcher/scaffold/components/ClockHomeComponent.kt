@@ -1,6 +1,27 @@
 package de.mm20.launcher2.ui.launcher.scaffold.components
 
 import android.app.PendingIntent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
+import de.mm20.launcher2.search.Tag
+import de.mm20.launcher2.searchable.SavableSearchableRepository
+import de.mm20.launcher2.searchable.VisibilityLevel
+import kotlinx.coroutines.flow.combine
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -150,7 +171,8 @@ internal object ClockHomeComponent : ScaffoldComponent() {
 private const val MaxHomeApps = 6
 
 /**
- * The first 6 pinned apps and shortcuts. "+ Add app" or a long press opens [EditHomeAppsSheet],
+ * The first 6 pinned apps, shortcuts and categories (as folders). "+ Add app" or a long press
+ * opens [EditHomeAppsSheet],
  * the look is set in Settings > Home screen.
  */
 @Composable
@@ -159,8 +181,9 @@ private fun HomeFavorites(settings: HomeAppsSettings) {
     val customAttributesRepository: CustomAttributesRepository = koinInject()
     val apps by remember {
         favoritesService.getFavorites(
-            // Shortcuts too: "Add to home screen" from a browser pins them here
-            includeTypes = listOf("app", "shortcut", "legacyshortcut"),
+            // Shortcuts too: "Add to home screen" from a browser pins them here.
+            // A pinned category is a folder
+            includeTypes = listOf("app", "shortcut", "legacyshortcut", "tag"),
             minPinnedLevel = PinnedLevel.AutomaticallySorted,
             limit = MaxHomeApps,
         ).withCustomLabels(customAttributesRepository)
@@ -212,6 +235,8 @@ internal fun homeTextColor() =
 @Composable
 private fun EditHomeAppsSheet(apps: List<SavableSearchable>, onDismiss: () -> Unit) {
     val favoritesService: FavoritesService = koinInject()
+    val customAttributesRepository: CustomAttributesRepository = koinInject()
+    val tags by remember { customAttributesRepository.getAllTags() }.collectAsState(emptyList())
     // The picker's VM is activity scoped: start every time with an empty search
     val pickerVM: SearchablePickerVM = viewModel()
     LaunchedEffect(Unit) { pickerVM.onSearchQueryChanged("") }
@@ -228,6 +253,14 @@ private fun EditHomeAppsSheet(apps: List<SavableSearchable>, onDismiss: () -> Un
                         selected = false,
                         onClick = { favoritesService.unpinItem(app) },
                         label = { Text(app.labelOverride ?: app.label) },
+                        leadingIcon = if (app !is Tag) null else {
+                            {
+                                Icon(
+                                    painterResource(R.drawable.folder_24px), null,
+                                    Modifier.size(InputChipDefaults.IconSize),
+                                )
+                            }
+                        },
                         trailingIcon = {
                             Icon(
                                 painterResource(R.drawable.close_24px),
@@ -239,6 +272,33 @@ private fun EditHomeAppsSheet(apps: List<SavableSearchable>, onDismiss: () -> Un
                 }
             }
             if (apps.size < MaxHomeApps) {
+                val pinnedTags = apps.mapNotNull { (it as? Tag)?.tag }
+                val freeTags = tags.filter { it !in pinnedTags }
+                if (freeTags.isNotEmpty()) {
+                    Text(
+                        stringResource(R.string.home_apps_folders),
+                        modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    // One scrollable row, so search results stay visible above the keyboard
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        for (tag in freeTags) {
+                            AssistChip(
+                                onClick = { favoritesService.pinItem(Tag(tag)) },
+                                label = { Text(tag) },
+                                leadingIcon = {
+                                    Icon(
+                                        painterResource(R.drawable.folder_24px), null,
+                                        Modifier.size(AssistChipDefaults.IconSize),
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
                 SearchablePicker(
                     modifier = Modifier
                         .padding(top = 16.dp)
@@ -268,15 +328,25 @@ private fun HomeFavorite(
     val context = LocalContext.current
     var bounds by remember { mutableStateOf(IntRect.Zero) }
     var showPopup by remember { mutableStateOf(false) }
+    // A pinned category: a tap opens its apps next to it
+    val folder = item as? Tag
+    var showFolder by remember { mutableStateOf(false) }
+    val folderItems by rememberFolderItems(folder)
 
     val iconView = @Composable {
         if (settings.showIcons) {
-            ShapedLauncherIcon(
-                modifier = if (settings.monochromeIcons) Modifier.grayscale() else Modifier,
-                size = iconSize,
-                icon = { icon },
-                shape = settings.iconShape?.let { getShape(it) } ?: LocalIconShape.current,
-            )
+            val modifier = if (settings.monochromeIcons) Modifier.grayscale() else Modifier
+            val shape = settings.iconShape?.let { getShape(it) } ?: LocalIconShape.current
+            if (folder != null) {
+                FolderIcon(folderItems, iconSize, shape, modifier)
+            } else {
+                ShapedLauncherIcon(
+                    modifier = modifier,
+                    size = iconSize,
+                    icon = { icon },
+                    shape = shape,
+                )
+            }
         }
     }
     // White text needs a soft shadow to stay readable on light parts of the wallpaper
@@ -339,52 +409,157 @@ private fun HomeFavorite(
     val swipe = remember { mutableFloatStateOf(0f) }
     val haptic = LocalHapticFeedback.current
     val swipeThreshold = with(LocalDensity.current) { 64.dp.toPx() }
-    Row(
-        modifier = Modifier
-            .onGloballyPositioned { bounds = it.boundsInWindow().roundToIntRect() }
-            .then(
-                if (!settings.swipeForShortcuts) Modifier
-                else Modifier
-                    .draggable(
-                        orientation = Orientation.Horizontal,
-                        state = rememberDraggableState { delta ->
-                            val before = swipe.floatValue
-                            swipe.floatValue = before + delta
-                            if (abs(before) < swipeThreshold && abs(swipe.floatValue) >= swipeThreshold) {
-                                haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
-                            }
-                        },
-                        onDragStopped = {
-                            if (abs(swipe.floatValue) >= swipeThreshold) showPopup = true
-                            swipe.floatValue = 0f
-                        },
-                    )
-                    .graphicsLayer {
-                        translationX = (swipe.floatValue * 0.4f).coerceIn(-32.dp.toPx(), 32.dp.toPx())
-                    }
-            )
-            .combinedClickable(
-                interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = { if (!viewModel.launch(context, bounds)) showPopup = true },
-                onLongClick = onLongClick,
-            )
-            .pressScale(interactionSource, pressedScale = 0.95f)
-            .padding(vertical = (settings.spacing / 2).dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        if (iconAfterLabel) {
-            label()
-            iconView()
-        } else {
-            iconView()
-            label()
+    // The folder popup is placed next to this Box. Not a child of the Row: it would take a spacing
+    Box {
+        Row(
+            modifier = Modifier
+                .onGloballyPositioned { bounds = it.boundsInWindow().roundToIntRect() }
+                .then(
+                    if (!settings.swipeForShortcuts || folder != null) Modifier
+                    else Modifier
+                        .draggable(
+                            orientation = Orientation.Horizontal,
+                            state = rememberDraggableState { delta ->
+                                val before = swipe.floatValue
+                                swipe.floatValue = before + delta
+                                if (abs(before) < swipeThreshold && abs(swipe.floatValue) >= swipeThreshold) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+                                }
+                            },
+                            onDragStopped = {
+                                if (abs(swipe.floatValue) >= swipeThreshold) showPopup = true
+                                swipe.floatValue = 0f
+                            },
+                        )
+                        .graphicsLayer {
+                            translationX = (swipe.floatValue * 0.4f).coerceIn(-32.dp.toPx(), 32.dp.toPx())
+                        }
+                )
+                .combinedClickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
+                    onClick = {
+                        if (folder != null) showFolder = true
+                        else if (!viewModel.launch(context, bounds)) showPopup = true
+                    },
+                    onLongClick = onLongClick,
+                )
+                .pressScale(interactionSource, pressedScale = 0.95f)
+                .padding(vertical = (settings.spacing / 2).dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            if (iconAfterLabel) {
+                label()
+                iconView()
+            } else {
+                iconView()
+                label()
+            }
+        }
+        if (showFolder) {
+            FolderPopup(folderItems, settings.position, onDismiss = { showFolder = false })
         }
     }
 
     if (showPopup) {
         ItemPopup(origin = bounds, searchable = item, onDismissRequest = { showPopup = false })
+    }
+}
+
+/** The visible items of a category, by name. Nothing for an item that isn't a category */
+@Composable
+private fun rememberFolderItems(folder: Tag?): State<List<SavableSearchable>> {
+    val customAttributesRepository: CustomAttributesRepository = koinInject()
+    val searchableRepository: SavableSearchableRepository = koinInject()
+    return remember(folder) {
+        if (folder == null) flowOf(emptyList())
+        else combine(
+            customAttributesRepository.getItemsForTag(folder.tag)
+                .withCustomLabels(customAttributesRepository),
+            searchableRepository.getKeys(maxVisibility = VisibilityLevel.SearchOnly),
+        ) { items, hidden ->
+            val hiddenKeys = hidden.toSet()
+            items.filter { it.key !in hiddenKeys }.sorted()
+        }
+    }.collectAsState(emptyList())
+}
+
+/** The first 4 icons of the folder in a 2x2 grid, on the icon shape */
+@Composable
+private fun FolderIcon(items: List<SavableSearchable>, size: Dp, shape: Shape, modifier: Modifier) {
+    Box(
+        modifier
+            .size(size)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.85f), shape)
+            .padding(size * 0.12f)
+    ) {
+        val corners = listOf(Alignment.TopStart, Alignment.TopEnd, Alignment.BottomStart, Alignment.BottomEnd)
+        items.take(4).forEachIndexed { i, item ->
+            key(item.key) {
+                FolderIconItem(item, size * 0.34f, Modifier.align(corners[i]))
+            }
+        }
+    }
+}
+
+@Composable
+private fun FolderIconItem(item: SavableSearchable, size: Dp, modifier: Modifier) {
+    val viewModel: SearchableItemVM = listItemViewModel(key = "home-folder-${item.key}")
+    val sizePx = size.toPixels()
+    LaunchedEffect(item, sizePx) {
+        viewModel.init(item, sizePx.toInt())
+    }
+    val icon by viewModel.icon.collectAsStateWithLifecycle()
+    ShapedLauncherIcon(modifier = modifier, size = size, icon = { icon })
+}
+
+/** The apps of a folder in a panel next to it; a tap outside or back closes it */
+@Composable
+private fun FolderPopup(
+    items: List<SavableSearchable>,
+    position: HomeAppsPosition,
+    onDismiss: () -> Unit,
+) {
+    Popup(
+        popupPositionProvider = remember(position) { FolderPosition(position) },
+        onDismissRequest = onDismiss,
+        properties = PopupProperties(focusable = true),
+    ) {
+        val visible = remember { MutableTransitionState(false).apply { targetState = true } }
+        AnimatedVisibility(visible, enter = fadeIn() + scaleIn(initialScale = 0.9f)) {
+            AppsPanel(items, onLaunched = onDismiss, modifier = Modifier.padding(vertical = 8.dp))
+        }
+    }
+}
+
+/**
+ * Lined up with the home list; above the folder when the list is at the bottom, below it when
+ * at the top, on the other side if it doesn't fit
+ */
+private class FolderPosition(private val position: HomeAppsPosition) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize,
+    ): IntOffset {
+        val x = when (position) {
+            HomeAppsPosition.TopStart, HomeAppsPosition.BottomStart -> anchorBounds.left
+            HomeAppsPosition.TopEnd, HomeAppsPosition.BottomEnd -> anchorBounds.right - popupContentSize.width
+            else -> anchorBounds.center.x - popupContentSize.width / 2
+        }
+        val above = anchorBounds.top - popupContentSize.height
+        val below = anchorBounds.bottom
+        val atBottom = position in listOf(
+            HomeAppsPosition.BottomStart, HomeAppsPosition.BottomCenter, HomeAppsPosition.BottomEnd
+        )
+        val y = if (atBottom && above >= 0 || !atBottom && below + popupContentSize.height > windowSize.height) above
+        else below
+        return IntOffset(
+            x.coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0)),
+            y.coerceAtLeast(0),
+        )
     }
 }
 
