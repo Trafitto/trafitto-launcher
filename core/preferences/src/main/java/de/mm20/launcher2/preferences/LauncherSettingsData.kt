@@ -374,6 +374,7 @@ data class SearchBarLook(
  */
 @Serializable
 data class HomeAppsSettings(
+    val mode: HomeAppsMode = HomeAppsMode.Pinned,
     val position: HomeAppsPosition = HomeAppsPosition.BottomStart,
     val labelSize: Int = 22,
     val boldLabels: Boolean = false,
@@ -387,6 +388,16 @@ data class HomeAppsSettings(
     /** The latest notification of each app, on a line under its name (opt-in) */
     val showNotifications: Boolean = false,
 )
+
+@Serializable
+enum class HomeAppsMode {
+    /** Up to 6 pinned apps with name and icon */
+    Pinned,
+    /** Only the clock */
+    None,
+    /** Letters on the screen edge, sliding on them shows the apps by initial */
+    Letters,
+}
 
 @Serializable
 enum class HomeAppsPosition {

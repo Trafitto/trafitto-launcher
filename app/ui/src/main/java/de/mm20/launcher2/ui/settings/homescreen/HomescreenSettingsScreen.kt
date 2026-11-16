@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
+import de.mm20.launcher2.preferences.HomeAppsMode
 import de.mm20.launcher2.preferences.HomeAppsPosition
 import de.mm20.launcher2.preferences.IconShape
 import de.mm20.launcher2.preferences.SearchBarColors
@@ -172,85 +173,105 @@ fun HomescreenSettingsScreen() {
         item {
             val homeApps by viewModel.homeApps.collectAsStateWithLifecycle()
             PreferenceCategory(stringResource(R.string.home_apps_category)) {
-                Preference(
-                    title = stringResource(R.string.home_apps_hint),
-                    onClick = {},
-                )
                 ListPreference(
-                    title = stringResource(R.string.home_apps_position),
+                    title = stringResource(R.string.home_apps_mode),
                     items = listOf(
-                        stringResource(R.string.home_apps_position_top_start) to HomeAppsPosition.TopStart,
-                        stringResource(R.string.home_apps_position_top_center) to HomeAppsPosition.TopCenter,
-                        stringResource(R.string.home_apps_position_top_end) to HomeAppsPosition.TopEnd,
-                        stringResource(R.string.home_apps_position_bottom_start) to HomeAppsPosition.BottomStart,
-                        stringResource(R.string.home_apps_position_bottom_center) to HomeAppsPosition.BottomCenter,
-                        stringResource(R.string.home_apps_position_bottom_end) to HomeAppsPosition.BottomEnd,
+                        stringResource(R.string.home_apps_mode_pinned) to HomeAppsMode.Pinned,
+                        stringResource(R.string.home_apps_mode_none) to HomeAppsMode.None,
+                        stringResource(R.string.home_apps_mode_letters) to HomeAppsMode.Letters,
                     ),
-                    value = homeApps.position,
-                    onValueChanged = { p -> viewModel.updateHomeApps { it.copy(position = p) } },
+                    value = homeApps.mode,
+                    onValueChanged = { m -> viewModel.updateHomeApps { it.copy(mode = m) } },
                 )
-                SwitchPreference(
-                    title = stringResource(R.string.home_apps_show_labels),
-                    value = homeApps.showLabels,
-                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showLabels = v) } },
-                )
-                AnimatedVisibility(homeApps.showLabels) {
-                    Column {
-                        SliderPreference(
-                            title = stringResource(R.string.home_apps_label_size),
-                            value = homeApps.labelSize,
-                            min = 12,
-                            max = 40,
-                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(labelSize = v) } },
-                        )
-                        SwitchPreference(
-                            title = stringResource(R.string.home_apps_bold),
-                            value = homeApps.boldLabels,
-                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(boldLabels = v) } },
-                        )
-                    }
+                val pinned = homeApps.mode == HomeAppsMode.Pinned
+                AnimatedVisibility(pinned) {
+                    Preference(
+                        title = stringResource(R.string.home_apps_hint),
+                        onClick = {},
+                    )
                 }
-                SwitchPreference(
-                    title = stringResource(R.string.home_apps_show_icons),
-                    value = homeApps.showIcons,
-                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showIcons = v) } },
-                )
-                AnimatedVisibility(homeApps.showIcons) {
+                // The side of the letters comes from the position too
+                AnimatedVisibility(homeApps.mode != HomeAppsMode.None) {
+                    ListPreference(
+                        title = stringResource(R.string.home_apps_position),
+                        items = listOf(
+                            stringResource(R.string.home_apps_position_top_start) to HomeAppsPosition.TopStart,
+                            stringResource(R.string.home_apps_position_top_center) to HomeAppsPosition.TopCenter,
+                            stringResource(R.string.home_apps_position_top_end) to HomeAppsPosition.TopEnd,
+                            stringResource(R.string.home_apps_position_bottom_start) to HomeAppsPosition.BottomStart,
+                            stringResource(R.string.home_apps_position_bottom_center) to HomeAppsPosition.BottomCenter,
+                            stringResource(R.string.home_apps_position_bottom_end) to HomeAppsPosition.BottomEnd,
+                        ),
+                        value = homeApps.position,
+                        onValueChanged = { p -> viewModel.updateHomeApps { it.copy(position = p) } },
+                    )
+                }
+                AnimatedVisibility(pinned) {
                     Column {
-                        SliderPreference(
-                            title = stringResource(R.string.home_apps_icon_size),
-                            value = homeApps.iconSize,
-                            min = 20,
-                            max = 80,
-                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(iconSize = v) } },
+                        SwitchPreference(
+                            title = stringResource(R.string.home_apps_show_labels),
+                            value = homeApps.showLabels,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showLabels = v) } },
                         )
-                        ListPreference(
-                            title = stringResource(R.string.home_apps_icon_shape),
-                            items = listOf(stringResource(R.string.home_apps_icon_shape_default) to null) +
+                        AnimatedVisibility(homeApps.showLabels) {
+                            Column {
+                                SliderPreference(
+                                    title = stringResource(R.string.home_apps_label_size),
+                                    value = homeApps.labelSize,
+                                    min = 12,
+                                    max = 40,
+                                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(labelSize = v) } },
+                                )
+                                SwitchPreference(
+                                    title = stringResource(R.string.home_apps_bold),
+                                    value = homeApps.boldLabels,
+                                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(boldLabels = v) } },
+                                )
+                            }
+                        }
+                        SwitchPreference(
+                            title = stringResource(R.string.home_apps_show_icons),
+                            value = homeApps.showIcons,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showIcons = v) } },
+                        )
+                        AnimatedVisibility(homeApps.showIcons) {
+                            Column {
+                                SliderPreference(
+                                    title = stringResource(R.string.home_apps_icon_size),
+                                    value = homeApps.iconSize,
+                                    min = 20,
+                                    max = 80,
+                                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(iconSize = v) } },
+                                )
+                                ListPreference(
+                                    title = stringResource(R.string.home_apps_icon_shape),
+                                    items = listOf(stringResource(R.string.home_apps_icon_shape_default) to null) +
                                     IconShape.entries.mapNotNull { shape -> getShapeName(shape)?.let { it to shape } },
-                            value = homeApps.iconShape,
-                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(iconShape = v) } },
+                                    value = homeApps.iconShape,
+                                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(iconShape = v) } },
+                                )
+                                SwitchPreference(
+                                    title = stringResource(R.string.home_apps_monochrome),
+                                    value = homeApps.monochromeIcons,
+                                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(monochromeIcons = v) } },
+                                )
+                            }
+                        }
+                        SliderPreference(
+                            title = stringResource(R.string.home_apps_spacing),
+                            value = homeApps.spacing,
+                            min = 0,
+                            max = 48,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(spacing = v) } },
                         )
                         SwitchPreference(
-                            title = stringResource(R.string.home_apps_monochrome),
-                            value = homeApps.monochromeIcons,
-                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(monochromeIcons = v) } },
+                            title = stringResource(R.string.home_apps_notifications),
+                            summary = stringResource(R.string.home_apps_notifications_summary),
+                            value = homeApps.showNotifications,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showNotifications = v) } },
                         )
                     }
                 }
-                SliderPreference(
-                    title = stringResource(R.string.home_apps_spacing),
-                    value = homeApps.spacing,
-                    min = 0,
-                    max = 48,
-                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(spacing = v) } },
-                )
-                SwitchPreference(
-                    title = stringResource(R.string.home_apps_notifications),
-                    summary = stringResource(R.string.home_apps_notifications_summary),
-                    value = homeApps.showNotifications,
-                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showNotifications = v) } },
-                )
             }
         }
         item {

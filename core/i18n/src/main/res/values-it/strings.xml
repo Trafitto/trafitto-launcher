@@ -996,4 +996,8 @@
     <string name="apps_new_tag">Nuova categoria</string>
     <string name="home_apps_notifications">Notifiche sotto le app</string>
     <string name="home_apps_notifications_summary">L\'ultima notifica di ogni app, sotto il nome. Toccala per aprirla</string>
+    <string name="home_apps_mode">Sulla home</string>
+    <string name="home_apps_mode_pinned">App fissate</string>
+    <string name="home_apps_mode_none">Nessuna app</string>
+    <string name="home_apps_mode_letters">Lettere sul bordo</string>
 </resources>

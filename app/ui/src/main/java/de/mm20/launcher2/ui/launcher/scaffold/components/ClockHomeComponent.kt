@@ -60,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import de.mm20.launcher2.data.customattrs.CustomAttributesRepository
 import de.mm20.launcher2.data.customattrs.utils.withCustomLabels
 import de.mm20.launcher2.ktx.sendWithBackgroundPermission
+import de.mm20.launcher2.preferences.HomeAppsMode
 import de.mm20.launcher2.preferences.HomeAppsPosition
 import de.mm20.launcher2.preferences.HomeAppsSettings
 import de.mm20.launcher2.preferences.ui.UiSettings
@@ -115,14 +116,23 @@ internal object ClockHomeComponent : ScaffoldComponent() {
                     .padding(insets)
                     .pointerInput(Unit) {},
             ) {
-                if (onTop) HomeFavorites(settings)
+                val pinned = settings.mode == HomeAppsMode.Pinned
+                if (onTop && pinned) HomeFavorites(settings)
                 Box(Modifier.weight(1f)) {
                     ClockWidget(
                         modifier = Modifier.fillMaxSize(),
                         fillScreenHeight = true,
                     )
+                    if (settings.mode == HomeAppsMode.Letters) {
+                        HomeLetters(
+                            onLeft = settings.position in listOf(
+                                HomeAppsPosition.TopStart, HomeAppsPosition.BottomStart
+                            ),
+                            modifier = Modifier.matchParentSize(),
+                        )
+                    }
                 }
-                if (!onTop) HomeFavorites(settings)
+                if (!onTop && pinned) HomeFavorites(settings)
             }
         }
     }
@@ -186,7 +196,7 @@ private fun HomeFavorites(settings: HomeAppsSettings) {
 }
 
 @Composable
-private fun homeTextColor() =
+internal fun homeTextColor() =
     if (LocalPreferDarkContentOverWallpaper.current) Color.Black else Color.White
 
 @Composable
