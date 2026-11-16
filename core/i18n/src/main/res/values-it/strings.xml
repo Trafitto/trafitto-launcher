@@ -191,7 +191,7 @@
     <string name="preference_category_links">Collegamenti</string>
     <string name="preference_category_licenses">Licenze open source</string>
     <string name="preference_screen_about_summary">Informazioni app e licenza</string>
-    <string name="preference_screen_appearance_summary">Personalizza l\'aspetto</string>
+    <string name="preference_screen_appearance_summary">Chiaro o scuro, colori, caratteri, forme, icone, griglia</string>
     <string name="preference_weather_provider">Provider</string>
     <string name="provider_metno">MET Norvegia</string>
     <string name="provider_openweathermap">OpenWeatherMap</string>
@@ -1023,4 +1023,9 @@
     <string name="preference_category_search_results">Risultati</string>
     <string name="preference_category_search_filters">Filtri</string>
     <string name="preference_category_search_keyboard">Tastiera</string>
+    <string name="preference_icon_pack_get">Nessun pacchetto installato: tocca per cercarne uno</string>
+    <string name="preference_single_app_icon">Icona di una sola app</string>
+    <string name="preference_single_app_icon_summary">Tieni premuta l\'app › Personalizza, poi tocca l\'icona per sceglierne un\'altra, anche da un pacchetto</string>
+    <string name="preference_grid_link_summary">Griglia, vista a lista, icone</string>
+    <string name="preference_category_style">Stile</string>
 </resources>

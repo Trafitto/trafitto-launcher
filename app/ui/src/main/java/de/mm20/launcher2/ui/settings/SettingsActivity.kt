@@ -1,5 +1,21 @@
 package de.mm20.launcher2.ui.settings
 
+import de.mm20.launcher2.ui.settings.typography.TypographySettingsScreen
+import de.mm20.launcher2.ui.settings.typography.TypographySettingsRoute
+import de.mm20.launcher2.ui.settings.typography.TypographiesSettingsScreen
+import de.mm20.launcher2.ui.settings.typography.TypographiesSettingsRoute
+import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemesSettingsScreen
+import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemesSettingsRoute
+import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemeSettingsScreen
+import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemeSettingsRoute
+import de.mm20.launcher2.ui.settings.shapes.ShapeSchemesSettingsScreen
+import de.mm20.launcher2.ui.settings.shapes.ShapeSchemesSettingsRoute
+import de.mm20.launcher2.ui.settings.shapes.ShapeSchemeSettingsScreen
+import de.mm20.launcher2.ui.settings.shapes.ShapeSchemeSettingsRoute
+import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemesSettingsScreen
+import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemesSettingsRoute
+import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemeSettingsScreen
+import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemeSettingsRoute
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
@@ -44,12 +60,6 @@ import de.mm20.launcher2.ui.locals.LocalWallpaperColors
 import de.mm20.launcher2.ui.overlays.OverlayHost
 import de.mm20.launcher2.ui.settings.about.AboutSettingsRoute
 import de.mm20.launcher2.ui.settings.about.AboutSettingsScreen
-import de.mm20.launcher2.ui.settings.appearance.AppearanceSettingsRoute
-import de.mm20.launcher2.ui.settings.appearance.AppearanceSettingsScreen
-import de.mm20.launcher2.ui.settings.appearance.ExportThemeSettingsRoute
-import de.mm20.launcher2.ui.settings.appearance.ExportThemeSettingsScreen
-import de.mm20.launcher2.ui.settings.appearance.ImportThemeSettingsRoute
-import de.mm20.launcher2.ui.settings.appearance.ImportThemeSettingsScreen
 import de.mm20.launcher2.ui.settings.apps.AppSearchSettingsRoute
 import de.mm20.launcher2.ui.settings.apps.AppSearchSettingsScreen
 import de.mm20.launcher2.ui.settings.appshortcuts.AppShortcutsSettingsRoute
@@ -64,10 +74,6 @@ import de.mm20.launcher2.ui.settings.calendarsearch.CalendarProviderSettingsRout
 import de.mm20.launcher2.ui.settings.calendarsearch.CalendarProviderSettingsScreen
 import de.mm20.launcher2.ui.settings.calendarsearch.CalendarSearchSettingsRoute
 import de.mm20.launcher2.ui.settings.calendarsearch.CalendarSearchSettingsScreen
-import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemeSettingsRoute
-import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemeSettingsScreen
-import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemesSettingsRoute
-import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemesSettingsScreen
 import de.mm20.launcher2.ui.settings.contacts.ContactsSettingsRoute
 import de.mm20.launcher2.ui.settings.contacts.ContactsSettingsScreen
 import de.mm20.launcher2.ui.settings.crashreporter.CrashReportRoute
@@ -132,24 +138,12 @@ import de.mm20.launcher2.ui.settings.search.SearchSettingsRoute
 import de.mm20.launcher2.ui.settings.search.SearchSettingsScreen
 import de.mm20.launcher2.ui.settings.searchactions.SearchActionsSettingsRoute
 import de.mm20.launcher2.ui.settings.searchactions.SearchActionsSettingsScreen
-import de.mm20.launcher2.ui.settings.shapes.ShapeSchemeSettingsRoute
-import de.mm20.launcher2.ui.settings.shapes.ShapeSchemeSettingsScreen
-import de.mm20.launcher2.ui.settings.shapes.ShapeSchemesSettingsRoute
-import de.mm20.launcher2.ui.settings.shapes.ShapeSchemesSettingsScreen
 import de.mm20.launcher2.ui.settings.smartspacer.SmartspacerSettingsRoute
 import de.mm20.launcher2.ui.settings.smartspacer.SmartspacerSettingsScreen
 import de.mm20.launcher2.ui.settings.tags.TagsSettingsRoute
 import de.mm20.launcher2.ui.settings.tags.TagsSettingsScreen
 import de.mm20.launcher2.ui.settings.tasks.TasksIntegrationSettingsRoute
 import de.mm20.launcher2.ui.settings.tasks.TasksIntegrationSettingsScreen
-import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemeSettingsRoute
-import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemeSettingsScreen
-import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemesSettingsRoute
-import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemesSettingsScreen
-import de.mm20.launcher2.ui.settings.typography.TypographiesSettingsRoute
-import de.mm20.launcher2.ui.settings.typography.TypographiesSettingsScreen
-import de.mm20.launcher2.ui.settings.typography.TypographySettingsRoute
-import de.mm20.launcher2.ui.settings.typography.TypographySettingsScreen
 import de.mm20.launcher2.ui.settings.unitconverter.UnitConverterHelpSettingsRoute
 import de.mm20.launcher2.ui.settings.unitconverter.UnitConverterHelpSettingsScreen
 import de.mm20.launcher2.ui.settings.unitconverter.UnitConverterSettingsRoute
@@ -176,23 +170,8 @@ class SettingsActivity : BaseActivity() {
             entry<MainRoute> {
                 MainSettingsScreen()
             }
-            entry<AppearanceSettingsRoute> {
-                AppearanceSettingsScreen()
-            }
-            entry<ExportThemeSettingsRoute> {
-                ExportThemeSettingsScreen()
-            }
-            entry<ImportThemeSettingsRoute> {
-                ImportThemeSettingsScreen(it.fromUri)
-            }
             entry<BatterySettingsRoute> {
                 BatterySettingsScreen()
-            }
-            entry<HomescreenSettingsRoute> {
-                HomescreenSettingsScreen()
-            }
-            entry<IconsSettingsRoute> {
-                IconsSettingsScreen()
             }
             entry<ColorSchemesSettingsRoute> {
                 ColorSchemesSettingsScreen()
@@ -206,7 +185,6 @@ class SettingsActivity : BaseActivity() {
             entry<ShapeSchemeSettingsRoute> {
                 ShapeSchemeSettingsScreen(it.id)
             }
-
             entry<TransparencySchemesSettingsRoute> {
                 TransparencySchemesSettingsScreen()
             }
@@ -219,6 +197,13 @@ class SettingsActivity : BaseActivity() {
             entry<TypographySettingsRoute> {
                 TypographySettingsScreen(it.id)
             }
+            entry<HomescreenSettingsRoute> {
+                HomescreenSettingsScreen()
+            }
+            entry<IconsSettingsRoute> {
+                IconsSettingsScreen()
+            }
+
             entry<SearchSettingsRoute> {
                 SearchSettingsScreen()
             }

@@ -459,7 +459,7 @@
     <!-- Open website of an open source library -->
     <string name="open_webpage">Open website</string>
     <string name="preference_screen_about_summary">App and license information</string>
-    <string name="preference_screen_appearance_summary">Customize the look and feel</string>
+    <string name="preference_screen_appearance_summary">Light or dark, colors, fonts, shapes, icons, grid</string>
     <string name="preference_weather_provider">Provider</string>
     <string name="provider_metno">MET Norway</string>
     <string name="provider_openweathermap">OpenWeatherMap</string>
@@ -1200,4 +1200,9 @@
     <string name="preference_category_search_results">Results</string>
     <string name="preference_category_search_filters">Filters</string>
     <string name="preference_category_search_keyboard">Keyboard</string>
+    <string name="preference_icon_pack_get">No icon pack installed: tap to find one</string>
+    <string name="preference_single_app_icon">Icon of a single app</string>
+    <string name="preference_single_app_icon_summary">Long press the app › Customize, then tap its icon to pick another one, also from an icon pack</string>
+    <string name="preference_grid_link_summary">Grid, list view, icons</string>
+    <string name="preference_category_style">Style</string>
 </resources>

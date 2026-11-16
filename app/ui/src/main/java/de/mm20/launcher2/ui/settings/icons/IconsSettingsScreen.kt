@@ -1,5 +1,6 @@
 package de.mm20.launcher2.ui.settings.icons
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -41,11 +42,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import de.mm20.launcher2.icons.IconPack
 import de.mm20.launcher2.icons.LauncherIcon
+import de.mm20.launcher2.ktx.isAtLeastApiLevel
+import de.mm20.launcher2.ktx.tryStartActivity
+import de.mm20.launcher2.preferences.ColorScheme
 import de.mm20.launcher2.preferences.IconShape
 import de.mm20.launcher2.preferences.ui.GridSettings
 import de.mm20.launcher2.ui.R
@@ -53,11 +58,18 @@ import de.mm20.launcher2.ui.component.DismissableBottomSheet
 import de.mm20.launcher2.ui.component.ShapedLauncherIcon
 import de.mm20.launcher2.ui.component.getShape
 import de.mm20.launcher2.ui.component.preferences.GuardedPreference
+import de.mm20.launcher2.ui.component.preferences.ListPreference
 import de.mm20.launcher2.ui.component.preferences.Preference
 import de.mm20.launcher2.ui.component.preferences.PreferenceCategory
 import de.mm20.launcher2.ui.component.preferences.PreferenceScreen
 import de.mm20.launcher2.ui.component.preferences.SliderPreference
 import de.mm20.launcher2.ui.component.preferences.SwitchPreference
+import de.mm20.launcher2.ui.locals.LocalBackStack
+import de.mm20.launcher2.ui.settings.appearance.AppearanceSettingsScreenVM
+import de.mm20.launcher2.ui.settings.colorscheme.ColorSchemesSettingsRoute
+import de.mm20.launcher2.ui.settings.shapes.ShapeSchemesSettingsRoute
+import de.mm20.launcher2.ui.settings.transparencies.TransparencySchemesSettingsRoute
+import de.mm20.launcher2.ui.settings.typography.TypographiesSettingsRoute
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 
@@ -67,6 +79,8 @@ data object IconsSettingsRoute : NavKey
 @Composable
 fun IconsSettingsScreen() {
     val viewModel: IconsSettingsScreenVM = viewModel(factory = IconsSettingsScreenVM.Factory)
+    val appearanceVM: AppearanceSettingsScreenVM = viewModel()
+    val backStack = LocalBackStack.current
     val context = LocalContext.current
 
     val grid by viewModel.grid.collectAsStateWithLifecycle(GridSettings())
@@ -96,56 +110,67 @@ fun IconsSettingsScreen() {
         emptyList()
     )
 
-    PreferenceScreen(title = stringResource(id = R.string.preference_screen_icons)) {
+    PreferenceScreen(title = stringResource(id = R.string.preference_screen_appearance)) {
         item {
-            PreferenceCategory(title = stringResource(R.string.preference_category_grid)) {
-                SliderPreference(
-                    title = stringResource(R.string.preference_grid_icon_size),
-                    value = grid.iconSize,
-                    step = 8,
-                    min = 32,
-                    max = 64,
-                    onValueChanged = {
-                        viewModel.setIconSize(it)
-                    }
+            PreferenceCategory {
+                val theme by appearanceVM.colorScheme.collectAsStateWithLifecycle()
+                ListPreference(
+                    icon = R.drawable.dark_mode_24px,
+                    title = stringResource(id = R.string.preference_theme),
+                    items = listOf(
+                        stringResource(id = R.string.preference_theme_system) to ColorScheme.System,
+                        stringResource(id = R.string.preference_theme_light) to ColorScheme.Light,
+                        stringResource(id = R.string.preference_theme_dark) to ColorScheme.Dark,
+                    ),
+                    value = theme,
+                    onValueChanged = { if (it != null) appearanceVM.setColorScheme(it) },
                 )
-                SwitchPreference(
-                    title = stringResource(R.string.preference_grid_labels),
-                    summary = stringResource(R.string.preference_grid_labels_summary),
-                    value = grid.showLabels,
-                    onValueChanged = {
-                        viewModel.setShowLabels(it)
-                    }
+            }
+        }
+        item {
+            // Each part of the look is customizable on its own; whole themes are no longer
+            // imported or exported
+            PreferenceCategory(stringResource(R.string.preference_category_style)) {
+                val colorThemeName by appearanceVM.colorThemeName.collectAsStateWithLifecycle()
+                val typographyThemeName by appearanceVM.typographyThemeName.collectAsStateWithLifecycle()
+                val shapeThemeName by appearanceVM.shapeThemeName.collectAsStateWithLifecycle()
+                val transparencyThemeName by appearanceVM.transparencyThemeName.collectAsStateWithLifecycle()
+                Preference(
+                    title = stringResource(id = R.string.preference_screen_colors),
+                    summary = colorThemeName,
+                    icon = R.drawable.palette_24px,
+                    onClick = { backStack.add(ColorSchemesSettingsRoute) },
                 )
-                SwitchPreference(
-                    title = stringResource(R.string.preference_grid_list_style),
-                    summary = stringResource(R.string.preference_grid_list_style_summary),
-                    value = grid.showList,
-                    onValueChanged = {
-                        viewModel.setShowList(it)
-                    }
+                Preference(
+                    title = stringResource(id = R.string.preference_screen_typography),
+                    summary = typographyThemeName,
+                    icon = R.drawable.text_fields_24px,
+                    onClick = { backStack.add(TypographiesSettingsRoute) },
                 )
-                AnimatedVisibility(
-                    grid.showList
-                ) {
-                    SwitchPreference(
-                        title = stringResource(R.string.preference_grid_list_icons),
-                        summary = stringResource(R.string.preference_grid_list_icons_summary),
-                        value = grid.showListIcons,
-                        onValueChanged = {
-                            viewModel.setShowListIcons(it)
-                        }
+                Preference(
+                    title = stringResource(id = R.string.preference_screen_shapes),
+                    summary = shapeThemeName,
+                    icon = R.drawable.crop_square_24px,
+                    onClick = { backStack.add(ShapeSchemesSettingsRoute) },
+                )
+                Preference(
+                    title = stringResource(id = R.string.preference_screen_transparencies),
+                    summary = transparencyThemeName,
+                    icon = R.drawable.opacity_24px,
+                    onClick = { backStack.add(TransparencySchemesSettingsRoute) },
+                )
+                if (isAtLeastApiLevel(31)) {
+                    val compatModeColors by appearanceVM.compatModeColors.collectAsStateWithLifecycle()
+                    ListPreference(
+                        title = stringResource(R.string.preference_mdy_color_source),
+                        items = listOf(
+                            stringResource(R.string.preference_mdy_color_source_system) to false,
+                            stringResource(R.string.preference_mdy_color_source_wallpaper) to true,
+                        ),
+                        value = compatModeColors,
+                        onValueChanged = { appearanceVM.setCompatModeColors(it) },
                     )
                 }
-                SliderPreference(
-                    title = stringResource(R.string.preference_grid_column_count),
-                    value = grid.columnCount,
-                    min = 3,
-                    max = 12,
-                    onValueChanged = {
-                        viewModel.setColumnCount(it)
-                    }
-                )
             }
         }
         item {
@@ -211,14 +236,78 @@ fun IconsSettingsScreen() {
                 Preference(
                     title = stringResource(R.string.preference_icon_pack),
                     summary = if (items.size <= 1) {
-                        stringResource(R.string.preference_icon_pack_summary_empty)
+                        stringResource(R.string.preference_icon_pack_get)
                     } else {
                         iconPack?.name ?: "System"
                     },
-                    enabled = installedIconPacks.size > 1,
                     onClick = {
-                        showIconPackSheet = true
+                        // No icon pack yet: look for one in the store instead of a disabled row
+                        if (installedIconPacks.size > 1) showIconPackSheet = true
+                        else if (!context.tryStartActivity(
+                                Intent(Intent.ACTION_VIEW, "market://search?q=icon%20pack&c=apps".toUri())
+                            )
+                        ) {
+                            context.tryStartActivity(
+                                Intent(Intent.ACTION_VIEW, "https://play.google.com/store/search?q=icon%20pack&c=apps".toUri())
+                            )
+                        }
                     },
+                )
+                Preference(
+                    title = stringResource(R.string.preference_single_app_icon),
+                    summary = stringResource(R.string.preference_single_app_icon_summary),
+                    onClick = {},
+                )
+            }
+        }
+        item {
+            PreferenceCategory(title = stringResource(R.string.preference_category_grid)) {
+                SliderPreference(
+                    title = stringResource(R.string.preference_grid_icon_size),
+                    value = grid.iconSize,
+                    step = 8,
+                    min = 32,
+                    max = 64,
+                    onValueChanged = {
+                        viewModel.setIconSize(it)
+                    }
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.preference_grid_labels),
+                    summary = stringResource(R.string.preference_grid_labels_summary),
+                    value = grid.showLabels,
+                    onValueChanged = {
+                        viewModel.setShowLabels(it)
+                    }
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.preference_grid_list_style),
+                    summary = stringResource(R.string.preference_grid_list_style_summary),
+                    value = grid.showList,
+                    onValueChanged = {
+                        viewModel.setShowList(it)
+                    }
+                )
+                AnimatedVisibility(
+                    grid.showList
+                ) {
+                    SwitchPreference(
+                        title = stringResource(R.string.preference_grid_list_icons),
+                        summary = stringResource(R.string.preference_grid_list_icons_summary),
+                        value = grid.showListIcons,
+                        onValueChanged = {
+                            viewModel.setShowListIcons(it)
+                        }
+                    )
+                }
+                SliderPreference(
+                    title = stringResource(R.string.preference_grid_column_count),
+                    value = grid.columnCount,
+                    min = 3,
+                    max = 12,
+                    onValueChanged = {
+                        viewModel.setColumnCount(it)
+                    }
                 )
             }
         }
