@@ -482,7 +482,7 @@
     <string name="preference_screen_homescreen">Schermata home</string>
     <string name="preference_screen_icons_summary">Dimensioni griglia, icone, badge</string>
     <string name="preference_screen_clockwidget_summary">Configura stile e componenti dell\'orologio</string>
-    <string name="preference_screen_homescreen_summary">Orologio, barra di ricerca, sfondo, barre di sistema</string>
+    <string name="preference_screen_homescreen_summary">Orologio, app in home, widget, barra di ricerca, sfondo</string>
     <string name="preference_screen_icons">Griglia e icone</string>
     <string name="preference_weather_integration">Meteo</string>
     <string name="preference_media_integration">Controllo multimediale</string>
@@ -926,7 +926,7 @@
     <string name="remove_font_style">Rimuovi questo stile del font</string>
     <string name="preference_category_donate">Sostieni lo sviluppo</string>
     <string name="gesture_action_widgets_indexed">Widget (%1$d)</string>
-    <string name="preference_calendar_system">Il sistema di calendario preferito (ad esempio calendario gregoriano, calendario ebraico, calendario persiano)</string>
+    <string name="preference_calendar_system">Sistema di calendario</string>
     <string name="preference_calendar_system_primary">Calendario primario</string>
     <string name="preference_calendar_system_secondary">Calendario secondario</string>
     <string name="preference_clockwidget_battery_part_always_show">Mostra sempre</string>
@@ -1014,4 +1014,13 @@
     <string name="preference_opaque_surfaces">Sfondi opachi</string>
     <string name="preference_opaque_surfaces_summary">Schede e sfondi senza trasparenza: la GPU non deve fonderli con lo sfondo a ogni fotogramma. Sulla home lo sfondo resta visibile</string>
     <string name="preference_refresh_rate_impact_title">Più hertz, più fotogrammi</string>
+    <string name="preference_category_personalize">Personalizzazione</string>
+    <string name="preference_category_services">Servizi</string>
+    <string name="preference_category_system">Sistema</string>
+    <string name="preference_category_more">Altro</string>
+    <string name="preference_category_search_empty">Con la ricerca vuota</string>
+    <string name="preference_category_search_what">Cosa cercare</string>
+    <string name="preference_category_search_results">Risultati</string>
+    <string name="preference_category_search_filters">Filtri</string>
+    <string name="preference_category_search_keyboard">Tastiera</string>
 </resources>

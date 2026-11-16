@@ -32,19 +32,7 @@ fun MainSettingsScreen() {
         title = stringResource(R.string.settings),
     ) {
         item {
-            PreferenceCategory {
-                Preference(
-                    icon = R.drawable.battery_3_bar_24px,
-                    title = stringResource(R.string.preference_screen_battery),
-                    summary = stringResource(R.string.preference_screen_battery_summary),
-                    onClick = {
-                        backStack.add(BatterySettingsRoute)
-                    }
-                )
-            }
-        }
-        item {
-            PreferenceCategory {
+            PreferenceCategory(stringResource(R.string.preference_category_personalize)) {
                 Preference(
                     icon = R.drawable.palette_24px,
                     title = stringResource(id = R.string.preference_screen_appearance),
@@ -85,6 +73,10 @@ fun MainSettingsScreen() {
                         backStack.add(GesturesSettingsRoute)
                     }
                 )
+            }
+        }
+        item {
+            PreferenceCategory(stringResource(R.string.preference_category_services)) {
                 Preference(
                     icon = R.drawable.power_24px,
                     title = stringResource(id = R.string.preference_screen_integrations),
@@ -99,6 +91,18 @@ fun MainSettingsScreen() {
                     summary = stringResource(id = R.string.preference_screen_plugins_summary),
                     onClick = {
                         backStack.add(PluginsSettingsRoute)
+                    }
+                )
+            }
+        }
+        item {
+            PreferenceCategory(stringResource(R.string.preference_category_system)) {
+                Preference(
+                    icon = R.drawable.battery_3_bar_24px,
+                    title = stringResource(R.string.preference_screen_battery),
+                    summary = stringResource(R.string.preference_screen_battery_summary),
+                    onClick = {
+                        backStack.add(BatterySettingsRoute)
                     }
                 )
                 Preference(
@@ -117,20 +121,24 @@ fun MainSettingsScreen() {
                         backStack.add(BackupSettingsRoute)
                     }
                 )
-                Preference(
-                    icon = R.drawable.bug_report_24px,
-                    title = stringResource(id = R.string.preference_screen_debug),
-                    summary = stringResource(id = R.string.preference_screen_debug_summary),
-                    onClick = {
-                        backStack.add(DebugSettingsRoute)
-                    }
-                )
+            }
+        }
+        item {
+            PreferenceCategory(stringResource(R.string.preference_category_more)) {
                 Preference(
                     icon = R.drawable.info_24px,
                     title = stringResource(id = R.string.preference_screen_about),
                     summary = stringResource(id = R.string.preference_screen_about_summary),
                     onClick = {
                         backStack.add(AboutSettingsRoute)
+                    }
+                )
+                Preference(
+                    icon = R.drawable.bug_report_24px,
+                    title = stringResource(id = R.string.preference_screen_debug),
+                    summary = stringResource(id = R.string.preference_screen_debug_summary),
+                    onClick = {
+                        backStack.add(DebugSettingsRoute)
                     }
                 )
             }

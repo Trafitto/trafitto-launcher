@@ -695,7 +695,7 @@
     <string name="preference_widgets_on_home_screen">Widgets on home screen</string>
     <string name="preference_widgets_on_home_screen_summary">Show widgets on the home screen instead of a separate page</string>
     <string name="preference_screen_homescreen">Home screen</string>
-    <string name="preference_screen_homescreen_summary">Clock, search bar, wallpaper, system bars</string>
+    <string name="preference_screen_homescreen_summary">Clock, home apps, widgets, search bar, wallpaper</string>
     <string name="preference_screen_icons">Grid and icons</string>
     <string name="preference_screen_icons_summary">Grid size, icons, badges</string>
     <string name="preference_weather_integration">Weather</string>
@@ -1191,4 +1191,13 @@
     <string name="preference_opaque_surfaces">Opaque backgrounds</string>
     <string name="preference_opaque_surfaces_summary">Cards and backgrounds without transparency: the GPU doesn\'t blend them with the wallpaper on every frame. The wallpaper stays visible on the home screen</string>
     <string name="preference_refresh_rate_impact_title">More hertz, more frames</string>
+    <string name="preference_category_personalize">Personalize</string>
+    <string name="preference_category_services">Services</string>
+    <string name="preference_category_system">System</string>
+    <string name="preference_category_more">More</string>
+    <string name="preference_category_search_empty">With an empty search</string>
+    <string name="preference_category_search_what">What to search</string>
+    <string name="preference_category_search_results">Results</string>
+    <string name="preference_category_search_filters">Filters</string>
+    <string name="preference_category_search_keyboard">Keyboard</string>
 </resources>
