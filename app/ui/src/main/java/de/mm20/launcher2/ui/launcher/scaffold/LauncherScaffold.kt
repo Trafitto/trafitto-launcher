@@ -53,6 +53,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -469,10 +470,21 @@ internal class LauncherScaffoldState(
     private val offsetAnimatable =
         Animatable(Offset3D.Zero, Offset3D.VectorConverter)
 
+    /** Settings › Battery and performance › Fast animations */
+    var fastAnimations = false
+
+    // Pages stop half a pixel from the target: the default spring went on to 0.01 px, drawing
+    // its last frames for movements nobody can see
+    private val settleThreshold = Offset3D(0.5f, 0.5f, 0.0002f)
+    private val normalSpring = spring(visibilityThreshold = settleThreshold)
+    // ~40% less time to settle: the time of a critically damped spring goes with 1/√stiffness
+    private val fastSpring = spring(stiffness = 4000f, visibilityThreshold = settleThreshold)
+    private val settleSpring get() = if (fastAnimations) fastSpring else normalSpring
+
     private suspend fun animateOffset3DTo(
         target: Offset3D,
         initialVelocity: Offset3D = Offset3D.Zero,
-        animationSpec: AnimationSpec<Offset3D> = spring(),
+        animationSpec: AnimationSpec<Offset3D> = settleSpring,
     ) {
         offsetAnimatable.snapTo(currentOffset3D)
         offsetAnimatable.animateTo(
@@ -791,7 +803,7 @@ internal class LauncherScaffoldState(
             } else {
                 animateOffset3DTo(
                     Offset3D.Zero,
-                    animationSpec = if (fast) tween(150) else spring(),
+                    animationSpec = if (fast) tween(150) else settleSpring,
                 )
             }
         }
@@ -812,7 +824,7 @@ internal class LauncherScaffoldState(
         transitionToPage(ScaffoldPage.Secondary, component) {
             animateOffset3DTo(
                 Offset3D(z = 1f),
-                animationSpec = tween(300),
+                animationSpec = tween(if (fastAnimations) 200 else 300),
             )
             isSettledOnSecondaryPage = true
         }
@@ -1072,6 +1084,9 @@ internal fun LauncherScaffold(
                     }
                 )
             }
+
+        val fastAnimations by remember { uiSettings.fastAnimations }.collectAsState(false)
+        SideEffect { state.fastAnimations = fastAnimations }
 
         LaunchedEffect(state.isAtTop, state.isAtBottom) {
             if (state.currentProgress > 0f && state.currentProgress < 1f) {

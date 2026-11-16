@@ -101,10 +101,7 @@ fun SearchBar(
         transitionSpec = {
             when {
                 initialState == SearchBarLevel.Resting -> tween(durationMillis = 200)
-                targetState == SearchBarLevel.Resting -> tween(
-                    durationMillis = 200,
-                    delayMillis = 200
-                )
+                targetState == SearchBarLevel.Resting -> tween(durationMillis = 200)
 
                 else -> tween(durationMillis = 200)
             }
@@ -121,10 +118,7 @@ fun SearchBar(
         transitionSpec = {
             when {
                 initialState == SearchBarLevel.Resting -> tween(durationMillis = 200)
-                targetState == SearchBarLevel.Resting -> tween(
-                    durationMillis = 200,
-                    delayMillis = 200
-                )
+                targetState == SearchBarLevel.Resting -> tween(durationMillis = 200)
 
                 else -> tween(durationMillis = 500)
             }

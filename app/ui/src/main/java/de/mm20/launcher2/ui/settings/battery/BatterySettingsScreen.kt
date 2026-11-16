@@ -26,6 +26,7 @@ fun BatterySettingsScreen() {
     val uiSettings: UiSettings = koinInject()
     val refreshRate by uiSettings.refreshRate.collectAsState(0)
     val opaqueSurfaces by uiSettings.opaqueSurfaces.collectAsState(false)
+    val fastAnimations by uiSettings.fastAnimations.collectAsState(false)
 
     // Refresh rates of this screen at its current resolution: 60, 90, 120, 144…
     val display = LocalView.current.display
@@ -62,6 +63,12 @@ fun BatterySettingsScreen() {
                     summary = stringResource(R.string.preference_opaque_surfaces_summary),
                     value = opaqueSurfaces,
                     onValueChanged = { uiSettings.setOpaqueSurfaces(it) },
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.preference_fast_animations),
+                    summary = stringResource(R.string.preference_fast_animations_summary),
+                    value = fastAnimations,
+                    onValueChanged = { uiSettings.setFastAnimations(it) },
                 )
             }
         }

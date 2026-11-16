@@ -349,6 +349,15 @@ class UiSettings internal constructor(
         }
     }
 
+    val fastAnimations
+        get() = launcherDataStore.data.map { it.uiFastAnimations }.distinctUntilChanged()
+
+    fun setFastAnimations(fastAnimations: Boolean) {
+        launcherDataStore.update {
+            it.copy(uiFastAnimations = fastAnimations)
+        }
+    }
+
     val opaqueSurfaces
         get() = launcherDataStore.data.map { it.uiOpaqueSurfaces }.distinctUntilChanged()
 
