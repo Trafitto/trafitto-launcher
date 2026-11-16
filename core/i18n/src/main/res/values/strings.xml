@@ -1173,6 +1173,7 @@
     <string name="apps_new_tag">New category</string>
     <string name="home_apps_notifications">Notifications under apps</string>
     <string name="home_apps_notifications_summary">The latest notification of each app, under its name. Tap it to open it</string>
+    <string name="home_apps_folders">Categories as folders</string>
     <string name="home_apps_mode">On the home screen</string>
     <string name="home_apps_mode_pinned">Pinned apps</string>
     <string name="home_apps_mode_none">No apps</string>

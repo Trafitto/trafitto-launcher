@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.mm20.launcher2.search.Application
+import de.mm20.launcher2.search.SavableSearchable
 import de.mm20.launcher2.search.SearchService
 import de.mm20.launcher2.search.firstLetter
 import de.mm20.launcher2.searchable.SavableSearchableRepository
@@ -216,14 +217,27 @@ private fun BoxScope.LetterPanel(
     onLaunched: () -> Unit,
 ) {
     val group = group() ?: return
-    Surface(
+    AppsPanel(
+        items = group.apps,
+        onLaunched = onLaunched,
         modifier = Modifier
             .align(if (onLeft) Alignment.CenterStart else Alignment.CenterEnd)
             .padding(horizontal = 64.dp)
-            .widthIn(min = 200.dp, max = 280.dp)
             .onSizeChanged { onSizeChanged(it.height) }
             // Centered on the selected letter, kept inside the home screen
             .offset { IntOffset(0, offsetY()) },
+    )
+}
+
+/** Apps in a rounded panel, a tap opens one: the letters on the edge and the home folders */
+@Composable
+internal fun AppsPanel(
+    items: List<SavableSearchable>,
+    onLaunched: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.widthIn(min = 200.dp, max = 280.dp),
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surfaceContainer,
         shadowElevation = 2.dp,
@@ -234,15 +248,15 @@ private fun BoxScope.LetterPanel(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 8.dp)
         ) {
-            for (app in group.apps) {
-                key(app.key) { LetterApp(app, onLaunched = onLaunched) }
+            for (item in items) {
+                key(item.key) { PanelApp(item, onLaunched = onLaunched) }
             }
         }
     }
 }
 
 @Composable
-private fun LetterApp(app: Application, onLaunched: () -> Unit) {
+private fun PanelApp(app: SavableSearchable, onLaunched: () -> Unit) {
     val viewModel: SearchableItemVM = listItemViewModel(key = "home-letter-${app.key}")
     val iconSizePx = 36.dp.toPixels()
     LaunchedEffect(app, iconSizePx) {
