@@ -981,4 +981,16 @@
     <string name="about_fork_summary">Fork personale non ufficiale di Kvaesitso, non affiliata al progetto originale. Tocca per il codice sorgente</string>
     <string name="widget_pages">Pagine widget</string>
     <string name="widget_pages_summary">Pagine di widget a destra della home (swipe a sinistra)</string>
+    <string name="preference_search_apps_by_tag">Raggruppa per categoria</string>
+    <string name="preference_search_apps_by_tag_summary">Dividi tutte le app in sezioni per tag. Tocca il titolo di una sezione per rinominarla o per aggiungere e togliere app</string>
+    <string name="apps_untagged">Altre app</string>
+    <string name="app_category_communication">Comunicazione</string>
+    <string name="app_category_photos_videos">Foto e video</string>
+    <string name="app_category_music">Musica e audio</string>
+    <string name="app_category_games">Giochi</string>
+    <string name="app_category_news">Notizie</string>
+    <string name="app_category_maps">Mappe</string>
+    <string name="app_category_productivity">Produttività</string>
+    <string name="app_category_internet">Internet</string>
+    <string name="app_category_tools">Strumenti</string>
 </resources>

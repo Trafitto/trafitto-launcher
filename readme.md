@@ -25,6 +25,8 @@
   transitions, lighter charging animation (small layer, ~30 fps, paused during transitions)
 - **Snappier:** icons shrink a little when pressed and fade in when loaded, apps launched with enter
   from search open from their icon, smaller and faster release build (R8 optimization on)
+- **Apps by category:** the app list is split in sections (Communication, Games, Tools…), created
+  once from the type of each app; they are ordinary tags, tap a section title to edit it
 
 Licensed under the GPL-3.0, like the original. Everything below is the original Kvaesitso readme.
 

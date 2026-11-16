@@ -24,6 +24,13 @@ class AppSearchSettingsScreenVM: ViewModel(), KoinComponent {
         searchUiSettings.setAllApps(allApps)
     }
 
+    val allAppsByTag = searchUiSettings.allAppsByTag
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+
+    fun setAllAppsByTag(allAppsByTag: Boolean) {
+        searchUiSettings.setAllAppsByTag(allAppsByTag)
+    }
+
     fun setHideAppDetails(hideAppDetails: Boolean) {
         searchUiSettings.setShowAppDetails(hideAppDetails)
     }
