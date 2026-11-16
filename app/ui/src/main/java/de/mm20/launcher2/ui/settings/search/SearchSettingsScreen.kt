@@ -94,7 +94,7 @@ fun SearchSettingsScreen() {
 
     PreferenceScreen(title = stringResource(R.string.preference_screen_search)) {
         item {
-            PreferenceCategory {
+            PreferenceCategory(stringResource(R.string.preference_category_search_empty)) {
                 PreferenceWithSwitch(
                     title = stringResource(R.string.preference_search_favorites),
                     summary = stringResource(R.string.preference_search_favorites_summary),
@@ -122,7 +122,7 @@ fun SearchSettingsScreen() {
             }
         }
         item {
-            PreferenceCategory {
+            PreferenceCategory(stringResource(R.string.preference_category_search_what)) {
 
                 Preference(
                     title = stringResource(R.string.preference_search_files),
@@ -314,7 +314,7 @@ fun SearchSettingsScreen() {
             }
         }
         item {
-            PreferenceCategory {
+            PreferenceCategory(stringResource(R.string.preference_category_search_results)) {
                 Preference(
                     title = stringResource(R.string.preference_hidden_items),
                     summary = stringResource(R.string.preference_hidden_items_summary),
@@ -331,10 +331,22 @@ fun SearchSettingsScreen() {
                         backStack.add(TagsSettingsRoute)
                     }
                 )
+                ListPreference(
+                    title = stringResource(R.string.preference_layout_search_results),
+                    items = listOf(
+                        stringResource(R.string.search_results_order_top_down) to false,
+                        stringResource(R.string.search_results_order_bottom_up) to true,
+                    ),
+                    value = reverseSearchResults,
+                    onValueChanged = {
+                        if (it != null) viewModel.setReverseSearchResults(it)
+                    },
+                    icon = R.drawable.sort_24px
+                )
             }
         }
         item {
-            PreferenceCategory {
+            PreferenceCategory(stringResource(R.string.preference_category_search_filters)) {
                 Preference(
                     title = stringResource(R.string.preference_default_filter),
                     summary = stringResource(R.string.preference_default_filter_summary),
@@ -365,7 +377,7 @@ fun SearchSettingsScreen() {
             }
         }
         item {
-            PreferenceCategory {
+            PreferenceCategory(stringResource(R.string.preference_category_search_keyboard)) {
                 SwitchPreference(
                     title = stringResource(R.string.preference_search_bar_auto_focus),
                     summary = stringResource(R.string.preference_search_bar_auto_focus_summary),
@@ -383,22 +395,6 @@ fun SearchSettingsScreen() {
                     onValueChanged = {
                         viewModel.setLaunchOnEnter(it)
                     }
-                )
-            }
-        }
-        item {
-            PreferenceCategory {
-                ListPreference(
-                    title = stringResource(R.string.preference_layout_search_results),
-                    items = listOf(
-                        stringResource(R.string.search_results_order_top_down) to false,
-                        stringResource(R.string.search_results_order_bottom_up) to true,
-                    ),
-                    value = reverseSearchResults,
-                    onValueChanged = {
-                        if (it != null) viewModel.setReverseSearchResults(it)
-                    },
-                    icon = R.drawable.sort_24px
                 )
             }
         }

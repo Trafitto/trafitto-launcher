@@ -1,6 +1,5 @@
 package de.mm20.launcher2.ui.settings.apps
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
@@ -8,9 +7,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import de.mm20.launcher2.ui.R
+import de.mm20.launcher2.ui.component.preferences.Preference
 import de.mm20.launcher2.ui.component.preferences.PreferenceCategory
 import de.mm20.launcher2.ui.component.preferences.PreferenceScreen
 import de.mm20.launcher2.ui.component.preferences.SwitchPreference
+import de.mm20.launcher2.ui.locals.LocalBackStack
+import de.mm20.launcher2.ui.settings.icons.IconsSettingsRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -24,8 +26,7 @@ fun AppSearchSettingsScreen() {
     val allApps by viewModel.allApps.collectAsStateWithLifecycle()
     val allAppsByTag by viewModel.allAppsByTag.collectAsStateWithLifecycle()
     val showAppDetails by viewModel.showAppDetails.collectAsStateWithLifecycle()
-    val showList by viewModel.showList.collectAsStateWithLifecycle()
-    val showListIcons by viewModel.showListIcons.collectAsStateWithLifecycle()
+    val backStack = LocalBackStack.current
 
     PreferenceScreen(
         title = stringResource(R.string.preference_search_apps)
@@ -62,24 +63,13 @@ fun AppSearchSettingsScreen() {
         }
         item {
             PreferenceCategory {
-                SwitchPreference(
-                    title = stringResource(R.string.preference_grid_list_style),
-                    summary = stringResource(R.string.preference_grid_list_style_summary),
-                    value = showList == true,
-                    onValueChanged = {
-                        viewModel.setShowList(it)
-                    }
+                // The grid and list look is set in one place, shared with the rest of the search
+                Preference(
+                    icon = R.drawable.apps_24px,
+                    title = stringResource(R.string.preference_screen_icons),
+                    summary = stringResource(R.string.preference_screen_icons_summary),
+                    onClick = { backStack.add(IconsSettingsRoute) },
                 )
-                AnimatedVisibility(showList == true) {
-                    SwitchPreference(
-                        title = stringResource(R.string.preference_grid_list_icons),
-                        summary = stringResource(R.string.preference_grid_list_icons_summary),
-                        value = showListIcons == true,
-                        onValueChanged = {
-                            viewModel.setShowListIcons(it)
-                        }
-                    )
-                }
             }
         }
     }

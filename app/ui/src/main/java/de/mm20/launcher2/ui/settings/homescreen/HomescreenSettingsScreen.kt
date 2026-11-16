@@ -91,42 +91,6 @@ fun HomescreenSettingsScreen() {
     PreferenceScreen(title = stringResource(id = R.string.preference_screen_homescreen)) {
         item {
             PreferenceCategory {
-                SwitchPreference(
-                    title = stringResource(R.string.preference_layout_fixed_rotation),
-                    summary = stringResource(R.string.preference_layout_fixed_rotation_summary),
-                    value = fixedRotation == true,
-                    onValueChanged = {
-                        viewModel.setFixedRotation(it)
-                    },
-                )
-            }
-        }
-        item {
-            PreferenceCategory(
-                title = stringResource(id = R.string.preference_category_widgets)
-            ) {
-                val widgetPages by viewModel.widgetPages.collectAsStateWithLifecycle()
-                Preference(
-                    title = { Text(stringResource(R.string.widget_pages)) },
-                    summary = { Text(stringResource(R.string.widget_pages_summary)) },
-                    controls = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(
-                                onClick = { viewModel.setWidgetPages(widgetPages - 1) },
-                                enabled = widgetPages > 1,
-                            ) {
-                                Icon(painterResource(R.drawable.remove_24px), null)
-                            }
-                            Text(
-                                widgetPages.toString(),
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                            IconButton(onClick = { viewModel.setWidgetPages(widgetPages + 1) }) {
-                                Icon(painterResource(R.drawable.add_24px), null)
-                            }
-                        }
-                    },
-                )
                 Preference(
                     title = stringResource(R.string.preference_screen_clockwidget),
                     summary = stringResource(R.string.preference_screen_clockwidget_summary),
@@ -153,22 +117,7 @@ fun HomescreenSettingsScreen() {
                         }
                     )
                 }
-                SwitchPreference(
-                    title = stringResource(R.string.preference_widgets_on_home_screen),
-                    summary = stringResource(R.string.preference_widgets_on_home_screen_summary),
-                    value = widgetsOnHomeScreen == true,
-                    onValueChanged = {
-                        viewModel.setWidgetsOnHomeScreen(it)
-                    })
-                SwitchPreference(
-                    title = stringResource(id = R.string.preference_edit_button),
-                    summary = stringResource(id = R.string.preference_widgets_edit_button_summary),
-                    value = editButton == true,
-                    onValueChanged = {
-                        viewModel.setWidgetEditButton(it)
-                    })
             }
-
         }
         item {
             val homeApps by viewModel.homeApps.collectAsStateWithLifecycle()
@@ -279,6 +228,49 @@ fun HomescreenSettingsScreen() {
                     }
                 }
             }
+        }
+        item {
+            PreferenceCategory(
+                title = stringResource(id = R.string.preference_category_widgets)
+            ) {
+                val widgetPages by viewModel.widgetPages.collectAsStateWithLifecycle()
+                Preference(
+                    title = { Text(stringResource(R.string.widget_pages)) },
+                    summary = { Text(stringResource(R.string.widget_pages_summary)) },
+                    controls = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = { viewModel.setWidgetPages(widgetPages - 1) },
+                                enabled = widgetPages > 1,
+                            ) {
+                                Icon(painterResource(R.drawable.remove_24px), null)
+                            }
+                            Text(
+                                widgetPages.toString(),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            IconButton(onClick = { viewModel.setWidgetPages(widgetPages + 1) }) {
+                                Icon(painterResource(R.drawable.add_24px), null)
+                            }
+                        }
+                    },
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.preference_widgets_on_home_screen),
+                    summary = stringResource(R.string.preference_widgets_on_home_screen_summary),
+                    value = widgetsOnHomeScreen == true,
+                    onValueChanged = {
+                        viewModel.setWidgetsOnHomeScreen(it)
+                    })
+                SwitchPreference(
+                    title = stringResource(id = R.string.preference_edit_button),
+                    summary = stringResource(id = R.string.preference_widgets_edit_button_summary),
+                    value = editButton == true,
+                    onValueChanged = {
+                        viewModel.setWidgetEditButton(it)
+                    })
+            }
+
         }
         item {
             PreferenceCategory(stringResource(R.string.preference_category_searchbar)) {
@@ -393,7 +385,15 @@ fun HomescreenSettingsScreen() {
         }
         item {
 
-            PreferenceCategory(stringResource(R.string.preference_category_system_bars)) {
+            PreferenceCategory(stringResource(R.string.preference_category_system)) {
+                SwitchPreference(
+                    title = stringResource(R.string.preference_layout_fixed_rotation),
+                    summary = stringResource(R.string.preference_layout_fixed_rotation_summary),
+                    value = fixedRotation == true,
+                    onValueChanged = {
+                        viewModel.setFixedRotation(it)
+                    },
+                )
                 ListPreference(
                     title = stringResource(R.string.preference_status_bar_icons),
                     value = lightStatusBar,
