@@ -26,6 +26,8 @@ data class LauncherSettingsData internal constructor(
     val uiRefreshRate: Int = 0,
     /** Trafitto: no transparency on backgrounds and cards, less blending per frame */
     val uiOpaqueSurfaces: Boolean = false,
+    /** Trafitto: vibration on long presses and gestures in the launcher */
+    val uiHaptics: Boolean = true,
 
     val uiCompatModeColors: Boolean = false,
     @Deprecated("No longer in use, only used for migration")

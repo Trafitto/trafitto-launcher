@@ -139,7 +139,7 @@ internal fun HomeLetters(onLeft: Boolean, modifier: Modifier = Modifier) {
                 .fillMaxHeight(0.75f)
                 .width(40.dp)
                 .onSizeChanged { stripHeight.intValue = it.height }
-                .pointerInput(groups) {
+                .pointerInput(groups, haptic) {
                     awaitEachGesture {
                         val down = awaitFirstDown()
                         fun update(y: Float) {

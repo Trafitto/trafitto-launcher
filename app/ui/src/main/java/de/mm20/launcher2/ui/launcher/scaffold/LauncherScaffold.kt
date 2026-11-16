@@ -62,6 +62,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -1027,7 +1028,8 @@ internal fun LauncherScaffold(
                 else systemBarInsets.getBottom(density)
                 ) + 128.dp.toPixels()
 
-        val hapticFeedback = LocalHapticFeedback.current
+        // Read when used: the saved state outlives a change of the vibration setting
+        val hapticFeedback by rememberUpdatedState(LocalHapticFeedback.current)
 
         val state =
             rememberSaveable(

@@ -1011,6 +1011,8 @@
     <string name="preference_refresh_rate_lowest">%1$d Hz · meno fotogrammi, consumo minimo</string>
     <string name="preference_refresh_rate_more_frames">%1$d Hz · +%2$d%% fotogrammi durante le animazioni</string>
     <string name="preference_category_graphics">Grafica</string>
+    <string name="preference_haptics">Vibrazione</string>
+    <string name="preference_haptics_summary">Una leggera vibrazione su tocchi prolungati, gesti e lettere sul bordo</string>
     <string name="preference_opaque_surfaces">Sfondi opachi</string>
     <string name="preference_opaque_surfaces_summary">Schede e sfondi senza trasparenza: la GPU non deve fonderli con lo sfondo a ogni fotogramma. Sulla home lo sfondo resta visibile</string>
     <string name="preference_refresh_rate_impact_title">Più hertz, più fotogrammi</string>

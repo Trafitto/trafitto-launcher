@@ -42,6 +42,7 @@ import de.mm20.launcher2.ui.component.preferences.GuardedPreference
 import de.mm20.launcher2.ui.component.preferences.ListPreference
 import de.mm20.launcher2.ui.component.preferences.PreferenceCategory
 import de.mm20.launcher2.ui.component.preferences.PreferenceScreen
+import de.mm20.launcher2.ui.component.preferences.SwitchPreference
 import de.mm20.launcher2.ui.ktx.toPixels
 import kotlinx.serialization.Serializable
 
@@ -196,6 +197,18 @@ fun GestureSettingsScreen() {
                         widgetOptions = widgetOptions,
                     )
                 }
+            }
+        }
+        item {
+            PreferenceCategory {
+                val haptics by viewModel.haptics.collectAsStateWithLifecycle(true)
+                SwitchPreference(
+                    title = stringResource(R.string.preference_haptics),
+                    summary = stringResource(R.string.preference_haptics_summary),
+                    icon = R.drawable.vibration_24px,
+                    value = haptics,
+                    onValueChanged = viewModel::setHaptics,
+                )
             }
         }
     }

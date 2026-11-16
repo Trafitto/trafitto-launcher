@@ -340,6 +340,15 @@ class UiSettings internal constructor(
         }
     }
 
+    val haptics
+        get() = launcherDataStore.data.map { it.uiHaptics }.distinctUntilChanged()
+
+    fun setHaptics(haptics: Boolean) {
+        launcherDataStore.update {
+            it.copy(uiHaptics = haptics)
+        }
+    }
+
     val opaqueSurfaces
         get() = launcherDataStore.data.map { it.uiOpaqueSurfaces }.distinctUntilChanged()
 
