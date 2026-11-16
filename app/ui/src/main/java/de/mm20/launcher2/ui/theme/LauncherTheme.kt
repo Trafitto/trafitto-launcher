@@ -7,6 +7,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import de.mm20.launcher2.preferences.ColorScheme as ColorSchemePref
 import de.mm20.launcher2.preferences.ui.UiSettings
 import de.mm20.launcher2.themes.ThemeRepository
 import de.mm20.launcher2.ui.locals.LocalDarkTheme
@@ -14,12 +15,11 @@ import de.mm20.launcher2.ui.theme.colorscheme.darkColorSchemeOf
 import de.mm20.launcher2.ui.theme.colorscheme.lightColorSchemeOf
 import de.mm20.launcher2.ui.theme.shapes.shapesOf
 import de.mm20.launcher2.ui.theme.transparency.LocalTransparencyScheme
+import de.mm20.launcher2.ui.theme.transparency.TransparencyScheme
 import de.mm20.launcher2.ui.theme.transparency.transparencySchemeOf
 import de.mm20.launcher2.ui.theme.typography.typographyOf
 import kotlinx.coroutines.flow.flatMapLatest
 import org.koin.compose.koinInject
-import de.mm20.launcher2.preferences.ColorScheme as ColorSchemePref
-
 
 @Composable
 fun LauncherTheme(
@@ -71,7 +71,10 @@ fun LauncherTheme(
     val shapes = shapesOf(themeShapes!!)
     val typography = typographyOf(themeTypography!!)
 
-    val transparencyScheme = transparencySchemeOf(themeTransparencies!!)
+    // Opaque surfaces: nothing to blend with the wallpaper behind
+    val opaqueSurfaces by remember { uiSettings.opaqueSurfaces }.collectAsState(false)
+    val themeTransparencyScheme = transparencySchemeOf(themeTransparencies!!)
+    val transparencyScheme = if (opaqueSurfaces) TransparencyScheme(1f, 1f, 1f) else themeTransparencyScheme
 
 
     CompositionLocalProvider(

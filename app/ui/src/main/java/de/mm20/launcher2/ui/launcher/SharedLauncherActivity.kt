@@ -1,5 +1,6 @@
 package de.mm20.launcher2.ui.launcher
 
+import kotlin.math.abs
 import android.app.WallpaperManager
 import android.content.Intent
 import android.content.pm.ActivityInfo
@@ -83,7 +84,6 @@ import de.mm20.launcher2.ui.overlays.OverlayHost
 import de.mm20.launcher2.ui.theme.LauncherTheme
 import de.mm20.launcher2.ui.theme.wallpaperColorsAsState
 
-
 abstract class SharedLauncherActivity(
     private val mode: LauncherActivityMode
 ) : BaseActivity() {
@@ -132,6 +132,23 @@ abstract class SharedLauncherActivity(
             ) {
                 LauncherTheme {
                     ProvideCompositionLocals {
+                        // Refresh rate chosen in the settings, while the launcher is shown: every
+                        // animation frame is drawn once per refresh, 90 Hz is 50% more than 60 Hz
+                        val refreshRate by viewModel.refreshRate.collectAsState()
+                        LaunchedEffect(refreshRate) {
+                            // Some systems (OxygenOS) ignore preferredRefreshRate: ask for the
+                            // display mode with that rate and the same resolution too
+                            @Suppress("DEPRECATION")
+                            val display = windowManager.defaultDisplay
+                            val current = display.mode
+                            val mode = if (refreshRate <= 0) null else display.supportedModes
+                                .filter { it.physicalWidth == current.physicalWidth && it.physicalHeight == current.physicalHeight }
+                                .minByOrNull { abs(it.refreshRate - refreshRate) }
+                            window.attributes = window.attributes.apply {
+                                preferredRefreshRate = mode?.refreshRate ?: 0f
+                                preferredDisplayModeId = mode?.modeId ?: 0
+                            }
+                        }
                         val statusBarColor by viewModel.statusBarColor.collectAsState()
                         val navBarColor by viewModel.navBarColor.collectAsState()
 
