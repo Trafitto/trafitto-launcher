@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.LongState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -17,26 +18,38 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import de.mm20.launcher2.preferences.ClockWidgetStyle
+import de.mm20.launcher2.preferences.ui.ClockWidgetSettings
 import java.time.Instant
 import java.time.ZoneId
 import kotlin.math.max
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
+import org.koin.compose.koinInject
 
 
 /**
  * Provide the current time (in millis) to the LocalTime composition local.
- * The time is updated every second.
+ * The time is updated every second when the clock widget shows seconds, otherwise every minute:
+ * every reader recomposes on each update, the whole clock widget included.
  */
 @Composable
 fun ProvideCurrentTime(content: @Composable () -> Unit) {
 
     val lifecycleOwner = LocalLifecycleOwner.current
+    val clockSettings: ClockWidgetSettings = koinInject()
+    // ponytail: only the clock widget needs seconds (its seconds, or the blinking colon of Segment)
+    val everySecond by remember {
+        combine(clockSettings.showSeconds, clockSettings.clockStyle) { seconds, style ->
+            seconds || style is ClockWidgetStyle.Segment
+        }
+    }.collectAsState(true)
 
     var time by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
-    LaunchedEffect(null) {
+    LaunchedEffect(everySecond) {
         val handler = Handler(Looper.getMainLooper())
         val runnable = object : Runnable {
             override fun run() {
@@ -45,10 +58,10 @@ fun ProvideCurrentTime(content: @Composable () -> Unit) {
                 time = dateTime.toEpochSecond() * 1000
 
                 val millis = dateTime.nano / 1000000L
-                var next = 1000L - millis
-                if (next <= 200L) next += 1000L
+                val next = if (everySecond) 1000L - millis
+                else (60 - dateTime.second) * 1000L - millis
 
-                handler.postDelayed(this, 1000 - millis)
+                handler.postDelayed(this, next)
             }
 
         }

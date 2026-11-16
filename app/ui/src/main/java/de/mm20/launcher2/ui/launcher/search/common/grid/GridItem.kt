@@ -36,9 +36,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -48,7 +47,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.roundToIntRect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.mm20.launcher2.search.AppShortcut
@@ -67,6 +65,7 @@ import de.mm20.launcher2.ui.component.ShapedLauncherIcon
 import de.mm20.launcher2.ui.ktx.toPixels
 import de.mm20.launcher2.ui.launcher.search.apps.AppItemGridPopup
 import de.mm20.launcher2.ui.launcher.search.calendar.CalendarItemGridPopup
+import de.mm20.launcher2.ui.launcher.search.common.ItemBounds
 import de.mm20.launcher2.ui.launcher.search.common.SearchableItemVM
 import de.mm20.launcher2.ui.launcher.search.contacts.ContactItemGridPopup
 import de.mm20.launcher2.ui.launcher.search.files.FileItemGridPopup
@@ -104,14 +103,13 @@ fun GridItem(
     val context = LocalContext.current
 
     var showPopup by remember(item.key) { mutableStateOf(false) }
-    var bounds by remember { mutableStateOf(IntRect.Zero) }
+    val bounds = remember { ItemBounds() }
 
     val launchOnPress = !item.preferDetailsOverLaunch
     val hapticFeedback = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     // Enter launches the highlighted item: remember where its icon is
     val searchVM: SearchVM? = if (highlight) viewModel() else null
-    // Becoming highlighted doesn't move the icon, so onGloballyPositioned alone may not report it
     if (searchVM != null) SideEffect { searchVM.bestMatchBounds = item.key to bounds }
 
     LaunchedEffect(showPopup) {
@@ -123,7 +121,7 @@ fun GridItem(
             .padding(4.dp)
             .combinedClickable(
                 onClick = {
-                    if (!launchOnPress || !viewModel.launch(context, bounds)) {
+                    if (!launchOnPress || !viewModel.launch(context, bounds.get())) {
                         showPopup = true
                     }
                 },
@@ -147,6 +145,7 @@ fun GridItem(
         if (item is Application) {
             HandleEnterHomeTransition {
                 val cn = item.componentName
+                val bounds = bounds.get()
                 if (
                     it.componentName == cn &&
                     bounds.right > 0f && bounds.left < windowSize.width &&
@@ -181,12 +180,7 @@ fun GridItem(
             ShapedLauncherIcon(
                 modifier = Modifier
                     .padding(4.dp)
-                    .onGloballyPositioned {
-                        bounds = it
-                            .boundsInWindow()
-                            .roundToIntRect()
-                        searchVM?.bestMatchBounds = item.key to bounds
-                    } then
+                    .onPlaced { bounds.coordinates = it } then
                         if (highlight) Modifier.background(
                             MaterialTheme.colorScheme.surface,
                             iconShape
@@ -213,7 +207,7 @@ fun GridItem(
     }
 
     if (showPopup) {
-        ItemPopup(origin = bounds, searchable = item, onDismissRequest = { showPopup = false })
+        ItemPopup(origin = bounds.get(), searchable = item, onDismissRequest = { showPopup = false })
     }
 }
 

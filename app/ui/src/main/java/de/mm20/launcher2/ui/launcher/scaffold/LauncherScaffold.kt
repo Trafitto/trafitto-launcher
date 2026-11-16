@@ -75,6 +75,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -89,6 +90,8 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.core.view.WindowInsetsCompat
@@ -102,7 +105,6 @@ import de.mm20.launcher2.preferences.SearchBarLook
 import de.mm20.launcher2.preferences.SearchBarStyle
 import de.mm20.launcher2.preferences.ui.UiSettings
 import de.mm20.launcher2.searchactions.actions.SearchAction
-import de.mm20.launcher2.ui.component.NavBarEffects
 import de.mm20.launcher2.ui.component.SearchBarLevel
 import de.mm20.launcher2.ui.ktx.toPixels
 import de.mm20.launcher2.ui.launcher.SharedLauncherActivity
@@ -198,10 +200,6 @@ internal data class ScaffoldConfiguration(
      */
     val finishOnBack: Boolean = false,
     val darkSearchBar: Boolean = false,
-    /**
-     * Charging bubbles at the bottom of the home page
-     */
-    val chargingAnimation: Boolean = false,
 ) {
     val searchBarTap = ScaffoldGesture(
         component = searchComponent,
@@ -1115,7 +1113,9 @@ internal fun LauncherScaffold(
             }
         }
 
-        val filterBarHeight by animateDpAsState(if (isFilterBarVisible) imeProgress * 50.dp else 0.dp)
+        // Read at layout time through filterBarInsets: following imeProgress here recomposed this
+        // scope on every frame of the keyboard animation
+        val filterBarHeight = animateDpAsState(if (isFilterBarVisible) 50.dp else 0.dp)
 
         LaunchedEffect(state) {
             config.homeComponent.onPreActivate(state)
@@ -1172,19 +1172,6 @@ internal fun LauncherScaffold(
                     insetsController.hide(WindowInsetsCompat.Type.navigationBars())
                 }
             }
-        }
-
-        if (config.chargingAnimation) {
-            // Only on the home page at rest: no extra frames to draw during transitions or on other pages
-            val onHome by remember(state) {
-                derivedStateOf { state.currentProgress == 0f && !state.isDragged }
-            }
-            NavBarEffects(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .size(width = 240.dp, height = 400.dp),
-                paused = !onHome,
-            )
         }
 
         if (config.wallpaperBlurRadius > 0.dp) {
@@ -1330,9 +1317,15 @@ internal fun LauncherScaffold(
                 bottom = if (config.searchBarPosition == SearchBarPosition.Bottom) searchBarHeight + 8.dp else 8.dp
             )
 
-            val filterBarInsets = WindowInsets(
-                bottom = filterBarHeight
-            )
+            val filterBarInsets = remember(filterBarHeight) {
+                object : WindowInsets {
+                    override fun getLeft(density: Density, layoutDirection: LayoutDirection) = 0
+                    override fun getTop(density: Density) = 0
+                    override fun getRight(density: Density, layoutDirection: LayoutDirection) = 0
+                    override fun getBottom(density: Density) =
+                        with(density) { filterBarHeight.value.roundToPx() }
+                }
+            }
 
             val systemGestureBottomInset =
                 WindowInsets.systemGestures.getBottom(LocalDensity.current)
@@ -1445,17 +1438,24 @@ internal fun LauncherScaffold(
             }
             if (isFilterBarVisible) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .offset(y = (1f - imeProgress) * 50.dp)
-                        .alpha(imeProgress),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.BottomCenter,
                 ) {
-                    KeyboardFilterBar(
-                        filters = filters,
-                        onFiltersChange = { searchVM.setFilters(it) },
-                        items = filterBarItems
-                    )
+                    // Only the bar, at draw time and without an offscreen buffer: an alpha on the
+                    // full screen box drew the whole screen offscreen on every keyboard frame
+                    Box(
+                        modifier = Modifier.graphicsLayer {
+                            compositingStrategy = CompositingStrategy.ModulateAlpha
+                            translationY = (1f - imeProgress) * 50.dp.toPx()
+                            alpha = imeProgress
+                        }
+                    ) {
+                        KeyboardFilterBar(
+                            filters = filters,
+                            onFiltersChange = { searchVM.setFilters(it) },
+                            items = filterBarItems
+                        )
+                    }
                 }
             }
         }
@@ -1589,6 +1589,8 @@ private fun Modifier.homePageAnimation(
             Modifier
                 .background(backgroundColor)
                 .graphicsLayer {
+                    // Alpha on each draw: an offscreen layer as big as the screen on every frame cost GPU time
+                    compositingStrategy = CompositingStrategy.ModulateAlpha
                     translationX =
                         if (dir.orientation == Orientation.Horizontal) state.currentOffset.x else 0f
                     translationY =
@@ -1607,6 +1609,8 @@ private fun Modifier.homePageAnimation(
     if (state.currentAnimation == ScaffoldAnimation.ZoomIn) {
         return this then Modifier
             .graphicsLayer {
+                // Alpha on each draw: an offscreen layer as big as the screen on every frame cost GPU time
+                compositingStrategy = CompositingStrategy.ModulateAlpha
                 scaleX = 1f - (state.currentProgress * 0.03f)
                 scaleY = 1f - (state.currentProgress * 0.03f)
                 alpha = (1f - state.currentProgress).coerceIn(0f, 1f)
@@ -1643,6 +1647,8 @@ private fun Modifier.secondaryPageAnimation(
     if (state.currentAnimation == ScaffoldAnimation.Rubberband) {
         return this then background
             .graphicsLayer {
+                // Alpha on each draw: an offscreen layer as big as the screen on every frame cost GPU time
+                compositingStrategy = CompositingStrategy.ModulateAlpha
                 translationX =
                     if (dir.orientation == Orientation.Horizontal) state.currentOffset.x else 0f
                 translationY =
@@ -1660,6 +1666,8 @@ private fun Modifier.secondaryPageAnimation(
     if (state.currentAnimation == ScaffoldAnimation.ZoomIn) {
         return this then background
             .graphicsLayer {
+                // Alpha on each draw: an offscreen layer as big as the screen on every frame cost GPU time
+                compositingStrategy = CompositingStrategy.ModulateAlpha
                 scaleX = 1f - ((1f - state.currentProgress) * 0.03f)
                 scaleY = 1f - ((1f - state.currentProgress) * 0.03f)
                 alpha = (state.currentProgress).coerceAtMost(1f)

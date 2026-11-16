@@ -135,8 +135,6 @@ abstract class SharedLauncherActivity(
                         val statusBarColor by viewModel.statusBarColor.collectAsState()
                         val navBarColor by viewModel.navBarColor.collectAsState()
 
-                        val chargingAnimation by viewModel.chargingAnimation.collectAsState()
-
                         val lightStatus =
                             !dimBackground && (statusBarColor == SystemBarColors.Dark || statusBarColor == SystemBarColors.Auto && wallpaperColors.supportsDarkText)
                         val lightNav =
@@ -240,7 +238,6 @@ abstract class SharedLauncherActivity(
                                 searchBarAutofocus,
                                 wallpaperBlur,
                                 wallpaperBlurRadius,
-                                chargingAnimation,
                             ) {
                                 if (mode == LauncherActivityMode.Assistant) {
                                     val searchComponent = SearchComponent(
@@ -409,7 +406,6 @@ abstract class SharedLauncherActivity(
                                         showNavBar = !hideNav,
                                         darkSearchBar = darkSearchBar,
                                         wallpaperBlurRadius = if (wallpaperBlur) wallpaperBlurRadius.dp else 0.dp,
-                                        chargingAnimation = chargingAnimation == true,
                                     )
 
                                     if (config.isUseless()) config.copy(

@@ -82,6 +82,10 @@ internal class WeatherRepositoryImpl(
                 val provider =  WeatherProvider.getInstance(it.provider)
                 val weatherRequest =
                     PeriodicWorkRequestBuilder<WeatherUpdateWorker>(Duration.ofMillis(provider.getUpdateInterval()))
+                        // No point in waking the phone for a forecast it can't download
+                        .setConstraints(
+                            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+                        )
                         .build()
                 WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                     "weather",

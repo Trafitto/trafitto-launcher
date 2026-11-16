@@ -32,6 +32,8 @@ fun <T : SavableSearchable> LazyListScope.ListResults(
     after: @Composable (ColumnScope.() -> Unit)? = null,
     reverse: Boolean = false,
     selectedIndex: Int = -1,
+    // Items with the same content type are reused while scrolling, also across sections
+    contentType: Any = key,
 ) {
     if (before != null) {
         item(
@@ -54,7 +56,7 @@ fun <T : SavableSearchable> LazyListScope.ListResults(
         key = {
             "$key-${items[it].key}"
         },
-        contentType = { key },
+        contentType = { contentType },
     ) {
         val item = items[it]
         val showDetails = it == selectedIndex

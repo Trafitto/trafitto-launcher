@@ -79,6 +79,7 @@ import de.mm20.launcher2.icons.VectorLayer
 import de.mm20.launcher2.ktx.drawWithColorFilter
 import de.mm20.launcher2.preferences.IconShape
 import de.mm20.launcher2.ui.base.LocalTime
+import de.mm20.launcher2.ui.base.rememberAnimationTicker
 import de.mm20.launcher2.ui.ktx.toPixels
 import de.mm20.launcher2.ui.locals.LocalDarkTheme
 import de.mm20.launcher2.ui.locals.LocalGridSettings
@@ -278,7 +279,11 @@ private fun ClockLayer(
     tintColor: Color?,
     modifier: Modifier = Modifier,
 ) {
-    val time = Instant.ofEpochMilli(LocalTime.current).atZone(ZoneId.systemDefault())
+    // LocalTime may tick only once a minute: a second hand gets its own ticker (paused when not drawn)
+    val hasSecondHand = sublayers.any { it.role == ClockSublayerRole.Second }
+    val ticker = rememberAnimationTicker(running = hasSecondHand, stepMillis = 1000L)
+    val millis = if (hasSecondHand) ticker.longValue else LocalTime.current
+    val time = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
 
     val second = time.second
     val minute = time.minute

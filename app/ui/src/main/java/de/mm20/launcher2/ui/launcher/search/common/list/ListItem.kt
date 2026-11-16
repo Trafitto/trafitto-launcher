@@ -12,16 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.roundToIntRect
 import de.mm20.launcher2.search.AppShortcut
 import de.mm20.launcher2.search.Application
 import de.mm20.launcher2.search.Article
@@ -34,6 +30,7 @@ import de.mm20.launcher2.search.Website
 import de.mm20.launcher2.ui.ktx.toPixels
 import de.mm20.launcher2.ui.launcher.search.apps.AppItem
 import de.mm20.launcher2.ui.launcher.search.calendar.CalendarItem
+import de.mm20.launcher2.ui.launcher.search.common.ItemBounds
 import de.mm20.launcher2.ui.launcher.search.common.SearchableItemVM
 import de.mm20.launcher2.ui.launcher.search.contacts.ContactItem
 import de.mm20.launcher2.ui.launcher.search.files.FileItem
@@ -71,13 +68,11 @@ fun ListItem(
         )
     )
 
-    var bounds by remember { mutableStateOf(IntRect.Zero) }
+    val bounds = remember { ItemBounds() }
     Box(
         modifier = modifier
             .background(background)
-            .onGloballyPositioned {
-                bounds = it.boundsInWindow().roundToIntRect()
-            },
+            .onPlaced { bounds.coordinates = it },
     ) {
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onSurface
@@ -91,7 +86,7 @@ fun ListItem(
                             .combinedClickable(
                                 enabled = !showDetails,
                                 onClick = {
-                                    if (!viewModel.launch(context, bounds)) {
+                                    if (!viewModel.launch(context, bounds.get())) {
                                         onShowDetails(true)
                                     }
                                 },
@@ -124,7 +119,7 @@ fun ListItem(
                             .combinedClickable(
                                 enabled = !showDetails,
                                 onClick = {
-                                    if (!viewModel.launch(context, bounds)) {
+                                    if (!viewModel.launch(context, bounds.get())) {
                                         onShowDetails(true)
                                     }
                                 },
@@ -173,7 +168,7 @@ fun ListItem(
                             .combinedClickable(
                                 enabled = !showDetails,
                                 onClick = {
-                                    if (!viewModel.launch(context, bounds)) {
+                                    if (!viewModel.launch(context, bounds.get())) {
                                         onShowDetails(true)
                                     }
                                 },
@@ -191,7 +186,7 @@ fun ListItem(
                             .combinedClickable(
                                 enabled = !showDetails,
                                 onClick = {
-                                    if (!viewModel.launch(context, bounds)) {
+                                    if (!viewModel.launch(context, bounds.get())) {
                                         onShowDetails(true)
                                     }
                                 },
@@ -209,7 +204,7 @@ fun ListItem(
                             .combinedClickable(
                                 enabled = !showDetails,
                                 onClick = {
-                                    if (!viewModel.launch(context, bounds)) {
+                                    if (!viewModel.launch(context, bounds.get())) {
                                         onShowDetails(true)
                                     }
                                 },

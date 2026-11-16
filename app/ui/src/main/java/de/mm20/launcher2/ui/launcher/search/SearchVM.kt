@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.unit.IntRect
 import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -48,6 +47,7 @@ import de.mm20.launcher2.searchable.VisibilityLevel
 import de.mm20.launcher2.searchactions.actions.SearchAction
 import de.mm20.launcher2.services.favorites.FavoritesService
 import de.mm20.launcher2.services.tags.TagsService
+import de.mm20.launcher2.ui.launcher.search.common.ItemBounds
 import de.mm20.launcher2.ui.launcher.search.apps.createDefaultAppTags
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -175,12 +175,12 @@ class SearchVM : ViewModel(), KoinComponent {
      * Key and window bounds of the highlighted grid icon, so that launching with enter
      * scales the app up from that icon like a tap does.
      */
-    var bestMatchBounds: Pair<String, IntRect>? = null
+    var bestMatchBounds: Pair<String, ItemBounds>? = null
 
     fun launchBestMatchOrAction(context: Context) {
         val bestMatch = bestMatch.value
         if (bestMatch is SavableSearchable) {
-            val bounds = bestMatchBounds?.takeIf { it.first == bestMatch.key }?.second
+            val bounds = bestMatchBounds?.takeIf { it.first == bestMatch.key }?.second?.get()
             val view = (context as? Activity)?.window?.decorView
             val options = if (bounds != null && view != null) {
                 ActivityOptionsCompat.makeScaleUpAnimation(
