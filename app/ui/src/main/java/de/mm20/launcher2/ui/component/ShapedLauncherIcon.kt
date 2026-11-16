@@ -40,6 +40,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.addOutline
+import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -115,20 +118,30 @@ fun ShapedLauncherIcon(
 
     val defaultIconSize = LocalGridSettings.current.iconSize.dp
 
+    // Icons with a background are cut to the shape once, when rendered: drawing a plain bitmap
+    // is cheaper than clipping it to a path on every frame. Transparent ones are drawn as they are
+    val cutToShape = (currentIcon as? StaticLauncherIcon)?.backgroundLayer !is TransparentLayer
     val renderSettings = LauncherIconRenderSettings(
         size = defaultIconSize.toPixels().toInt(),
         fgThemeColor = MaterialTheme.colorScheme.onPrimaryContainer.toArgb(),
         bgThemeColor = MaterialTheme.colorScheme.primaryContainer.toArgb(),
         fgTone = if (LocalDarkTheme.current) 90 else 10,
         bgTone = if (LocalDarkTheme.current) 30 else 90,
+        maskKey = if (cutToShape) shape else null,
     )
+    val localDensity = LocalDensity.current
+    val localLayoutDirection = LocalLayoutDirection.current
 
     var currentBitmap by remember {
         mutableStateOf(currentIcon?.getCachedBitmap(renderSettings))
     }
 
     LaunchedEffect(currentIcon, renderSettings) {
-        currentBitmap = currentIcon?.render(renderSettings)
+        val px = renderSettings.size.toFloat()
+        val mask = if (!cutToShape) null else androidx.compose.ui.graphics.Path().apply {
+            addOutline(shape.createOutline(Size(px, px), localLayoutDirection, localDensity))
+        }.asAndroidPath()
+        currentBitmap = currentIcon?.render(renderSettings, mask)
     }
 
     // Icons that weren't cached fade in instead of popping in; cached ones show at once.
@@ -164,18 +177,8 @@ fun ShapedLauncherIcon(
                         .requiredSize(defaultIconSize)
                         .scale(size / defaultIconSize, TransformOrigin.Center)
                 ) {
-                    val brush = BitmapShaderBrush(bmp)
-                    if (ic.backgroundLayer is TransparentLayer) {
-                        drawRect(brush)
-                    } else {
-                        val outline =
-                            shape.createOutline(
-                                this.size,
-                                layoutDirection,
-                                Density(density, fontScale)
-                            )
-                        drawOutline(outline, brush)
-                    }
+                    // Already cut to the shape (or transparent)
+                    drawRect(BitmapShaderBrush(bmp))
                 }
                 // Background layer is always static layer, color layer, or transparent layer
                 val fg = ic.foregroundLayer
@@ -356,8 +359,7 @@ fun ProvideIconShape(iconShape: IconShape, content: @Composable () -> Unit) {
     )
 }
 
-private val TriangleShape: Shape
-    get() = GenericShape { size, _ ->
+private val TriangleShape: Shape = GenericShape { size, _ ->
         var cx = 0f
         var cy = size.height * 0.86f
         val r = size.width
@@ -371,8 +373,7 @@ private val TriangleShape: Shape
         close()
     }
 
-private val SquircleShape: Shape
-    get() = GenericShape { size, _ ->
+private val SquircleShape: Shape = GenericShape { size, _ ->
         val radius = size.width / 2f
         val radiusToPow = radius.pow(3f).toDouble()
         moveTo(-radius, 0f)
@@ -389,8 +390,7 @@ private val SquircleShape: Shape
         translate(Offset(size.width / 2f, size.height / 2f))
     }
 
-private val HexagonShape: Shape
-    get() = GenericShape { size, _ ->
+private val HexagonShape: Shape = GenericShape { size, _ ->
         moveTo(
             size.width * 0.25f,
             size.height * 0.933f
@@ -415,8 +415,7 @@ private val HexagonShape: Shape
         close()
     }
 
-private val PentagonShape: Shape
-    get() = GenericShape { size, _ ->
+private val PentagonShape: Shape = GenericShape { size, _ ->
         moveTo(
             0.49997027f * size.width,
             0.0060308f * size.height
@@ -440,8 +439,7 @@ private val PentagonShape: Shape
         close()
     }
 
-private val TeardropShape: Shape
-    get() = GenericShape { size, _ ->
+private val TeardropShape: Shape = GenericShape { size, _ ->
         moveTo(0.5f * size.width, 0f)
         cubicTo(
             0.776f * size.width, 0f,
@@ -470,8 +468,7 @@ private val TeardropShape: Shape
         close()
     }
 
-private val PebbleShape: Shape
-    get() = GenericShape { size, _ ->
+private val PebbleShape: Shape = GenericShape { size, _ ->
         moveTo(0.55f * size.width, 0f * size.height)
         cubicTo(
             0.25f * size.width,
@@ -508,8 +505,7 @@ private val PebbleShape: Shape
         close()
     }
 
-private val EasterEggShape: Shape
-    get() = GenericShape { size, _ ->
+private val EasterEggShape: Shape = GenericShape { size, _ ->
         moveTo(
             0.49999999f * size.width,
             1f * size.height
@@ -569,14 +565,13 @@ private val EasterEggShape: Shape
         close()
     }
 
-private val PlatformShape: Shape
-    get() {
+private val PlatformShape: Shape by lazy {
         val drawable = AdaptiveIconDrawable(null, null)
 
         val pathBounds = RectF()
         drawable.iconMask.computeBounds(pathBounds, true)
 
-        return GenericShape { size, _ ->
+        GenericShape { size, _ ->
             val path = Path(drawable.iconMask)
             val transformMatrix = Matrix()
             transformMatrix.setScale(
