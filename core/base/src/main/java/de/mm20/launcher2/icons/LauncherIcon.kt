@@ -3,6 +3,7 @@ package de.mm20.launcher2.icons
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.PorterDuffXfermode
@@ -18,12 +19,21 @@ import java.lang.ref.WeakReference
 
 sealed interface LauncherIcon
 
+private val ClearPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+}
+
 data class LauncherIconRenderSettings(
     val size: Int,
     val fgThemeColor: Int,
     val bgThemeColor: Int,
     val fgTone: Int,
     val bgTone: Int,
+    /**
+     * The shape the icon is cut to when rendered (the mask path passed to render), compared with
+     * equals. Null: not cut
+     */
+    val maskKey: Any? = null,
 )
 
 data class StaticLauncherIcon(
@@ -41,13 +51,15 @@ data class StaticLauncherIcon(
     /**
      * Render this icon to a bitmap.
      */
-    suspend fun render(settings: LauncherIconRenderSettings): Bitmap {
+    suspend fun render(settings: LauncherIconRenderSettings, mask: Path? = null): Bitmap {
         val cachedBmp = cachedBitmap?.get()
         if (cachedRenderSettings == settings && cachedBmp != null) return cachedBmp
         val bmp = withContext(Dispatchers.Default) {
             renderSemaphore.withPermit {
                 val bmp =
-                    if (cachedBmp == null || cachedBmp.width != settings.size || cachedBmp.height != settings.size) {
+                    // A bitmap cut to another shape may be on screen still: never draw over it
+                    if (cachedBmp == null || cachedBmp.width != settings.size || cachedBmp.height != settings.size ||
+                        cachedRenderSettings?.maskKey != settings.maskKey) {
                         Bitmap.createBitmap(settings.size, settings.size, Bitmap.Config.ARGB_8888)!!
                     } else cachedBmp
                 val canvas = Canvas(bmp)
@@ -57,6 +69,10 @@ data class StaticLauncherIcon(
                     })
                 renderLayer(canvas, backgroundLayer, settings.bgThemeColor, settings.bgTone)
                 renderLayer(canvas, foregroundLayer, settings.fgThemeColor, settings.fgTone)
+                if (mask != null) {
+                    // Cut once here instead of clipping to the shape on every frame
+                    canvas.drawPath(Path(mask).apply { toggleInverseFillType() }, ClearPaint)
+                }
                 cachedBitmap = WeakReference(bmp)
                 cachedRenderSettings = settings
                 bmp
