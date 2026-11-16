@@ -261,7 +261,7 @@
     <string name="preference_clockwidget_alarm_part">Sveglie</string>
     <string name="preference_clockwidget_alarm_part_summary">Mostra le sveglie che suoneranno nelle prossime 8 ore</string>
     <string name="preference_screen_search">Ricerca</string>
-    <string name="preference_screen_search_summary">Ricerca, tag, risultati esclusi</string>
+    <string name="preference_screen_search_summary">Ricerca, categorie, risultati esclusi</string>
     <string name="preference_search_favorites">Preferiti</string>
     <string name="preference_search_files">File</string>
     <string name="preference_search_contacts">Contatti</string>
@@ -374,11 +374,11 @@
     <string name="edit_favorites_dialog_empty_section">Trascina gli elementi qui</string>
     <string name="frequently_used_rows">Numero di righe</string>
     <string name="frequently_used_show_in_favorites">Mostra nei preferiti</string>
-    <string name="edit_favorites_dialog_tags">Tag</string>
-    <string name="edit_favorites_dialog_tag_section_empty">I tag aggiunti verranno visualizzati qui</string>
+    <string name="edit_favorites_dialog_tags">Categorie</string>
+    <string name="edit_favorites_dialog_tag_section_empty">Le categorie fissate verranno visualizzate qui</string>
     <string name="favorites_empty">Gli elementi appuntati e usati di frequente appariranno qui</string>
-    <string name="favorites_empty_tag">Non ci sono elementi con questo tag</string>
-    <string name="edit_favorites_dialog_new_tag">Crea tag</string>
+    <string name="favorites_empty_tag">Non ci sono elementi in questa categoria</string>
+    <string name="edit_favorites_dialog_new_tag">Crea categoria</string>
     <string name="websearch_dialog_query_encoding_form">application/x-www-form-urlencoded</string>
     <string name="websearch_dialog_query_encoding_none">Nessuna</string>
     <string name="websearch_dialog_query_encoding">Codifica ricerche</string>
@@ -424,9 +424,9 @@
     <string name="experimental_feature">Sperimentale</string>
     <string name="help">Aiuto</string>
     <string name="skip">Salta</string>
-    <string name="preference_screen_tags">Tag</string>
-    <string name="preference_screen_tags_summary">Gestisci i tag e gli elementi con tag</string>
-    <string name="tag_exists_message">Esiste già un tag con questo nome. Se continui, i due tag verranno uniti</string>
+    <string name="preference_screen_tags">Categorie</string>
+    <string name="preference_screen_tags_summary">Gestisci le categorie e le loro app</string>
+    <string name="tag_exists_message">Esiste già una categoria con questo nome. Se continui, le due categorie verranno unite</string>
     <plurals name="tag_selected_items">
         <item quantity="one">%1$d elemento selezionato</item>
         <item quantity="many">%1$d elementi selezionati</item>
@@ -434,10 +434,10 @@
     </plurals>
     <string name="duplicate">Duplica</string>
     <string name="action_next">Successivo</string>
-    <string name="tag_exists_error">Esiste già un tag con questo nome</string>
-    <string name="tag_no_items_message">Nessun elemento è assegnato a questo tag. Se continui, il tag verrà eliminato</string>
+    <string name="tag_exists_error">Esiste già una categoria con questo nome</string>
+    <string name="tag_no_items_message">Nessun elemento è in questa categoria. Se continui, la categoria verrà eliminata</string>
     <string name="tag_select_items">Seleziona elementi</string>
-    <string name="tag_name">Nome tag</string>
+    <string name="tag_name">Nome categoria</string>
     <string name="open_search_pull_down">Scorri in basso</string>
     <string name="open_search_swipe_left">Scorri a sinistra</string>
     <string name="open_search_swipe_right">Scorri a destra</string>
@@ -718,7 +718,7 @@
     <string name="poi_category_park">Parco</string>
     <string name="preference_search_osm_locations_summary">Trova su OpenStreetMap negozi e altri luoghi nelle vicinanze</string>
     <string name="item_visibility_calendar_default">Widget calendario e risultati ricerca</string>
-    <string name="customize_item_tags">Tag</string>
+    <string name="customize_item_tags">Categorie</string>
     <string name="customize_item_visibility">Mostra in</string>
     <string name="item_visibility_app_default">Griglia app e risultati ricerca</string>
     <string name="item_visibility_search_only">Risultati ricerca</string>
@@ -782,8 +782,8 @@
     <string name="profile_private_profile_action_lock">Blocca spazio privato</string>
     <string name="hint_drag_and_drop_reorder">Tieni premuto e trascina gli elementi per riorganizzarli</string>
     <string name="app_label_locked_profile">Bloccata</string>
-    <string name="preference_compact_tags">Tag compatti</string>
-    <string name="preference_compact_tags_summary">Nascondi le etichette o le icone dei tag per ridurre lo spazio occupato dai tag</string>
+    <string name="preference_compact_tags">Categorie compatte</string>
+    <string name="preference_compact_tags_summary">Nascondi le etichette o le icone delle categorie per occupare meno spazio</string>
     <string name="weather_forecast_humidity">Umidità</string>
     <string name="weather_forecast_precipitation">Precipitazione</string>
     <string name="weather_forecast_wind">Vento</string>
@@ -889,7 +889,7 @@
     <string name="preference_transliteration">Traslitterazione preferita</string>
     <string name="preference_transliteration_auto">Automatica</string>
     <string name="preference_value_disabled">Disabilitata</string>
-    <string name="select_tag">Seleziona tag</string>
+    <string name="select_tag">Seleziona categoria</string>
     <string name="widget_name_apps">App</string>
     <string name="preference_category_enabled_plugins">Abilitato</string>
     <string name="preference_category_installed_plugins">Installato</string>
@@ -910,8 +910,8 @@
     <string name="edit_search_action_title">Modifica azione rapida</string>
     <string name="dialog_discard_unsaved">Uscire senza salvare?</string>
     <string name="tag_name_empty_error">Il nome non può essere vuoto</string>
-    <string name="create_tag_title">Nuovo tag</string>
-    <string name="edit_tag_title">Modifica tag</string>
+    <string name="create_tag_title">Nuova categoria</string>
+    <string name="edit_tag_title">Modifica categoria</string>
     <string name="typo_preview_extra_short">Aa</string>
     <string name="typo_preview_short1">Mano</string>
     <string name="typo_preview_short2">Vino</string>
@@ -982,7 +982,7 @@
     <string name="widget_pages">Pagine widget</string>
     <string name="widget_pages_summary">Pagine di widget a destra della home (swipe a sinistra)</string>
     <string name="preference_search_apps_by_tag">Raggruppa per categoria</string>
-    <string name="preference_search_apps_by_tag_summary">Dividi tutte le app in sezioni per tag. Tocca il titolo di una sezione per rinominarla o per aggiungere e togliere app</string>
+    <string name="preference_search_apps_by_tag_summary">Dividi tutte le app in sezioni per categoria. Tocca il titolo di una sezione per rinominarla o per aggiungere e togliere app</string>
     <string name="apps_untagged">Altre app</string>
     <string name="app_category_communication">Comunicazione</string>
     <string name="app_category_photos_videos">Foto e video</string>
