@@ -19,8 +19,9 @@
   installs next to the official Kvaesitso
 - **Swipe right:** full screen week calendar
 - **Swipe left:** widget pages for app widgets (one by default, more from the settings)
-- **Home, your way:** up to 6 pinned apps, nothing but the clock, or letters on the screen edge:
-  slide on them to see the apps of each letter and open one
+- **Home, your way:** up to 6 pinned apps, shortcuts ("Add to home screen" from the browser) or
+  categories as folders; nothing but the clock; or letters on the screen edge: slide on them to see
+  the apps of each letter and open one
 - **Search bar:** at the bottom, opened by swiping up, rounded and resizable
 - **Apps by category:** the app list is split in sections (Communication, Games, Tools…), created
   from the type of each app. Newly installed apps land in their category by themselves, if it still
@@ -32,6 +33,11 @@
 - **Lighter on battery:** the home draws nothing while idle, no charging animation, the clock
   updates once a minute (unless it shows seconds), no full screen offscreen layers while the
   keyboard animates, exchange rates updated once a day and background updates only with network
+- **Your refresh rate:** the launcher can run at 60 Hz, 90 Hz, 120 Hz or any rate the screen
+  supports. At 60 Hz instead of 90 Hz it draws about a quarter fewer frames to open and close
+  search and a third fewer to scroll
+- **Tidier settings:** a grouped menu and one Appearance screen. Theme import and export are gone,
+  colors, fonts and shapes are still yours to change
 
 ### Make it yours
 
@@ -41,15 +47,19 @@ Everything added by this fork can be changed from the settings:
 |---|---|
 | Settings › Home screen › Apps on home screen | What the home shows: pinned apps (up to 6), no apps, or letters on the edge |
 | | Pinned apps: position (top or bottom; left, center or right), names and icons on or off, text size, bold, icon size and shape, black and white icons, spacing. Add apps with "+ Add app" or by long pressing an app on the home |
+| | Categories as folders: in the same sheet, a category takes a slot on the home and opens its apps in a panel |
 | | Notifications under apps (off by default) |
 | | Swipe an app for its shortcuts (off by default: starting on an app, a side swipe no longer opens widgets or calendar) |
 | Settings › Home screen › Search bar | Height, width, corner roundness, glass effect |
 | Settings › Home screen › Widgets | Number of widget pages |
 | Settings › Search › Apps › Group by category | App list split in sections, on by default |
+| Settings › Appearance | Light or dark, colors, fonts, shapes, transparency, icon pack (or the icon of a single app), grid, badges |
+| Settings › Battery and performance | Refresh rate in the launcher (the system's, or any rate the screen supports), opaque backgrounds |
+| Settings › Gestures › Vibration | Every vibration of the launcher on or off |
 | App list | Tap the pencil on a section title to rename it or to add and remove apps; "+ New category" at the end of the list |
 
-On top of that, everything Kvaesitso already lets you change: colors and themes, icon packs, clock
-styles, gestures, wallpaper dim and blur ([user guide](https://kvaesitso.mm20.de/docs/user-guide)).
+On top of that, everything Kvaesitso already lets you change: clock styles, gestures, wallpaper dim
+and blur, plugins ([user guide](https://kvaesitso.mm20.de/docs/user-guide)).
 
 ### Measured on a OnePlus Nord
 
@@ -65,7 +75,8 @@ Features that cost something at rest or change a gesture are off by default.
 
 OnePlus Nord, Android 12: CPU of all the launcher's processes and frames rendered, 60 seconds per
 situation. 1 ms of CPU per second is 0.1% of one core. Opening and closing search is still the
-heaviest part (translucent cards over the wallpaper at 90 Hz) and the next thing to lighten.
+heaviest part (translucent cards over the wallpaper at 90 Hz): 60 Hz and opaque backgrounds, in
+Settings › Battery and performance, make it lighter.
 
 Licensed under the GPL-3.0, like the original. Everything below is the original Kvaesitso readme.
 
