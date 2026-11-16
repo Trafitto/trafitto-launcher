@@ -994,4 +994,6 @@
     <string name="app_category_internet">Internet</string>
     <string name="app_category_tools">Strumenti</string>
     <string name="apps_new_tag">Nuova categoria</string>
+    <string name="home_apps_notifications">Notifiche sotto le app</string>
+    <string name="home_apps_notifications_summary">L\'ultima notifica di ogni app, sotto il nome. Toccala per aprirla</string>
 </resources>

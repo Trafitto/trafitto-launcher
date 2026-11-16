@@ -1,5 +1,6 @@
 package de.mm20.launcher2.ui.launcher.scaffold.components
 
+import android.app.PendingIntent
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
@@ -57,6 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.mm20.launcher2.data.customattrs.CustomAttributesRepository
 import de.mm20.launcher2.data.customattrs.utils.withCustomLabels
+import de.mm20.launcher2.ktx.sendWithBackgroundPermission
 import de.mm20.launcher2.preferences.HomeAppsPosition
 import de.mm20.launcher2.preferences.HomeAppsSettings
 import de.mm20.launcher2.preferences.ui.UiSettings
@@ -80,6 +83,8 @@ import de.mm20.launcher2.ui.launcher.search.listItemViewModel
 import de.mm20.launcher2.ui.launcher.widgets.clock.ClockWidget
 import de.mm20.launcher2.ui.locals.LocalPreferDarkContentOverWallpaper
 import de.mm20.launcher2.ui.modifier.pressScale
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import org.koin.compose.koinInject
 
 internal object ClockHomeComponent : ScaffoldComponent() {
@@ -254,21 +259,57 @@ private fun HomeFavorite(
             )
         }
     }
+    // White text needs a soft shadow to stay readable on light parts of the wallpaper
+    val textShadow = if (LocalPreferDarkContentOverWallpaper.current) null
+    else Shadow(Color.Black.copy(alpha = 0.5f), blurRadius = 8f)
+
+    // The newest notification with something to read, no ongoing ones (music, downloads).
+    // Recomputed only when the notifications change.
+    val notification by remember(settings.showNotifications) {
+        if (!settings.showNotifications) flowOf(null)
+        else viewModel.notifications.map { list ->
+            list.filter { it.isClearable && (it.title != null || it.text != null) }
+                .maxByOrNull { it.postTime }
+        }
+    }.collectAsStateWithLifecycle(null)
+
     val label = @Composable {
-        if (settings.showLabels) {
-            Text(
-                text = item.labelOverride ?: item.label,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = settings.labelSize.sp,
-                    fontWeight = if (settings.boldLabels) FontWeight.Bold else null,
-                    // White text needs a soft shadow to stay readable on light parts of the wallpaper
-                    shadow = if (LocalPreferDarkContentOverWallpaper.current) null
-                    else Shadow(Color.Black.copy(alpha = 0.5f), blurRadius = 8f),
-                ),
-                color = homeTextColor(),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+        Column(horizontalAlignment = if (iconAfterLabel) Alignment.End else Alignment.Start) {
+            if (settings.showLabels) {
+                Text(
+                    text = item.labelOverride ?: item.label,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = settings.labelSize.sp,
+                        fontWeight = if (settings.boldLabels) FontWeight.Bold else null,
+                        shadow = textShadow,
+                    ),
+                    color = homeTextColor(),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            notification?.let { n ->
+                Text(
+                    text = listOfNotNull(n.title, n.text).joinToString(": "),
+                    style = MaterialTheme.typography.bodyMedium.copy(shadow = textShadow),
+                    color = homeTextColor().copy(alpha = 0.8f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .widthIn(max = 240.dp)
+                        .clickable {
+                            // Opens the notification, or the app when it has nothing to open
+                            val intent = n.contentIntent
+                            val opened = intent != null && try {
+                                intent.sendWithBackgroundPermission(context)
+                                true
+                            } catch (e: PendingIntent.CanceledException) {
+                                false
+                            }
+                            if (!opened) viewModel.launch(context, bounds)
+                        },
+                )
+            }
         }
     }
 
