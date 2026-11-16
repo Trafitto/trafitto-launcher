@@ -97,19 +97,23 @@ private fun defaultTag(
 
 /**
  * Puts every app that has no tag yet in its default tag, keeping the items already in that tag.
+ * With [onlyExistingTags], a default tag the user deleted is not created again.
  */
 internal suspend fun createDefaultAppTags(
     context: Context,
     apps: List<Application>,
     tagsByKey: Map<String, List<String>>,
     tagsService: TagsService,
+    onlyExistingTags: Boolean = false,
 ) {
     val roles = roleTags(context)
     val launcherApps = context.getSystemService<LauncherApps>()
+    val existingTags = if (onlyExistingTags) tagsService.getAllTags().first().toSet() else null
     val untagged = apps.filter { tagsByKey[it.key].isNullOrEmpty() }
     for ((tag, tagApps) in untagged.groupBy { defaultTag(it, roles, launcherApps) }) {
         if (tag == null) continue
         val name = context.getString(tag.label)
+        if (existingTags != null && name !in existingTags) continue
         val existing = tagsService.getTaggedItems(name).first()
         tagsService.createTag(name, existing + tagApps)
     }

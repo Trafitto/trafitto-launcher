@@ -61,6 +61,15 @@ class SearchUiSettings internal constructor(
         }
     }
 
+    val categorizedApps
+        get() = launcherDataStore.data.map { it.searchCategorizedApps }.distinctUntilChanged()
+
+    fun setCategorizedApps(keys: Set<String>) {
+        launcherDataStore.update {
+            it.copy(searchCategorizedApps = keys)
+        }
+    }
+
     val openKeyboard
         get() = launcherDataStore.data.map { it.searchBarKeyboard }.distinctUntilChanged()
 
