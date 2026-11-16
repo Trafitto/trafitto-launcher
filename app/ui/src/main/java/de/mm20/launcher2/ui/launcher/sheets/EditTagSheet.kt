@@ -32,12 +32,15 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,6 +49,7 @@ import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -84,12 +88,18 @@ fun EditTagSheet(
     onTagSaved: (String) -> Unit = {},
 ) {
 
+    val viewModel: EditTagSheetVM = viewModel()
+    var confirmDismiss by remember { mutableStateOf(false) }
+    // Back, a tap outside and the close button: ask only when something would be lost
+    val requestDismiss = {
+        if (viewModel.hasChanges) confirmDismiss = true else onDismiss()
+    }
+
     BottomSheet(
         state = tag to expanded,
         expanded = { it.second },
+        onDismissRequest = requestDismiss,
     ) { (tag, _) ->
-        var confirmDismiss by remember { mutableStateOf(false) }
-        val viewModel: EditTagSheetVM = viewModel()
         val isCreatingNewTag = tag == null
 
         val density = LocalDensity.current
@@ -163,13 +173,7 @@ fun EditTagSheet(
                 actions = {
                     if (viewModel.page != EditTagSheetPage.PickIcon && viewModel.page != EditTagSheetPage.PickItems || !viewModel.wasOnLastPage) {
                         FilledTonalIconButton(
-                            onClick = {
-                                if (viewModel.page == EditTagSheetPage.PickItems || viewModel.page == EditTagSheetPage.CustomizeTag) {
-                                    confirmDismiss = true
-                                } else {
-                                    onDismiss()
-                                }
-                            },
+                            onClick = requestDismiss,
                         ) {
                             Icon(
                                 painterResource(R.drawable.close_24px),
@@ -276,42 +280,86 @@ fun PickItems(viewModel: EditTagSheetVM) {
         }
     }
 
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxWidth(),
-        columns = GridCells.Fixed(columns),
-        contentPadding = PaddingValues(16.dp)
-    ) {
-        items(viewModel.taggableApps) {
-            val iconSize = 32.dp.toPixels()
-            val icon by remember(it.item.key) {
-                viewModel.getIcon(it.item, iconSize.toInt())
-            }.collectAsState(null)
-            ListItem(item = it, icon = icon, onTagChanged = { tagged ->
-                if (tagged) viewModel.tagItem(it.item)
-                else viewModel.untagItem(it.item)
-            })
-        }
+    // Items already in the tag first, then the others, all filtered by the search
+    val apps by remember { derivedStateOf { viewModel.taggableApps.filter(viewModel::matchesQuery) } }
+    val inTag = remember(apps) { apps.filter { it.item.key in viewModel.initiallyTagged } }
+    val notInTag = remember(apps) { apps.filter { it.item.key !in viewModel.initiallyTagged } }
+    val other by remember { derivedStateOf { viewModel.taggableOther.filter(viewModel::matchesQuery) } }
 
-        if (viewModel.taggableOther.isNotEmpty()) {
-            item(span = { GridItemSpan(columns) }) {
-                Box(
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .background(MaterialTheme.colorScheme.outlineVariant)
-                        .fillMaxWidth()
-                        .height(1.dp)
+    val pickerItem: @Composable (TaggableItem) -> Unit = {
+        val iconSize = 32.dp.toPixels()
+        val icon by remember(it.item.key) {
+            viewModel.getIcon(it.item, iconSize.toInt())
+        }.collectAsState(null)
+        ListItem(item = it, icon = icon, onTagChanged = { tagged ->
+            if (tagged) viewModel.tagItem(it.item)
+            else viewModel.untagItem(it.item)
+        })
+    }
+    val divider: @Composable () -> Unit = {
+        Box(
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .background(MaterialTheme.colorScheme.outlineVariant)
+                .fillMaxWidth()
+                .height(1.dp)
+        )
+    }
+
+    Column {
+        DockedSearchBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            expanded = false,
+            onExpandedChange = {},
+            inputField = {
+                SearchBarDefaults.InputField(
+                    leadingIcon = {
+                        Icon(painterResource(R.drawable.search_24px), contentDescription = null)
+                    },
+                    trailingIcon = {
+                        if (viewModel.query.isNotEmpty()) {
+                            IconButton(
+                                modifier = Modifier.offset(16.dp),
+                                onClick = { viewModel.query = "" }
+                            ) {
+                                Icon(painterResource(R.drawable.close_24px), null)
+                            }
+                        }
+                    },
+                    onSearch = {},
+                    expanded = false,
+                    onExpandedChange = {},
+                    query = viewModel.query,
+                    onQueryChange = { viewModel.query = it },
+                    placeholder = {
+                        Text(stringResource(R.string.search_bar_placeholder))
+                    },
                 )
             }
+        ) {
+        }
 
-            items(viewModel.taggableOther) {
-                val iconSize = 32.dp.toPixels()
-                val icon by remember(it.item.key) {
-                    viewModel.getIcon(it.item, iconSize.toInt())
-                }.collectAsState(null)
-                ListItem(item = it, icon = icon, onTagChanged = { tagged ->
-                    if (tagged) viewModel.tagItem(it.item)
-                    else viewModel.untagItem(it.item)
-                })
+        LazyVerticalGrid(
+            // All the available height: the sheet would shrink and grow on every typed letter
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            columns = GridCells.Fixed(columns),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            items(inTag, key = { it.item.key }) { pickerItem(it) }
+
+            if (inTag.isNotEmpty() && notInTag.isNotEmpty()) {
+                item(key = "divider-apps", span = { GridItemSpan(columns) }) { divider() }
+            }
+
+            items(notInTag, key = { it.item.key }) { pickerItem(it) }
+
+            if (other.isNotEmpty()) {
+                item(key = "divider-other", span = { GridItemSpan(columns) }) { divider() }
+                items(other, key = { it.item.key }) { pickerItem(it) }
             }
         }
     }

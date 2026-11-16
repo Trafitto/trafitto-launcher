@@ -11,7 +11,9 @@ import de.mm20.launcher2.applications.AppRepository
 import de.mm20.launcher2.data.customattrs.CustomIcon
 import de.mm20.launcher2.icons.IconService
 import de.mm20.launcher2.icons.LauncherIcon
+import de.mm20.launcher2.search.ResultScore
 import de.mm20.launcher2.search.SavableSearchable
+import de.mm20.launcher2.search.StringNormalizer
 import de.mm20.launcher2.search.SearchService
 import de.mm20.launcher2.search.Tag
 import de.mm20.launcher2.services.tags.TagsService
@@ -31,6 +33,7 @@ class EditTagSheetVM : ViewModel(), KoinComponent {
     private val searchService: SearchService by inject()
     private val iconService: IconService by inject()
     private val appRepository: AppRepository by inject()
+    private val stringNormalizer: StringNormalizer by inject()
 
     private var oldTagName by mutableStateOf<String?>(null)
     private var allTags by mutableStateOf(emptySet<String>())
@@ -44,6 +47,28 @@ class EditTagSheetVM : ViewModel(), KoinComponent {
     var wasOnLastPage by mutableStateOf(false)
 
     var taggedItems by mutableStateOf(emptyList<SavableSearchable>())
+
+    /**
+     * Search in the item picker
+     */
+    var query by mutableStateOf("")
+
+    /**
+     * Keys of the items that were in the tag when the sheet opened: they stay on top of the
+     * picker, also after unchecking them, so items don't jump around while picking.
+     */
+    var initiallyTagged by mutableStateOf(emptySet<String>())
+
+    private var initialTagName: String? = null
+    private var initialIcon: CustomIcon? = null
+
+    /**
+     * Whether closing the sheet would lose something: only then it asks before closing.
+     */
+    val hasChanges: Boolean
+        get() = tagName != (initialTagName ?: "") ||
+                taggedItems.map { it.key }.toSet() != initiallyTagged ||
+                tagCustomIcon.value != initialIcon
     var taggableApps by mutableStateOf(emptyList<TaggableItem>())
     var taggableOther by mutableStateOf(emptyList<TaggableItem>())
 
@@ -55,14 +80,17 @@ class EditTagSheetVM : ViewModel(), KoinComponent {
     fun init(tag: String?, iconSize: Int) {
         loading = true
         this.oldTagName = tag
+        this.initialTagName = tag
         this.tagName = tag ?: ""
         this.page = if (tag == null) EditTagSheetPage.CreateTag else EditTagSheetPage.CustomizeTag
         this.wasOnLastPage = this.page == EditTagSheetPage.CustomizeTag
         this.taggedItems = emptyList()
+        this.query = ""
         viewModelScope.launch(Dispatchers.Default) {
             allTags = tagService.getAllTags().first().toSet()
             val items = if (tag != null) tagService.getTaggedItems(tag).first() else emptyList()
             tagCustomIcon.value = if (tag != null) iconService.getCustomIcon(Tag(tag)).first() else null
+            initialIcon = tagCustomIcon.value
             tagIcon = tagCustomIcon.map {
                 if (tag != null) iconService.resolveCustomIcon(Tag(tag), iconSize, it).first()
                 else null
@@ -70,7 +98,10 @@ class EditTagSheetVM : ViewModel(), KoinComponent {
 
             val apps = appRepository.findMany().first { it.isNotEmpty() }.sorted()
             taggedItems = items
+            initiallyTagged = items.map { it.key }.toSet()
+            // Stable sort: tagged apps first, both groups alphabetical
             taggableApps = apps.map { app -> TaggableItem(app, items.any { app.key == it.key }) }
+                .sortedByDescending { it.isTagged }
             taggableOther = items.mapNotNull { item ->
                 if (apps.any { item.key == it.key }) null
                 else TaggableItem(item, true)
@@ -104,6 +135,16 @@ class EditTagSheetVM : ViewModel(), KoinComponent {
             wasOnLastPage = true
         }
         oldTagName = tagName
+    }
+
+    fun matchesQuery(item: TaggableItem): Boolean {
+        if (query.isBlank()) return true
+        // Normalized like the app search: case and accents don't matter
+        val label = stringNormalizer.normalize(item.item.labelOverride ?: item.item.label)
+        return ResultScore.from(
+            stringNormalizer.normalize(query.trim()),
+            primaryFields = listOf(label),
+        ).score >= ResultScore.MatchThreshold
     }
 
     fun getIcon(item: SavableSearchable, size: Int): Flow<LauncherIcon?> {
