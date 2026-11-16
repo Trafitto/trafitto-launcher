@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trafitto Launcher</title>
-<meta name="description" content="Trafitto Launcher: fork personale e non ufficiale di Kvaesitso, modificato a mio gusto e per le mie necessità.">
+<meta name="description" content="Trafitto Launcher: il launcher per Android veloce, personalizzabile e leggero sulla batteria. Fork non ufficiale di Kvaesitso.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' rx='24' fill='%23F3F2EF'/%3E%3Cpath fill='%23E10600' d='M27.17,69.02 Q60.62,55.42 80.83,42.18 Q58.11,50.41 27.17,69.02 Z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,10 +72,10 @@
     letter-spacing: .01em;
     margin-top: .35rem;
   }
-  .motto { font-size: 1.375rem; font-weight: 500; margin: 2rem 0 .25rem; }
-  .fork { font-size: 1.125rem; margin: 0 0 1.5rem; color: var(--muted); }
+  .motto { font-size: 1.375rem; font-weight: 500; margin: 2rem 0 .5rem; }
+  .pitch { font-size: 1.25rem; max-width: 36rem; margin: 0 0 1.75rem; }
+  .fork { font-size: .9375rem; color: var(--muted); max-width: 38rem; margin: 1.75rem 0 0; }
   .fork a { color: var(--ink); font-weight: 650; }
-  .notice { margin: 0 0 2rem; max-width: 38rem; }
   .actions { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; }
   .btn {
     display: inline-block;
@@ -101,11 +101,10 @@
   }
   h3 { font-size: 1.125rem; font-weight: 700; margin: 2rem 0 .5rem; }
   .lead { color: var(--muted); margin: 0 0 1.5rem; }
-  ul, ol { margin: 0; padding: 0; }
+  ul { margin: 0; padding: 0; }
   li { list-style: none; padding: .9rem 0; border-top: 1px solid var(--rule); }
   li:last-child { border-bottom: 1px solid var(--rule); }
   li strong { font-weight: 700; }
-  .num { font-variant-numeric: tabular-nums; font-weight: 650; white-space: nowrap; }
 
   /* Screenshots from the emulator, in a phone bezel */
   .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 0 0 2.5rem; }
@@ -120,12 +119,14 @@
   .demo figure { margin: 0; }
   .shots figcaption, .demo figcaption { font-size: .9375rem; color: var(--muted); margin-top: .6rem; }
 
-  /* Customization: where each option lives in the settings */
-  .path { display: block; font-size: .9375rem; color: var(--muted); margin-top: .2rem; }
-  .off {
-    font-size: .8125rem; font-weight: 600; color: var(--muted); white-space: nowrap;
-    border: 1px solid var(--rule); border-radius: 999px; padding: .05rem .55rem; margin-left: .25rem;
-  }
+  /* Customization: one card per thing you can shape, options as chips, settings path at the bottom */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; }
+  .card { display: flex; flex-direction: column; padding: 1.25rem; border: 1px solid var(--rule); border-radius: 1rem; }
+  .card h3 { font-size: 1.25rem; font-weight: 800; font-stretch: 90%; margin: 0 0 .35rem; }
+  .card p { margin: 0 0 1rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 1rem; }
+  .chips li { border: 0; padding: .15rem .65rem; border-radius: 999px; background: var(--rule); font-size: .875rem; font-weight: 600; }
+  .where { margin-top: auto; font-size: .875rem; color: var(--muted); }
   .also { margin: 1.5rem 0 0; }
 
   /* Measurements */
@@ -140,17 +141,6 @@
   .stat span { display: block; font-weight: 700; margin-top: .6rem; }
   .stat p { margin: .2rem 0 0; color: var(--muted); font-size: .9375rem; }
   .method { color: var(--muted); font-size: .9375rem; margin: 1.5rem 0 0; }
-
-  ol { counter-reset: p; }
-  ol li { counter-increment: p; display: grid; grid-template-columns: 2rem 1fr; }
-  ol li::before { content: counter(p); color: var(--red); font-weight: 800; }
-
-  /* Roadmap status: hexagons like the one in the logo */
-  .state { display: inline-block; width: .7rem; height: .78rem; margin-right: .5rem; vertical-align: -.05em; clip-path: var(--hex); }
-  .wip { background: var(--red); }
-  .next { clip-path: none; background: var(--ink); -webkit-mask: var(--hex-line) center / contain no-repeat; mask: var(--hex-line) center / contain no-repeat; }
-  .no { background: var(--rule); }
-  .skip li { color: var(--muted); }
 
   footer {
     max-width: 46rem; margin: 0 auto; padding: 2rem 1.25rem 3rem;
@@ -186,24 +176,23 @@
     </div>
 
     <p class="motto">Veloce, utile e moderno. In poche parole, tuo.</p>
-    <p class="fork">Fork di: <a href="https://github.com/MM2-0/Kvaesitso">Kvaesitso</a> di MM2-0</p>
-
-    <p class="notice">
-      È una fork personale e non ufficiale: la modifico a mio gusto e per le mie necessità, un pezzo alla volta.
-      Non è affiliata al progetto originale né supportata da MM2-0. Tutto il merito del launcher va a lui e ai
-      contributori di Kvaesitso; per favore non segnalate a loro i problemi di questa fork.
-    </p>
+    <p class="pitch">Il launcher per Android che si usa con una mano sola: cerchi tutto dal basso, la settimana è a uno swipe, i widget all'altro. E la batteria quasi non se ne accorge.</p>
 
     <div class="actions">
-      <a class="btn" id="apk" href="https://github.com/Trafitto/trafitto-launcher/releases/latest">Scarica l'ultima versione</a>
+      <a class="btn apk" href="https://github.com/Trafitto/trafitto-launcher/releases/latest">Scarica l'ultima versione</a>
       <a href="https://github.com/Trafitto/trafitto-launcher">Codice su GitHub</a>
-      <a href="https://kvaesitso.mm20.de">Documentazione di Kvaesitso</a>
     </div>
+
+    <p class="fork">
+      Basato su <a href="https://github.com/MM2-0/Kvaesitso">Kvaesitso</a> di MM2-0. Trafitto Launcher è una fork personale e non ufficiale:
+      non è affiliata al progetto originale né supportata da MM2-0, a cui va tutto il merito della base.
+      Per favore non segnalate a loro i problemi di questa fork.
+    </p>
   </header>
 
   <section aria-labelledby="added">
-    <h2 id="added">Cosa cambia rispetto a Kvaesitso</h2>
-    <p class="lead">La stessa base, ripensata per come uso il telefono io.</p>
+    <h2 id="added">Tutto a portata di pollice</h2>
+    <p class="lead">La solida base di Kvaesitso, ripensata per l'uso di tutti i giorni.</p>
 
     <div class="demo">
       <figure>
@@ -211,23 +200,23 @@
         <figcaption>Registrato sull'emulatore</figcaption>
       </figure>
       <ul>
-        <li><strong>Ricerca a portata di pollice.</strong> La barra sta in basso e si apre con uno swipe verso l'alto.</li>
-        <li><strong>La tua settimana a uno swipe.</strong> Calendario a schermo intero, subito a destra della home.</li>
-        <li><strong>Widget dove servono.</strong> Pagine di widget con uno swipe a sinistra, quante ne vuoi.</li>
-        <li><strong>La home come la vuoi tu.</strong> Le app che usi davvero, solo l'orologio, oppure le lettere sul bordo per arrivare a ogni app con un dito.</li>
-        <li><strong>App divise per categoria.</strong> Comunicazione, Giochi, Strumenti… create da sole, anche per le app che installi dopo, e tutte modificabili.</li>
-        <li><strong>Leggero sulla batteria.</strong> Da ferma la home non disegna nulla, e senza rete non lavora in background.</li>
+        <li><strong>Cerca senza allungare il dito.</strong> La barra sta in basso: uno swipe verso l'alto e trovi app, contatti, file, calcoli e conversioni.</li>
+        <li><strong>La tua settimana, a uno swipe.</strong> Scorri a destra e hai il calendario a schermo intero, giorno per giorno.</li>
+        <li><strong>I widget quando li vuoi.</strong> Scorri a sinistra: tutte le pagine di widget che ti servono, senza riempire la home.</li>
+        <li><strong>Una home che non ti distrae.</strong> Solo le app che usi davvero, solo l'orologio, oppure le lettere sul bordo per aprire qualsiasi app con un dito.</li>
+        <li><strong>App in ordine, da sole.</strong> Comunicazione, Giochi, Strumenti: ogni app trova la sua categoria, anche quelle che installi domani.</li>
+        <li><strong>Risponde al tocco.</strong> Le icone reagiscono quando le premi e ogni app si apre dalla sua icona.</li>
       </ul>
     </div>
 
     <div class="shots">
       <figure>
         <img src="img/home.webp" width="540" height="1200" loading="lazy" alt="Home con orologio, tre app fissate (Chrome, Gmail, Foto) e la barra di ricerca in basso">
-        <figcaption>La home, con le app fissate</figcaption>
+        <figcaption>La home, pulita</figcaption>
       </figure>
       <figure>
         <img src="img/ricerca.webp" width="540" height="1200" loading="lazy" alt="Ricerca aperta: griglia delle app con la barra di ricerca subito sopra la tastiera">
-        <figcaption>La ricerca, con la barra sopra la tastiera</figcaption>
+        <figcaption>La ricerca, sopra la tastiera</figcaption>
       </figure>
       <figure>
         <img src="img/calendario.webp" width="540" height="1200" loading="lazy" alt="Calendario della settimana a schermo intero con gli eventi divisi per giorno">
@@ -238,120 +227,95 @@
         <figcaption>Swipe a sinistra: i widget</figcaption>
       </figure>
     </div>
-
   </section>
 
   <section aria-labelledby="custom">
-    <h2 id="custom">Personalizzazione</h2>
-    <p class="lead">Tutto quello che questa fork aggiunge si cambia dalle impostazioni. Ecco cosa e dove.</p>
+    <h2 id="custom">Fallo tuo</h2>
+    <p class="lead">Decidi tu cosa vedere e come. Bastano pochi tocchi nelle impostazioni.</p>
 
-    <h3>La home</h3>
-    <ul>
-      <li>
-        <strong>Cosa mostrare.</strong> Le app fissate (fino a 6), nessuna app, cioè solo l'orologio, oppure le lettere sul bordo: scorri il dito sulle lettere, vedi le app di quella lettera e tocchi quella che ti serve.
-        <span class="path">Impostazioni › Schermata home › App in home › Sulla home</span>
-      </li>
-      <li>
-        <strong>Le app fissate.</strong> Le aggiungi con “+ Aggiungi app” o tenendo premuta un'app in home. Scegli la posizione (in alto o in basso; a sinistra, al centro o a destra), se mostrare nomi e icone, dimensione del testo, grassetto, dimensione e forma delle icone, icone in bianco e nero, spaziatura.
-        <span class="path">Impostazioni › Schermata home › App in home</span>
-      </li>
-      <li>
-        <strong>Notifiche sotto le app.</strong><span class="off">spento di default</span> L'ultima notifica di ogni app, sotto il suo nome. Toccala per aprirla.
-        <span class="path">Impostazioni › Schermata home › App in home</span>
-      </li>
-      <li>
-        <strong>Scorri un'app per le scorciatoie.</strong><span class="off">spento di default</span> Uno swipe di lato su un'app in home apre scorciatoie e notifiche. Partendo da un'app, lo swipe laterale non apre più widget e calendario.
-        <span class="path">Impostazioni › Schermata home › App in home</span>
-      </li>
-    </ul>
+    <div class="cards">
+      <article class="card">
+        <h3>Scegli la tua home</h3>
+        <p>Le app preferite, solo l'orologio o le lettere sul bordo. Tre stili, cambi quando vuoi.</p>
+        <ul class="chips"><li>App fissate</li><li>Solo orologio</li><li>Lettere sul bordo</li></ul>
+        <span class="where">Schermata home › App in home</span>
+      </article>
+      <article class="card">
+        <h3>Le tue app, il tuo stile</h3>
+        <p>Fino a 6 app in home, in alto o in basso, a destra o a sinistra, con l'aspetto che preferisci.</p>
+        <ul class="chips"><li>Posizione</li><li>Nomi e icone</li><li>Dimensioni</li><li>Forma icone</li><li>Bianco e nero</li><li>Spaziatura</li></ul>
+        <span class="where">Schermata home › App in home</span>
+      </article>
+      <article class="card">
+        <h3>Una barra su misura</h3>
+        <p>Più alta, più stretta, più tonda, o trasparente come vetro sopra lo sfondo.</p>
+        <ul class="chips"><li>Altezza</li><li>Larghezza</li><li>Angoli</li><li>Effetto vetro</li></ul>
+        <span class="where">Schermata home › Barra di ricerca</span>
+      </article>
+      <article class="card">
+        <h3>Categorie a modo tuo</h3>
+        <p>Rinominale, spostaci le app che vuoi, creane di nuove. Tocca la matita sul titolo di una sezione.</p>
+        <ul class="chips"><li>Rinomina</li><li>Aggiungi e togli app</li><li>Nuova categoria</li></ul>
+        <span class="where">Nell'elenco delle app</span>
+      </article>
+      <article class="card">
+        <h3>Tutti i widget che vuoi</h3>
+        <p>Una pagina o dieci: aggiungi quelle che ti servono, sempre a uno swipe dalla home.</p>
+        <ul class="chips"><li>Pagine widget</li></ul>
+        <span class="where">Schermata home › Widget</span>
+      </article>
+      <article class="card">
+        <h3>Extra, se ti servono</h3>
+        <p>L'ultima notifica sotto ogni app e uno swipe sull'app per le sue scorciatoie. Spenti finché non li accendi tu.</p>
+        <ul class="chips"><li>Notifiche sotto le app</li><li>Swipe per le scorciatoie</li></ul>
+        <span class="where">Schermata home › App in home</span>
+      </article>
+    </div>
 
-    <h3>Ricerca e widget</h3>
-    <ul>
-      <li>
-        <strong>La barra di ricerca su misura.</strong> Altezza, larghezza, angoli più o meno arrotondati, effetto vetro con sfondo traslucido e bordo sottile.
-        <span class="path">Impostazioni › Schermata home › Barra di ricerca</span>
-      </li>
-      <li>
-        <strong>Le pagine dei widget.</strong> Quante pagine avere con lo swipe a sinistra.
-        <span class="path">Impostazioni › Schermata home › Widget › Pagine widget</span>
-      </li>
-    </ul>
-
-    <h3>L'elenco delle app</h3>
-    <ul>
-      <li>
-        <strong>Divise per categoria.</strong> Comunicazione, Foto e video, Musica e audio, Giochi, Notizie, Mappe, Produttività, Internet, Strumenti, create dal tipo di ogni app. Le app che installi dopo finiscono da sole nella loro categoria, se esiste ancora.
-        <span class="path">Impostazioni › Ricerca › App › Raggruppa per categoria</span>
-      </li>
-      <li>
-        <strong>Categorie tue.</strong> Tocca la matita sul titolo di una sezione per rinominarla, aggiungere o togliere app; con “+ Nuova categoria”, in fondo all'elenco, ne crei una da zero.
-        <span class="path">Nell'elenco delle app, aprendo la ricerca</span>
-      </li>
-    </ul>
-
-    <p class="also">E in più tutto quello che Kvaesitso permette già: colori e temi, pacchetti di icone, stili dell'orologio, gesti, sfondo scurito o sfocato. È tutto nella <a href="https://kvaesitso.mm20.de/docs/user-guide">guida di Kvaesitso</a>.</p>
+    <p class="also">E in più tutto quello che Kvaesitso sa già fare: temi e colori, pacchetti di icone, stili dell'orologio, gesti. Trovi tutto nella <a href="https://kvaesitso.mm20.de/docs/user-guide">guida di Kvaesitso</a>.</p>
   </section>
 
   <section aria-labelledby="misure">
-    <h2 id="misure">Misurato su un OnePlus Nord</h2>
-    <p class="lead">Un launcher resta acceso tutto il giorno, quindi deve costare poco. Ogni modifica la provo su un telefono del 2020, guardando CPU, fotogrammi e memoria.</p>
+    <h2 id="misure">Leggero, numeri alla mano</h2>
+    <p class="lead">Misurato su un OnePlus Nord, un telefono del 2020. Un launcher resta acceso tutto il giorno: per questo ogni dettaglio è pensato per consumare il meno possibile.</p>
 
     <div class="stats">
       <div class="stat">
         <b>0<small>fps</small></b>
-        <span>Home ferma</span>
-        <p>Se non la tocchi non disegna nulla. L'orologio si aggiorna una volta al minuto, a meno che tu non voglia i secondi.</p>
+        <span>Home ferma, zero sprechi</span>
+        <p>Quando non la tocchi non disegna niente. L'orologio si aggiorna una volta al minuto, i secondi solo se li vuoi.</p>
       </div>
       <div class="stat">
         <b>1–5<small>ms/s</small></b>
-        <span>CPU a riposo, anche in carica</span>
-        <p>Meno dello 0,5% di un core. Niente animazione di ricarica: col cavo attaccato non cambia nulla.</p>
+        <span>A riposo, anche in carica</span>
+        <p>Meno dello 0,5% di un core. Nessuna animazione che gira mentre il telefono è attaccato al cavo.</p>
       </div>
       <div class="stat">
         <b>~1<small>ms/s</small></b>
         <span>In background</span>
-        <p>Meteo e cambi valuta si aggiornano solo con la rete, i cambi una volta al giorno.</p>
+        <p>Meteo e cambi valuta si aggiornano solo quando c'è rete, i cambi una volta al giorno. Niente risvegli inutili.</p>
       </div>
       <div class="stat">
         <b>~140<small>MB</small></b>
-        <span>Memoria</span>
-        <p>Tutti i processi del launcher insieme.</p>
+        <span>Di memoria</span>
+        <p>Tutto il launcher, ricerca compresa.</p>
       </div>
     </div>
 
     <ul>
-      <li><strong>La ricerca è la parte più pesante.</strong> Circa <span class="num">160 ms/s</span> di CPU mentre la apri, la scorri e la chiudi, per le schede traslucide sopra lo sfondo disegnate a 90 Hz. È la prossima da alleggerire. Mentre si apre la tastiera si muove solo la barra, non tutto lo schermo.</li>
-      <li><strong>Le novità che costano qualcosa sono spente di default.</strong> Quelle che cambiano un gesto o aggiungono lavoro le accendi solo se ti servono.</li>
+      <li><strong>Paghi solo quello che usi.</strong> Le funzioni extra restano spente finché non le accendi tu.</li>
     </ul>
 
-    <p class="method">Come ho misurato: OnePlus Nord con Android 12, CPU di tutti i processi del launcher e fotogrammi disegnati, 60 secondi per ogni situazione. 1 ms di CPU al secondo è lo 0,1% di un core.</p>
+    <p class="method">Come è stato misurato: OnePlus Nord con Android 12, CPU di tutti i processi del launcher e fotogrammi disegnati, 60 secondi per ogni situazione. 1 ms di CPU al secondo è lo 0,1% di un core.</p>
   </section>
 
-  <section aria-labelledby="roadmap">
-    <h2 id="roadmap">Roadmap</h2>
-    <p class="lead">Più o meno quello su cui sto lavorando. Cambia spesso.</p>
-
-    <h3><span class="state wip" aria-hidden="true"></span>In lavorazione</h3>
-    <ul>
-      <li><strong>Collegamenti dei siti in home.</strong> Le pagine aggiunte dal browser con “Aggiungi a schermata Home” compaiono tra le app fissate.</li>
-      <li><strong>Categorie, ovunque.</strong> Lo stesso nome anche nella scheda per modificarle, che oggi dice ancora “tag”.</li>
-    </ul>
-
-    <h3><span class="state next" aria-hidden="true"></span>Prossimamente, in ordine di priorità</h3>
-    <ol>
-      <li><span><strong>Ricerca più leggera.</strong> Meno lavoro per aprirla e chiuderla.</span></li>
-      <li><span><strong>Risparmio a 60 Hz, se lo vuoi.</strong> Un'opzione per disegnare meno fotogrammi quando la batteria conta più della fluidità.</span></li>
-      <li><span><strong>Risultati di ricerca animati.</strong> Ogni icona si sposta al suo posto quando la lista cambia, invece di ridisegnarsi da capo.</span></li>
-      <li><span><strong>Avvio ancora più veloce.</strong> Un Baseline Profile dedicato a questo launcher.</span></li>
-    </ol>
-
-    <h3><span class="state no" aria-hidden="true"></span>Non in programma</h3>
-    <ul class="skip">
-      <li>Funzioni di intelligenza artificiale.</li>
-      <li>Vibrazione a ogni tocco.</li>
-      <li>Icone che si animano mentre scrivi: fotogrammi in più a ogni tasto, per poco.</li>
-      <li>Icona che si trasforma nella finestra dell'app: senza root non si può fare.</li>
-    </ul>
+  <section aria-labelledby="prova">
+    <h2 id="prova">Provalo sul tuo telefono</h2>
+    <p class="lead">Gratuito e open source, per Android 8 o successivo. Si installa accanto al launcher che hai già: se non ti convince, torni indietro in un attimo.</p>
+    <div class="actions">
+      <a class="btn apk" href="https://github.com/Trafitto/trafitto-launcher/releases/latest">Scarica l'ultima versione</a>
+      <a href="https://github.com/Trafitto/trafitto-launcher">Codice su GitHub</a>
+    </div>
   </section>
 </main>
 
@@ -365,15 +329,16 @@
     const v = document.querySelector('.demo video');
     v.removeAttribute('autoplay'); v.pause(); v.controls = true;
   }
-  // Point the button straight at the newest .apk; without JS or API it stays on the release page
+  // Point the buttons straight at the newest .apk; without JS or API they stay on the release page
   fetch('https://api.github.com/repos/Trafitto/trafitto-launcher/releases/latest')
     .then(r => r.json())
     .then(r => {
       const apk = r.assets.find(a => a.name.endsWith('.apk'));
       if (!apk) return;
-      const btn = document.getElementById('apk');
-      btn.href = apk.browser_download_url;
-      btn.textContent = 'Scarica l\'APK ' + r.tag_name;
+      for (const btn of document.querySelectorAll('.apk')) {
+        btn.href = apk.browser_download_url;
+        btn.textContent = 'Scarica l\'APK ' + r.tag_name;
+      }
     })
     .catch(() => {});
 </script>
