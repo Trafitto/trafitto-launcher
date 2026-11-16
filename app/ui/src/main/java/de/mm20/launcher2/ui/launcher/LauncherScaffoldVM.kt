@@ -44,6 +44,9 @@ class LauncherScaffoldVM : ViewModel(), KoinComponent {
     val navBarColor = uiSettings.navigationBarColor
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
+    val refreshRate = uiSettings.refreshRate
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
+
     val hideNavBar = uiSettings.hideNavigationBar
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     val hideStatusBar = uiSettings.hideStatusBar

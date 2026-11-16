@@ -1002,4 +1002,16 @@
     <string name="home_apps_mode_letters">Lettere sul bordo</string>
     <string name="home_apps_swipe_shortcuts">Scorri un\'app per le scorciatoie</string>
     <string name="home_apps_swipe_shortcuts_summary">Scorri un\'app di lato per vederne scorciatoie e notifiche. Partendo da un\'app, lo scorrimento laterale non apre più widget e calendario</string>
+    <string name="preference_screen_battery">Batteria e prestazioni</string>
+    <string name="preference_screen_battery_summary">Frequenza dello schermo, sfondi opachi</string>
+    <string name="preference_refresh_rate_category">Frequenza dello schermo</string>
+    <string name="preference_refresh_rate_impact">Durante animazioni e scorrimenti il launcher disegna un fotogramma a ogni aggiornamento dello schermo: a 90 Hz sono il 50% in più rispetto a 60 Hz, a 120 Hz il doppio. Più fotogrammi vogliono dire più lavoro per processore e GPU, quindi più consumo; a launcher fermo non cambia nulla. Vale solo mentre il launcher è aperto, le altre app restano alla frequenza di sistema</string>
+    <string name="preference_refresh_rate">Frequenza nel launcher</string>
+    <string name="preference_refresh_rate_system">Come il sistema</string>
+    <string name="preference_refresh_rate_lowest">%1$d Hz · meno fotogrammi, consumo minimo</string>
+    <string name="preference_refresh_rate_more_frames">%1$d Hz · +%2$d%% fotogrammi durante le animazioni</string>
+    <string name="preference_category_graphics">Grafica</string>
+    <string name="preference_opaque_surfaces">Sfondi opachi</string>
+    <string name="preference_opaque_surfaces_summary">Schede e sfondi senza trasparenza: la GPU non deve fonderli con lo sfondo a ogni fotogramma. Sulla home lo sfondo resta visibile</string>
+    <string name="preference_refresh_rate_impact_title">Più hertz, più fotogrammi</string>
 </resources>

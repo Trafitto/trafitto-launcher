@@ -22,6 +22,10 @@ data class LauncherSettingsData internal constructor(
     val uiTransparenciesId: UUID = UUID(0L, 0L),
     @Serializable(with = UUIDSerializer::class)
     val uiTypographyId: UUID = UUID(0L, 0L),
+    /** Trafitto: refresh rate asked while the launcher is shown, 0 for the system's */
+    val uiRefreshRate: Int = 0,
+    /** Trafitto: no transparency on backgrounds and cards, less blending per frame */
+    val uiOpaqueSurfaces: Boolean = false,
 
     val uiCompatModeColors: Boolean = false,
     @Deprecated("No longer in use, only used for migration")

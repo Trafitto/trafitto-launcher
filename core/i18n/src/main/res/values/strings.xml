@@ -1179,4 +1179,16 @@
     <string name="home_apps_mode_letters">Letters on the edge</string>
     <string name="home_apps_swipe_shortcuts">Swipe an app for its shortcuts</string>
     <string name="home_apps_swipe_shortcuts_summary">Swipe an app sideways to see its shortcuts and notifications. Starting on an app, a side swipe no longer opens widgets or calendar</string>
+    <string name="preference_screen_battery">Battery and performance</string>
+    <string name="preference_screen_battery_summary">Screen refresh rate, opaque backgrounds</string>
+    <string name="preference_refresh_rate_category">Refresh rate</string>
+    <string name="preference_refresh_rate_impact">During animations and scrolling the launcher draws one frame per screen refresh: at 90 Hz that is 50% more than at 60 Hz, at 120 Hz twice as many. More frames mean more work for processor and GPU, so more battery; at rest nothing changes. It only applies while the launcher is open, the other apps keep the system rate</string>
+    <string name="preference_refresh_rate">Refresh rate in the launcher</string>
+    <string name="preference_refresh_rate_system">Same as the system</string>
+    <string name="preference_refresh_rate_lowest">%1$d Hz · fewest frames, lowest consumption</string>
+    <string name="preference_refresh_rate_more_frames">%1$d Hz · +%2$d%% frames during animations</string>
+    <string name="preference_category_graphics">Graphics</string>
+    <string name="preference_opaque_surfaces">Opaque backgrounds</string>
+    <string name="preference_opaque_surfaces_summary">Cards and backgrounds without transparency: the GPU doesn\'t blend them with the wallpaper on every frame. The wallpaper stays visible on the home screen</string>
+    <string name="preference_refresh_rate_impact_title">More hertz, more frames</string>
 </resources>

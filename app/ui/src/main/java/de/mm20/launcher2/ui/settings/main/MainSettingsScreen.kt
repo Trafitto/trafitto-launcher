@@ -11,6 +11,7 @@ import de.mm20.launcher2.ui.locals.LocalBackStack
 import de.mm20.launcher2.ui.settings.about.AboutSettingsRoute
 import de.mm20.launcher2.ui.settings.appearance.AppearanceSettingsRoute
 import de.mm20.launcher2.ui.settings.backup.BackupSettingsRoute
+import de.mm20.launcher2.ui.settings.battery.BatterySettingsRoute
 import de.mm20.launcher2.ui.settings.debug.DebugSettingsRoute
 import de.mm20.launcher2.ui.settings.gestures.GesturesSettingsRoute
 import de.mm20.launcher2.ui.settings.homescreen.HomescreenSettingsRoute
@@ -30,6 +31,18 @@ fun MainSettingsScreen() {
     PreferenceScreen(
         title = stringResource(R.string.settings),
     ) {
+        item {
+            PreferenceCategory {
+                Preference(
+                    icon = R.drawable.battery_3_bar_24px,
+                    title = stringResource(R.string.preference_screen_battery),
+                    summary = stringResource(R.string.preference_screen_battery_summary),
+                    onClick = {
+                        backStack.add(BatterySettingsRoute)
+                    }
+                )
+            }
+        }
         item {
             PreferenceCategory {
                 Preference(

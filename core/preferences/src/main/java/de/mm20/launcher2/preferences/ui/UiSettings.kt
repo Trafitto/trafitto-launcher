@@ -331,6 +331,24 @@ class UiSettings internal constructor(
             it.uiTransparenciesId
         }.distinctUntilChanged()
 
+    val refreshRate
+        get() = launcherDataStore.data.map { it.uiRefreshRate }.distinctUntilChanged()
+
+    fun setRefreshRate(refreshRate: Int) {
+        launcherDataStore.update {
+            it.copy(uiRefreshRate = refreshRate)
+        }
+    }
+
+    val opaqueSurfaces
+        get() = launcherDataStore.data.map { it.uiOpaqueSurfaces }.distinctUntilChanged()
+
+    fun setOpaqueSurfaces(opaqueSurfaces: Boolean) {
+        launcherDataStore.update {
+            it.copy(uiOpaqueSurfaces = opaqueSurfaces)
+        }
+    }
+
     fun setTransparenciesId(transparenciesId: UUID) {
         launcherDataStore.update {
             it.copy(uiTransparenciesId = transparenciesId)
