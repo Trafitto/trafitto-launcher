@@ -9,7 +9,6 @@ import de.mm20.launcher2.ui.component.preferences.PreferenceCategory
 import de.mm20.launcher2.ui.component.preferences.PreferenceScreen
 import de.mm20.launcher2.ui.locals.LocalBackStack
 import de.mm20.launcher2.ui.settings.about.AboutSettingsRoute
-import de.mm20.launcher2.ui.settings.appearance.AppearanceSettingsRoute
 import de.mm20.launcher2.ui.settings.backup.BackupSettingsRoute
 import de.mm20.launcher2.ui.settings.battery.BatterySettingsRoute
 import de.mm20.launcher2.ui.settings.debug.DebugSettingsRoute
@@ -38,7 +37,7 @@ fun MainSettingsScreen() {
                     title = stringResource(id = R.string.preference_screen_appearance),
                     summary = stringResource(id = R.string.preference_screen_appearance_summary),
                     onClick = {
-                        backStack.add(AppearanceSettingsRoute)
+                        backStack.add(IconsSettingsRoute)
                     }
                 )
                 Preference(
@@ -47,14 +46,6 @@ fun MainSettingsScreen() {
                     summary = stringResource(id = R.string.preference_screen_homescreen_summary),
                     onClick = {
                         backStack.add(HomescreenSettingsRoute)
-                    }
-                )
-                Preference(
-                    icon = R.drawable.apps_24px,
-                    title = stringResource(id = R.string.preference_screen_icons),
-                    summary = stringResource(id = R.string.preference_screen_icons_summary),
-                    onClick = {
-                        backStack.add(IconsSettingsRoute)
                     }
                 )
                 Preference(

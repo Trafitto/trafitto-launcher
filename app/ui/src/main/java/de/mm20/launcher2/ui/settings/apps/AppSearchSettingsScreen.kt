@@ -66,8 +66,8 @@ fun AppSearchSettingsScreen() {
                 // The grid and list look is set in one place, shared with the rest of the search
                 Preference(
                     icon = R.drawable.apps_24px,
-                    title = stringResource(R.string.preference_screen_icons),
-                    summary = stringResource(R.string.preference_screen_icons_summary),
+                    title = stringResource(R.string.preference_screen_appearance),
+                    summary = stringResource(R.string.preference_grid_link_summary),
                     onClick = { backStack.add(IconsSettingsRoute) },
                 )
             }
