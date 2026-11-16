@@ -175,13 +175,6 @@ class HomescreenSettingsScreenVM(
         uiSettings.setWidgetEditButton(editButton)
     }
 
-    val chargingAnimation = uiSettings.chargingAnimation
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
-
-    fun setChargingAnimation(chargingAnimation: Boolean) {
-        uiSettings.setChargingAnimation(chargingAnimation)
-    }
-
     val widgetsOnHomeScreen = uiSettings.homeScreenWidgets
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 

@@ -22,11 +22,14 @@
 - **Home:** up to 6 pinned apps with name and icon, with their own look settings
 - **Search bar:** at the bottom, opened by swiping up, rounded and resizable
 - **Smoother:** keyboard opens after the search page slides in, fewer recompositions during
-  transitions, lighter charging animation (small layer, ~30 fps, paused during transitions)
+  transitions
 - **Snappier:** icons shrink a little when pressed and fade in when loaded, apps launched with enter
   from search open from their icon, smaller and faster release build (R8 optimization on)
 - **Apps by category:** the app list is split in sections (Communication, Games, Tools…), created
   once from the type of each app; they are ordinary tags, tap a section title to edit it
+- **Lighter on battery:** no charging animation, the clock updates once a minute (unless it shows
+  seconds), no full screen offscreen layers while the keyboard animates, exchange rates updated
+  once a day and background updates only with network
 
 Licensed under the GPL-3.0, like the original. Everything below is the original Kvaesitso readme.
 

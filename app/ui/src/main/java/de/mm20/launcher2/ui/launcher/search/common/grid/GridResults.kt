@@ -24,6 +24,8 @@ fun <T : SavableSearchable> LazyListScope.GridResults(
     after: @Composable (() -> Unit)? = null,
     columns: Int,
     reverse: Boolean = false,
+    // Rows with the same content type are reused while scrolling, also across sections
+    contentType: Any = key,
 ) {
     if (before != null) {
         item(
@@ -59,7 +61,7 @@ fun <T : SavableSearchable> LazyListScope.GridResults(
         key = {
             "$key-$it"
         },
-        contentType = { key }
+        contentType = { contentType }
     ) {
 
         val isFirst = it == 0 && before == null

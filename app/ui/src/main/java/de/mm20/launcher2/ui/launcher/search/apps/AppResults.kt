@@ -284,6 +284,7 @@ private fun LazyListScope.AppSection(
                 )
             },
             reverse = reverse,
+            contentType = "apps",
         )
     } else {
         GridResults(
@@ -300,6 +301,7 @@ private fun LazyListScope.AppSection(
             },
             reverse = reverse,
             columns = columns,
+            contentType = "apps",
         )
     }
 }
