@@ -72,6 +72,13 @@ class LauncherBottomSheetManager(registryOwner: SavedStateRegistryOwner) :
         editTagSheetShown.value = tagName
     }
 
+    /**
+     * Opens the tag sheet to create a new tag (an empty name: tag names can't be empty)
+     */
+    fun showCreateTagSheet() {
+        editTagSheetShown.value = ""
+    }
+
     fun dismissEditTagSheet() {
         editTagSheetShown.value = null
     }

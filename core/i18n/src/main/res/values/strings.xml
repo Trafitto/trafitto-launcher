@@ -1170,4 +1170,5 @@
     <string name="app_category_productivity">Productivity</string>
     <string name="app_category_internet">Internet</string>
     <string name="app_category_tools">Tools</string>
+    <string name="apps_new_tag">New category</string>
 </resources>

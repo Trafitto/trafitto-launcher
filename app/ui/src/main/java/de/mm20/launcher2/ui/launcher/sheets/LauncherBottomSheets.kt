@@ -13,7 +13,7 @@ fun LauncherBottomSheets() {
         onDismiss = { bottomSheetManager.dismissEditFavoritesSheet() })
     EditTagSheet(
         expanded = bottomSheetManager.editTagSheetShown.value != null,
-        tag = bottomSheetManager.editTagSheetShown.value,
+        tag = bottomSheetManager.editTagSheetShown.value?.takeIf { it.isNotEmpty() },
         onDismiss = { bottomSheetManager.dismissEditTagSheet() }
     )
     FailedGestureSheet(
