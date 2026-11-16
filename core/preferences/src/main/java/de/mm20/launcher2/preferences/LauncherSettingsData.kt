@@ -382,6 +382,8 @@ data class HomeAppsSettings(
     val iconShape: IconShape? = null,
     val monochromeIcons: Boolean = false,
     val spacing: Int = 16,
+    /** The latest notification of each app, on a line under its name (opt-in) */
+    val showNotifications: Boolean = false,
 )
 
 @Serializable

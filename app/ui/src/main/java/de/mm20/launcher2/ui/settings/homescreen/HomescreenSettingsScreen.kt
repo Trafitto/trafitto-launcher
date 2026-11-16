@@ -245,6 +245,12 @@ fun HomescreenSettingsScreen() {
                     max = 48,
                     onValueChanged = { v -> viewModel.updateHomeApps { it.copy(spacing = v) } },
                 )
+                SwitchPreference(
+                    title = stringResource(R.string.home_apps_notifications),
+                    summary = stringResource(R.string.home_apps_notifications_summary),
+                    value = homeApps.showNotifications,
+                    onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showNotifications = v) } },
+                )
             }
         }
         item {
