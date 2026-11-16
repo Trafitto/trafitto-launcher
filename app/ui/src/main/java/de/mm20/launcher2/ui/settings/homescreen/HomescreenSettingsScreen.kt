@@ -270,6 +270,12 @@ fun HomescreenSettingsScreen() {
                             value = homeApps.showNotifications,
                             onValueChanged = { v -> viewModel.updateHomeApps { it.copy(showNotifications = v) } },
                         )
+                        SwitchPreference(
+                            title = stringResource(R.string.home_apps_swipe_shortcuts),
+                            summary = stringResource(R.string.home_apps_swipe_shortcuts_summary),
+                            value = homeApps.swipeForShortcuts,
+                            onValueChanged = { v -> viewModel.updateHomeApps { it.copy(swipeForShortcuts = v) } },
+                        )
                     }
                 }
             }

@@ -387,6 +387,8 @@ data class HomeAppsSettings(
     val spacing: Int = 16,
     /** The latest notification of each app, on a line under its name (opt-in) */
     val showNotifications: Boolean = false,
+    /** A side swipe on an app opens its shortcuts (opt-in: it takes the swipe from the home) */
+    val swipeForShortcuts: Boolean = false,
 )
 
 @Serializable

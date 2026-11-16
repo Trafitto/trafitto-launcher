@@ -1000,4 +1000,6 @@
     <string name="home_apps_mode_pinned">App fissate</string>
     <string name="home_apps_mode_none">Nessuna app</string>
     <string name="home_apps_mode_letters">Lettere sul bordo</string>
+    <string name="home_apps_swipe_shortcuts">Scorri un\'app per le scorciatoie</string>
+    <string name="home_apps_swipe_shortcuts_summary">Scorri un\'app di lato per vederne scorciatoie e notifiche. Partendo da un\'app, lo scorrimento laterale non apre più widget e calendario</string>
 </resources>
