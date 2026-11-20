@@ -80,9 +80,12 @@ class SearchableItemVM : ListItemViewModel(), KoinComponent {
         searchable.value?.let { favoritesService.unpinItem(it) }
     }
 
+    // Only while the item is on screen: up to 500 of these view models are kept around, and
+    // with Lazily each of them recomputed its badge on the main thread for every notification,
+    // even with the launcher hidden or the screen off. The last badge stays as the initial value
     val badge = searchable.flatMapLatest {
         if (it == null) emptyFlow() else badgeService.getBadge(it)
-    }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val icon = searchable.combine(iconSize) { sh, sz -> sh to sz }.flatMapLatest { (s, size) ->
         if (s == null || size == 0) emptyFlow() else iconService.getIcon(s, size)

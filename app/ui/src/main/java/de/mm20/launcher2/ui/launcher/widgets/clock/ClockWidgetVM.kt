@@ -41,7 +41,9 @@ class ClockWidgetVM : ViewModel(), KoinComponent {
         providers += BatteryPartProvider(parts.battery)
         if (parts.alarm) providers += AlarmPartProvider()
         providers
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+        // Eagerly: with WhileSubscribed every return to home rebuilt all parts, and the new
+        // instances recomposed the clock in the first frames on screen
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun getActivePart(context: Context): Flow<PartProvider?> = channelFlow {
         partProviders.collectLatest { providers ->
