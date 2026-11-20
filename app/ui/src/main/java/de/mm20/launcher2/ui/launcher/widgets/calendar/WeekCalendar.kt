@@ -49,6 +49,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import de.mm20.launcher2.calendar.CalendarRepository
 import de.mm20.launcher2.ktx.tryStartActivity
 import de.mm20.launcher2.permissions.PermissionGroup
@@ -78,10 +81,17 @@ private const val DayCount = WeekPages * 7
 // Events are loaded for a window of weeks around the visible one, moved in steps of 4 weeks
 private const val LoadStepWeeks = 4
 
+// The page leaves the composition when closed: the events of the last windows seen are kept here,
+// so they show at once when it opens again, and the fresh query only changes what has changed.
+// ponytail: process wide, last 6 windows, main thread only
+private val eventCache = object : LinkedHashMap<LocalDate, List<CalendarEvent>>(8, 0.75f, true) {
+    override fun removeEldestEntry(eldest: MutableMap.MutableEntry<LocalDate, List<CalendarEvent>>?) = size > 6
+}
+
 /**
  * Full screen agenda: opens on today, scroll down for the next days and weeks, up for the past
  * ones. The week strip on top follows the list; swiping it jumps to another week.
- * @param active true while the page is shown; going active jumps back to today and reloads events.
+ * @param active true while the page is shown; going active jumps back to today.
  */
 @Composable
 fun WeekCalendar(active: Boolean, modifier: Modifier = Modifier) {
@@ -123,13 +133,22 @@ fun WeekCalendar(active: Boolean, modifier: Modifier = Modifier) {
 
     val hasPermission by remember { permissionsManager.hasPermission(PermissionGroup.Calendar) }
         .collectAsState(null)
-    val loadFrom = visibleWeek / LoadStepWeeks * LoadStepWeeks - LoadStepWeeks
-    // produceState keeps the old events while the next window loads: no blank days while scrolling
-    val events by produceState(emptyList<CalendarEvent>(), loadFrom, active) {
-        repository.findMany(
-            from = dayAt(loadFrom * 7).atStartOfDay(zone).toInstant().toEpochMilli(),
-            to = dayAt((loadFrom + 3 * LoadStepWeeks) * 7).atStartOfDay(zone).toInstant().toEpochMilli(),
-        ).collect { value = it }
+    val windowStart = dayAt((visibleWeek / LoadStepWeeks * LoadStepWeeks - LoadStepWeeks) * 7)
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    // produceState keeps the old events while the next window loads: no blank days while scrolling.
+    // Queried again on every return to the launcher (an event added with + shows up); an equal
+    // list doesn't recompose anything
+    val events by produceState(eventCache[windowStart] ?: emptyList(), windowStart) {
+        eventCache[windowStart]?.let { value = it }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            repository.findMany(
+                from = windowStart.atStartOfDay(zone).toInstant().toEpochMilli(),
+                to = windowStart.plusWeeks(3L * LoadStepWeeks).atStartOfDay(zone).toInstant().toEpochMilli(),
+            ).collect {
+                value = it
+                eventCache[windowStart] = it
+            }
+        }
     }
     val eventsByDay = remember(events) { groupByDay(events, zone) }
 
