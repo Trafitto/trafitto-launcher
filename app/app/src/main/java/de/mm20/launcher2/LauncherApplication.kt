@@ -4,6 +4,7 @@ import android.app.Application
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.decode.SvgDecoder
+import coil.memory.MemoryCache
 import de.mm20.launcher2.accounts.accountsModule
 import de.mm20.launcher2.applications.applicationsModule
 import de.mm20.launcher2.appshortcuts.appShortcutsModule
@@ -112,6 +113,10 @@ class LauncherApplication : Application(), CoroutineScope, ImageLoaderFactory {
             }
             .crossfade(true)
             .crossfade(200)
+            // Coil's default keeps up to 20% of the heap class (~77 MB here) of decoded images
+            // around forever in a launcher process that never dies: 5% is plenty for contact
+            // photos, album art and search images
+            .memoryCache { MemoryCache.Builder(applicationContext).maxSizePercent(0.05).build() }
             .build()
     }
 }
