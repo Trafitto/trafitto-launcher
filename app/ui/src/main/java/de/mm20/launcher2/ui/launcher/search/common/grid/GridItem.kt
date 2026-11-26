@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -136,7 +137,10 @@ fun GridItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        val badge by viewModel.badge.collectAsStateWithLifecycle()
+        // Not lifecycle aware on purpose: the search page stays composed out of the viewport, and
+        // restarting the badge of every item on each return to home (after 5 s away) stormed
+        // the dispatcher threads in the first frames. Compose doesn't recompose while stopped
+        val badge by viewModel.badge.collectAsState()
         val icon by viewModel.icon.collectAsStateWithLifecycle()
 
 

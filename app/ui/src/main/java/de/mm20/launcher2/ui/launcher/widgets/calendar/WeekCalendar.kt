@@ -81,8 +81,8 @@ private const val DayCount = WeekPages * 7
 // Events are loaded for a window of weeks around the visible one, moved in steps of 4 weeks
 private const val LoadStepWeeks = 4
 
-// The page leaves the composition when closed: the events of the last windows seen are kept here,
-// so they show at once when it opens again, and the fresh query only changes what has changed.
+// The events of the last windows seen: they show at once when the page is composed again, and the
+// fresh query only changes what has changed.
 // ponytail: process wide, last 6 windows, main thread only
 private val eventCache = object : LinkedHashMap<LocalDate, List<CalendarEvent>>(8, 0.75f, true) {
     override fun removeEldestEntry(eldest: MutableMap.MutableEntry<LocalDate, List<CalendarEvent>>?) = size > 6
@@ -136,10 +136,12 @@ fun WeekCalendar(active: Boolean, modifier: Modifier = Modifier) {
     val windowStart = dayAt((visibleWeek / LoadStepWeeks * LoadStepWeeks - LoadStepWeeks) * 7)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     // produceState keeps the old events while the next window loads: no blank days while scrolling.
-    // Queried again on every return to the launcher (an event added with + shows up); an equal
-    // list doesn't recompose anything
-    val events by produceState(eventCache[windowStart] ?: emptyList(), windowStart) {
+    // Only while the page is open: it stays composed out of the viewport, and a query on every
+    // return to home cost ~200 calls to the calendar provider. Queried again when the launcher
+    // comes back with the page open (an event added with + shows up); an equal list changes nothing
+    val events by produceState(eventCache[windowStart] ?: emptyList(), windowStart, active) {
         eventCache[windowStart]?.let { value = it }
+        if (!active) return@produceState
         lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             repository.findMany(
                 from = windowStart.atStartOfDay(zone).toInstant().toEpochMilli(),
