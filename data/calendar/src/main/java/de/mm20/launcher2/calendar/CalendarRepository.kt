@@ -20,12 +20,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.combineTransform
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlin.time.Duration.Companion.days
@@ -112,17 +114,21 @@ internal class CalendarRepositoryImpl(
                 )
             }
 
-            emitAll(
-                queryCalendarEvents(
-                    query = null,
-                    intervalStart = from,
-                    intervalEnd = to,
-                    excludeAllDayEvents = excludeAllDayEvents,
-                    excludeCalendars = excludeCalendars,
-                    providers = providers,
-                    allowNetwork = false,
-                ).debounce(500)
-            )
+            // All providers at once, then one list. The progressive results started with an empty
+            // list that the 500 ms debounce let through whenever the providers took longer: the
+            // calendar blanked for half a second on every refresh, and the debounce delayed the rest
+            emit(coroutineScope {
+                providers.map { provider ->
+                    async {
+                        provider.search(
+                            from = from,
+                            to = to,
+                            excludedCalendars = excludeCalendars.idsFor(provider),
+                            excludeAllDayEvents = excludeAllDayEvents,
+                        )
+                    }
+                }.awaitAll().flatten().toPersistentList()
+            })
         }
     }
 
@@ -144,12 +150,7 @@ internal class CalendarRepositoryImpl(
                         query,
                         from = intervalStart,
                         to = intervalEnd,
-                        excludedCalendars = excludeCalendars.mapNotNull {
-                            // Plugin calendar IDs may contain ':' themselves, only split once
-                            val (namespace, id) = it.split(":", limit = 2)
-                                .takeIf { it.size == 2 } ?: return@mapNotNull null
-                            if (namespace == provider.namespace) id else null
-                        },
+                        excludedCalendars = excludeCalendars.idsFor(provider),
                         excludeAllDayEvents = excludeAllDayEvents,
                         allowNetwork = allowNetwork,
                     )
@@ -160,6 +161,16 @@ internal class CalendarRepositoryImpl(
             }
             emitAll(result)
         }
+    }
+
+    /**
+     * The ids of the excluded calendars ("namespace:id") that belong to this provider.
+     */
+    private fun List<String>.idsFor(provider: CalendarProvider): List<String> = mapNotNull {
+        // Plugin calendar IDs may contain ':' themselves, only split once
+        val (namespace, id) = it.split(":", limit = 2)
+            .takeIf { it.size == 2 } ?: return@mapNotNull null
+        if (namespace == provider.namespace) id else null
     }
 
     override fun getCalendars(providerId: String?): Flow<List<CalendarList>> {
